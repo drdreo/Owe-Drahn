@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import socketIOClient from "socket.io-client";
 import "./Game.css";
 
+
 class Dice extends React.Component {
     render() {
         return (
@@ -16,6 +17,9 @@ class Dice extends React.Component {
 class Game extends Component {
     constructor() {
         super();
+
+        this.diceRef = React.createRef();
+
         this.state = {
             rolledDice: undefined,
             socket: socketIOClient("http://127.0.0.1:4000")
@@ -26,7 +30,8 @@ class Game extends Component {
             if (response.error) {
                 console.error(response.error);
             } else {
-                this.setState({ rolledDice: response.data })
+                this.setState({ rolledDice: response.data });
+                this.animateDice(response.data);
             }
         });
     }
@@ -44,9 +49,7 @@ class Game extends Component {
             <div style={{ textAlign: "center" }}>
                 <h5>Game</h5>
                 <button onClick={() => this.rollDice()}>Roll</button>
-                {rolledDice &&
-                    <Dice value={rolledDice} />
-                }
+                <div ref={this.diceRef}></div>
             </div >
         );
     }
@@ -57,6 +60,17 @@ class Game extends Component {
 
     rollDice() {
         this.state.socket.emit("rollDice");
+    }
+
+    animateDice(value) {
+        window.rollADie({
+            element: this.diceRef.current,
+            numberOfDice: 1,
+            callback: () => {
+                console.log("Dice was animated");
+            },
+            values: [value]
+        });
     }
 }
 

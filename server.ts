@@ -22,7 +22,10 @@ io.on('connection', socket => {
     socket.on("handshake", (room) => {
         socket.join(room);
 
-        gameManager.createGame(room);
+        if (!gameManager.hasGame(room)) {
+            gameManager.createGame(room);
+        }
+
         gameManager.joinGame(room, socket.id);
 
         socket.on('rollDice', () => {

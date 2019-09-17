@@ -7,6 +7,10 @@ class GameManager {
         return this.games.get(room);
     }
 
+    hasGame(room: string): boolean {
+        return this.games.has(room);
+    }
+
     createGame(room: string) {
         this.games.set(room, new Game());
     }
