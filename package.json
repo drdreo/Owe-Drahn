@@ -1,0 +1,20 @@
+{
+  "name": "owe-drahn",
+  "version": "1.0.0",
+  "description": "",
+  "dependencies": {
+    "axios": "^0.19.0",
+    "express": "^4.17.1",
+    "socket.io": "^2.2.0",
+    "ts-node": "^8.4.1"
+  },
+  "devDependencies": {
+    "@types/node": "^12.7.5",
+    "typescript": "^3.6.3"
+  },
+  "scripts": {
+    "start": "ts-node server.ts"
+  },
+  "author": "DrDreo",
+  "license": "ISC"
+}
