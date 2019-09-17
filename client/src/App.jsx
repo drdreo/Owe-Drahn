@@ -1,14 +1,10 @@
 import React, { Component } from "react";
 import { BrowserRouter as Router, Route } from 'react-router-dom'
 import Home from './home/Home';
-import Game from './Game/Game';
+import Game from './game/Game';
 
 
 class App extends Component {
-  constructor() {
-    super();
-  }
-
   render() {
     return (
       <Router>

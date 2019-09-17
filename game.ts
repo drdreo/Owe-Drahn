@@ -1,4 +1,3 @@
-
 class GameManager {
 
     games = new Map<string, Game>();
@@ -7,62 +6,165 @@ class GameManager {
         return this.games.get(room);
     }
 
+    getGameUpdate(room: string) {
+        const game = this.getGame(room);
+        if (game) {
+            return {players: game.players, started: game.started, over: game.over, currentValue: game.currentValue};
+        }
+
+        return {players: undefined, started: undefined, currentValue: undefined};
+    }
+
     hasGame(room: string): boolean {
         return this.games.has(room);
     }
 
-    createGame(room: string) {
+    createGame(room: string): void {
         this.games.set(room, new Game());
     }
 
-    joinGame(room: string, socketId: string) {
-        this.getGame(room).addPlayer(socketId);
+    joinGame(room: string, playerId: string, username: string): void {
+        this.getGame(room).addPlayer(playerId, username);
     }
 
-    rollDice(room: string, socketId: string) {
-        return this.getGame(room).rollDice(socketId);
+    ready(room: string, playerId: string): void {
+        this.getGame(room).ready(playerId);
     }
 
+    isEveryoneReady(room: string): boolean {
+        return this.getGame(room).isEveryoneReady();
+    }
 
+    nextPlayer(room: string) {
+        this.getGame(room).setNextPlayer();
+    }
+
+    rollDice(room: string, playerId: string) {
+        return this.getGame(room).rollDice(playerId);
+    }
+
+    loseLife(room: string, playerId: string) {
+        return this.getGame(room).loseLife(playerId);
+    }
 }
 
 class Game {
 
     players: Player[] = [];
+    started: boolean = false;
+    over: boolean = false;
+    currentValue: number = 0;
 
-
-    private isPlayersTurn(socketId: string) {
-        return this.players.some(player => player.socketId === socketId && player.isPlayersTurn);
+    constructor() {
+        this.init();
     }
 
-    addPlayer(socketId) {
-        this.players.push(new Player(socketId));
+    init() {
+        this.started = false;
+        this.over = false;
+        this.currentValue = 0;
+        this.players.map((player) => {
+            player.isPlayersTurn = false;
+            player.life = 6;
+            player.ready = false;
+        });
     }
 
-    getNextPlayer() {
-        return this.players.filter(player => player.isPlayersTurn);
+    private isPlayersTurn(playerId: string) {
+        return this.players.some(player => player.id === playerId && player.isPlayersTurn);
     }
 
-    rollDice(socketId: string): number {
+    addPlayer(id: string, username: string) {
+        this.players.push(new Player(id, username));
+    }
 
-        if (this.isPlayersTurn(socketId)) {
+    getPlayer(playerId: string): Player {
+        return this.players.find(player => player.id === playerId);
+    }
+
+    // getNextPlayer() {
+    //     return this.players.filter(player => player.isPlayersTurn);
+    // }
+
+    setNextPlayer() {
+        const currentPlayerIndex = this.players.findIndex(player => player.isPlayersTurn);
+
+        if (currentPlayerIndex === -1) {
+            this.players[0].isPlayersTurn = true;
+        } else {
+            this.players[currentPlayerIndex].isPlayersTurn = false;
+
+            const playerLeft = this.players.filter(player => player.life > 0).length;
+            if (playerLeft > 1) {
+                let nextPlayerIndex;
+                let i = currentPlayerIndex;
+                do {
+                    i++;
+                    // check if it was last player
+                    if (i >= this.players.length) {
+                        i = 0;
+                    }
+                    nextPlayerIndex = i;
+
+                    if (nextPlayerIndex === currentPlayerIndex) {
+                        console.error('Failsafe shouldn\'t be triggered');
+                        break;
+                    }
+                } while (this.players[nextPlayerIndex].life <= 0);
+                this.players[nextPlayerIndex].isPlayersTurn = true;
+
+            } else {
+                // game over
+                this.over = true;
+                this.init();
+            }
+        }
+    }
+
+    rollDice(playerId: string): number | undefined {
+
+        const player = this.getPlayer(playerId);
+        if (this.isPlayersTurn(playerId) && player.life > 0) {
             const dice = Math.floor(Math.random() * 6) + 1;
+            this.currentValue += dice;
+            if (this.currentValue > 15) {
+                this.currentValue = 0;
+                player.life = 0;
+                return undefined;
+            }
             return dice;
         }
 
-        throw Error("Not your turn!");
+        throw Error('Not your turn!');
     }
 
-}
+    ready(playerId: string) {
+        this.getPlayer(playerId).ready = true;
+    }
 
+    isEveryoneReady() {
+        return this.players.every(player => player.ready);
+    }
+
+    loseLife(playerId: string) {
+        const player = this.getPlayer(playerId);
+        if (this.isPlayersTurn(playerId) && player.life > 0) {
+            this.players.find(player => player.id === playerId).life--;
+            this.currentValue = 0;
+        } else {
+            throw Error('You arent allowed to owe drahn!');
+        }
+    }
+}
 
 class Player {
 
-    isPlayersTurn: boolean = true;
+    isPlayersTurn: boolean = false;
+    ready: boolean = false;
+    points: number = 0;
+    life: number = 6;
 
-    constructor(readonly socketId: string) {
-
-    }
+    constructor(readonly id: string, readonly username: string) { }
 }
 
 export const gameManager = new GameManager();

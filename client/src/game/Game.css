@@ -1,0 +1,44 @@
+.page-container {
+    display: flex;
+    position: relative;
+    flex-direction: column;
+    align-items: center;
+    /*justify-content: center;*/
+    width: 100vw;
+    height: 100vh;
+
+    color: white;
+}
+
+.players-list {
+    display: flex;
+}
+
+
+.dice {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+
+.statistics {
+    display: flex;
+    position: absolute;
+    top: 25%;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.current-value {
+    font-size: 5rem;
+    color: white;
+}
+
+.rolled-dice {
+    font-size: 2.5rem;
+    color: #9f4fb9;
+    display: flex;
+    align-items: center;
+}
