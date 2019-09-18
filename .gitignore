@@ -21,3 +21,9 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+/routes/index.js
+/routes/index.js.map
+/game.js
+/game.js.map
+/server.js
+/server.js.map
