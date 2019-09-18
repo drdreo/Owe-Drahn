@@ -14,6 +14,7 @@ import uuid = require('uuid');
 import { Request, Response } from 'express';
 
 const port = process.env.PORT || 4000;
+const frontendPath = process.env.NODE_ENV === 'production' ? path.join(__dirname, '../client/build') : path.join(__dirname, './client/build');
 const app = express();
 
 let gameService = Container.get<GameService>(GameService);
@@ -73,12 +74,12 @@ app.get('/api/join', (req: any, res: Response) => {
     }
 });
 
-app.use(express.static(path.join(__dirname, './client/build')));
+app.use(express.static(frontendPath));
 
 // general catch all
 app.get(/^((?!\/api).)*$/, (req, res) => {
-    console.log('serving: ' + path.join(__dirname, './client/build/index.html'));
-    res.sendFile(path.join(__dirname, './client/build/index.html'));
+    console.log('serving: ' + frontendPath + '/index.html');
+    res.sendFile(frontendPath + '/index.html');
 });
 
 const server = http.createServer(app);
