@@ -43,16 +43,27 @@ export class Game {
         return {players: this.players, started: this.started, over: this.over, currentValue: this.currentValue};
     }
 
+    sendGameUpdate() {
+        this._command$.next({eventName: 'gameUpdate', data: this.getGameUpdate()});
+    }
+
+    sendGameOver() {
+        this._command$.next({eventName: 'gameOver'});
+    }
+
+    sendGameError(message: string) {
+        this._command$.next({eventName: 'gameError', data: message});
+    }
+
     // getNextPlayer() {
     //     return this.players.filter(player => player.isPlayersTurn);
     // }
 
-    setNextPlayer(): boolean {
+    setNextPlayer(): void {
         const currentPlayerIndex = this.players.findIndex(player => player.isPlayersTurn);
 
         if (currentPlayerIndex === -1) {
             this.players[0].isPlayersTurn = true;
-            return false;
         } else {
             this.players[currentPlayerIndex].isPlayersTurn = false;
 
@@ -74,14 +85,20 @@ export class Game {
                     }
                 } while (this.players[nextPlayerIndex].life <= 0);
                 this.players[nextPlayerIndex].isPlayersTurn = true;
-
-                return false;
             } else {
                 // game over
                 this.over = true;
-                return true;
+                this.sendGameOver();
+                // restart after 5s
+                setTimeout(() => {
+                    this.init();
+                    this.sendGameUpdate();
+                }, 5000);
             }
+
         }
+
+        this.sendGameUpdate();
     }
 
     rollDice(playerId: string): number | undefined {
@@ -108,6 +125,15 @@ export class Game {
 
     ready(playerId: string) {
         this.getPlayer(playerId).ready = true;
+
+        // check if everyone is ready
+        if (this.isEveryoneReady()) {
+            this.setNextPlayer();
+            this.started = true;
+            // reset everyones ready state for UI reasons
+            this.players.map(player => player.ready = false);
+        }
+        this.sendGameUpdate();
     }
 
     isEveryoneReady() {
@@ -116,11 +142,14 @@ export class Game {
 
     loseLife(playerId: string) {
         const player = this.getPlayer(playerId);
-        if (this.isPlayersTurn(playerId) && player.life > 0) {
-            this.players.find(player => player.id === playerId).life--;
+        if (this.isPlayersTurn(playerId) && player.life > 1) {
+            player.life--;
             this.currentValue = 0;
+
+            // TODO: player chooses next player;
+            this.setNextPlayer();
         } else {
-            throw Error('You arent allowed to owe drahn!');
+            this.sendGameError('You arent allowed to owe drahn!');
         }
     }
 

@@ -48,23 +48,9 @@ export class GameService {
         return this.getGame(room).isEveryoneReady();
     }
 
-    nextPlayer(room: string): Promise<void> {
+    nextPlayer(room: string){
         const game = this.getGame(room);
-        const over = game.setNextPlayer();
-
-        return new Promise<void>((resolve, reject) => {
-                if (over) {
-                    // restart after 5s
-                    setTimeout(() => {
-                        game.init();
-                        resolve();
-                    }, 5000);
-                } else {
-                    resolve();
-                }
-            },
-        );
-
+         game.setNextPlayer();
     }
 
     rollDice(room: string, playerId: string) {

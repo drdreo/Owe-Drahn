@@ -114,8 +114,9 @@ class Game extends Component {
         window.rollADie({
             element: this.diceRef.current,
             numberOfDice: 1,
-            callback: function(){
+            callback:  () => {
                 console.log("done animating");
+                this.setState({rolledDice: value});
             },
             values: [value]
         });

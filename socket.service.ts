@@ -35,27 +35,11 @@ export class SocketService {
             socket.join(room);
 
             // someone joined, update others
-            const result = {error: undefined, data: undefined};
-            result.data = this.gameService.getGameUpdate(room);
-            this.io.to(room).emit('gameUpdate', result);
+            const update = this.gameService.getGameUpdate(room);
+            this.emitToRoom(room, 'gameUpdate', update);
 
             socket.on('ready', () => {
-                const result = {error: undefined, data: undefined};
-
                 this.gameService.ready(room, playerId);
-
-                // check if everyone is ready
-                if (this.gameService.isEveryoneReady(room)) {
-                    this.gameService.nextPlayer(room);
-                    const game = this.gameService.getGame(room);
-                    game.started = true;
-                    // reset everyones ready state for UI reasons
-                    game.players.map(player => player.ready = false);
-                }
-
-                result.data = this.gameService.getGameUpdate(room);
-
-                this.io.to(room).emit('gameUpdate', result);
             });
 
             socket.on('rollDice', () => {
@@ -82,15 +66,7 @@ export class SocketService {
             });
 
             socket.on('loseLife', () => {
-                try {
-                    this.gameService.loseLife(room, playerId);
-                    this.gameService.nextPlayer(room);
-
-                    const data = this.gameService.getGameUpdate(room);
-                    this.io.to(room).emit('gameUpdate', {data});
-                } catch (err) {
-                    this.io.to(room).emit('gameError', err.message);
-                }
+                this.gameService.loseLife(room, playerId);
             });
         });
     }
