@@ -1,74 +1,16 @@
-class GameManager {
+import { Player } from './Player';
+import { Subject } from 'rxjs';
+import { Command } from './Command';
 
-    games = new Map<string, Game>();
-
-    getGame(room: string): Game {
-        return this.games.get(room);
-    }
-
-    getGameUpdate(room: string) {
-        const game = this.getGame(room);
-        if (game) {
-            return {players: game.players, started: game.started, over: game.over, currentValue: game.currentValue};
-        }
-
-        return {players: undefined, started: undefined, over: undefined, currentValue: undefined};
-    }
-
-    hasGame(room: string): boolean {
-        return this.games.has(room);
-    }
-
-    createGame(room: string): void {
-        this.games.set(room, new Game());
-    }
-
-    joinGame(room: string, playerId: string, username: string): void {
-        this.getGame(room).addPlayer(playerId, username);
-    }
-
-    ready(room: string, playerId: string): void {
-        this.getGame(room).ready(playerId);
-    }
-
-    isEveryoneReady(room: string): boolean {
-        return this.getGame(room).isEveryoneReady();
-    }
-
-    nextPlayer(room: string): Promise<void> {
-        const game = this.getGame(room);
-        const over = game.setNextPlayer();
-
-        return new Promise<void>((resolve, reject) => {
-                if (over) {
-                    // restart after 5s
-                    setTimeout(() => {
-                        game.init();
-                        resolve();
-                    }, 5000);
-                } else {
-                    resolve();
-                }
-            },
-        );
-
-    }
-
-    rollDice(room: string, playerId: string) {
-        return this.getGame(room).rollDice(playerId);
-    }
-
-    loseLife(room: string, playerId: string) {
-        return this.getGame(room).loseLife(playerId);
-    }
-}
-
-class Game {
+export class Game {
 
     players: Player[] = [];
     started: boolean = false;
     over: boolean = false;
     currentValue: number = 0;
+
+    private _command$ = new Subject<Command>();
+    command$ = this._command$.asObservable();
 
     constructor() {
         this.init();
@@ -85,16 +27,20 @@ class Game {
         });
     }
 
-    private isPlayersTurn(playerId: string) {
-        return this.players.some(player => player.id === playerId && player.isPlayersTurn);
-    }
-
     addPlayer(id: string, username: string) {
         this.players.push(new Player(id, username));
     }
 
     getPlayer(playerId: string): Player {
         return this.players.find(player => player.id === playerId);
+    }
+
+    private isPlayersTurn(playerId: string) {
+        return this.players.some(player => player.id === playerId && player.isPlayersTurn);
+    }
+
+    getGameUpdate() {
+        return {players: this.players, started: this.started, over: this.over, currentValue: this.currentValue};
     }
 
     // getNextPlayer() {
@@ -141,13 +87,18 @@ class Game {
     rollDice(playerId: string): number | undefined {
 
         const player = this.getPlayer(playerId);
-        if (this.isPlayersTurn(playerId) && player.life > 0) {
+        if (this.isPlayersTurn(playerId)) {
             const dice = Math.floor(Math.random() * 6) + 1;
-            this.currentValue += dice;
+
+            // Rule of 3, doesn't count
+            if (dice !== 3) {
+                this.currentValue += dice;
+            }
+
             if (this.currentValue > 15) {
                 this.currentValue = 0;
                 player.life = 0;
-                return undefined;
+                return dice;
             }
             return dice;
         }
@@ -172,16 +123,11 @@ class Game {
             throw Error('You arent allowed to owe drahn!');
         }
     }
+
+    joinGame(playerId: string, username: string) {
+        if (!this.started) {
+            this.addPlayer(playerId, username);
+        }
+    }
 }
 
-class Player {
-
-    isPlayersTurn: boolean = false;
-    ready: boolean = false;
-    points: number = 0;
-    life: number = 6;
-
-    constructor(readonly id: string, readonly username: string) { }
-}
-
-export const gameManager = new GameManager();

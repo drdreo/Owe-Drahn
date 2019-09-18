@@ -24,6 +24,6 @@ yarn-error.log*
 /routes/index.js
 /routes/index.js.map
 /game.js
-/game.js.map
+/game/game.js.map
 /server.js
 /server.js.map

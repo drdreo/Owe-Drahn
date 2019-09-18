@@ -50,6 +50,15 @@ $button-background-color: $primary-color;
     background-color: transparentize($button-background-color, 0.1); //#677bc4
   }
 
+  &[disabled] {
+    background-color: gray;
+    cursor: initial;
+
+    &:hover {
+      background-color: gray;
+    }
+  }
+
   &.light {
     color: #080808;
     background-color: lightgray;

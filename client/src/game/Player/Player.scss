@@ -44,8 +44,10 @@
   }
 
   &.lost {
-    background-color: #c5c5c5ad;
-    color: #fff;
+    .name {
+      background-color: #c5c5c5ad;
+      color: #fff;
+    }
   }
 
 }

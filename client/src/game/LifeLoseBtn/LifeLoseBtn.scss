@@ -3,6 +3,14 @@
     background-color: transparent;
     padding: 0;
     margin-left: .75rem;
+
+    &[disabled] {
+      background-color: transparent;
+
+      &:hover {
+        background-color: transparent;
+      }
+    }
   }
 
   .icon {

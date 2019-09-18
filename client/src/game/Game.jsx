@@ -6,7 +6,7 @@ import LifeLoseBtn from "./LifeLoseBtn/LifeLoseBtn";
 
 import "./Game.scss";
 
-const API_URL = process.env.REACT_APP_API_URL;
+const SERVER_URL = process.env.REACT_APP_DOMAIN;
 
 class Game extends Component {
     constructor(props) {
@@ -17,7 +17,7 @@ class Game extends Component {
         this.state = {
             rolledDice: undefined,
             currentValue: 0,
-            socket: socketIOClient(API_URL),
+            socket: socketIOClient(SERVER_URL),
             players: [],
             started: false,
             over: false
@@ -61,9 +61,12 @@ class Game extends Component {
 
         let controlButton;
         if (started && !over) {
-            controlButton = (<div style={{display: "flex"}}>
-                <button className="button" onClick={() => this.rollDice()}>Roll</button>
-                <LifeLoseBtn onClick={() => this.loseLife()}></LifeLoseBtn>
+            const currentPlayerId = sessionStorage.getItem("playerId");
+            const isWaiting = !players.find(player => player.id === currentPlayerId).isPlayersTurn;
+
+            controlButton = (<div style={{display: "flex"}} className={`${isWaiting ? "waiting" : ""}`}>
+                <button disabled={isWaiting} className="button" onClick={() => this.rollDice()}>Roll</button>
+                <LifeLoseBtn disabled={isWaiting} onClick={() => this.loseLife()}></LifeLoseBtn>
             </div>);
         } else if (!over) {
             controlButton = <button className="button light" onClick={() => this.ready()}>Ready</button>;
@@ -111,8 +114,8 @@ class Game extends Component {
         window.rollADie({
             element: this.diceRef.current,
             numberOfDice: 1,
-            callback: () => {
-                this.setState({rolledDice: value});
+            callback: function(){
+                console.log("done animating");
             },
             values: [value]
         });
