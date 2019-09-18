@@ -6,6 +6,8 @@ import LifeLoseBtn from "./LifeLoseBtn/LifeLoseBtn";
 
 import "./Game.scss";
 
+const API_URL = process.env.REACT_APP_API_URL;
+
 class Game extends Component {
     constructor(props) {
         super(props);
@@ -15,7 +17,7 @@ class Game extends Component {
         this.state = {
             rolledDice: undefined,
             currentValue: 0,
-            socket: socketIOClient("http://localhost:4000"),
+            socket: socketIOClient(API_URL),
             players: [],
             started: false,
             over: false

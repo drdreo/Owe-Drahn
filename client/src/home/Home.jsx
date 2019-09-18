@@ -4,7 +4,8 @@ import axios from "axios";
 
 import "./Home.scss";
 
-const API_URL = "http://localhost:4000";
+console.log(process.env);
+const API_URL = process.env.REACT_APP_API_URL;
 
 class Home extends Component {
     constructor(props) {

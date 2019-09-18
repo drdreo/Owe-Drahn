@@ -12,7 +12,24 @@ import { gameManager } from './game';
 
 const app = express();
 
-app.use(cors({credentials: true, origin: 'http://localhost:3000'}));
+const whitelist = [
+    'http://localhost:3000',
+    'http://localhost:4000',
+    'https://owe-drahn.herokuapp.com/',
+];
+
+app.use(cors({
+    credentials: true,
+    origin: (origin: string, callback: Function) => {
+        console.log(origin);
+        if (whitelist.indexOf(origin) !== -1 || !origin) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+}));
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 
