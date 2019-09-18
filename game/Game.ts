@@ -101,26 +101,29 @@ export class Game {
         this.sendGameUpdate();
     }
 
-    rollDice(playerId: string): number | undefined {
+    rollDice(playerId: string) {
 
         const player = this.getPlayer(playerId);
         if (this.isPlayersTurn(playerId)) {
             const dice = Math.floor(Math.random() * 6) + 1;
 
             // Rule of 3, doesn't count
-            if (dice !== 3) {
+            if (dice != 3) {
                 this.currentValue += dice;
             }
 
             if (this.currentValue > 15) {
                 this.currentValue = 0;
                 player.life = 0;
-                return dice;
+                this._command$.next({eventName: 'lost', data: {playerId}});
             }
-            return dice;
-        }
+            this.setNextPlayer();
 
-        throw Error('Not your turn!');
+            this._command$.next({eventName: 'rolledDice', data: dice});
+            this.sendGameUpdate();
+        } else {
+            this.sendGameError('Not your turn!');
+        }
     }
 
     ready(playerId: string) {

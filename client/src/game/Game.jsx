@@ -26,19 +26,15 @@ class Game extends Component {
 
         this.state.socket.on("gameUpdate", response => {
             this.setState({
-                players: response.data.players,
-                started: response.data.started,
-                over: response.data.over,
-                currentValue: response.data.currentValue
+                players: response.players,
+                started: response.started,
+                over: response.over,
+                currentValue: response.currentValue
             });
         });
 
-        this.state.socket.on("rolledDice", response => {
-            if (response.error) {
-                console.error(response.error);
-            } else {
-                this.animateDice(response.data);
-            }
+        this.state.socket.on("rolledDice", dice => {
+            this.animateDice(dice);
         });
 
         this.state.socket.on("gameError", error => {
@@ -114,7 +110,7 @@ class Game extends Component {
         window.rollADie({
             element: this.diceRef.current,
             numberOfDice: 1,
-            callback:  () => {
+            callback: () => {
                 console.log("done animating");
                 this.setState({rolledDice: value});
             },

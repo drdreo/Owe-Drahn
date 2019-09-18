@@ -43,26 +43,7 @@ export class SocketService {
             });
 
             socket.on('rollDice', () => {
-                try {
-                    let rolledDice = this.gameService.rollDice(room, playerId);
-                    if (rolledDice) {
-                        this.io.to(room).emit('rolledDice', {data: rolledDice});
-                    } else {
-                        this.io.to(room).emit('lost', {playerId});
-                    }
-
-                    // send the reset delayed
-                    this.gameService.nextPlayer(room).then(() => {
-                        const data = this.gameService.getGameUpdate(room);
-                        this.io.to(room).emit('gameUpdate', {data});
-                    });
-
-                    const data = this.gameService.getGameUpdate(room);
-                    this.io.to(room).emit('gameUpdate', {data});
-
-                } catch (err) {
-                    this.io.to(room).emit('gameError', err.message);
-                }
+                this.gameService.rollDice(room, playerId);
             });
 
             socket.on('loseLife', () => {
