@@ -23,7 +23,6 @@ class Game extends Component {
             over: false
         };
 
-
         this.state.socket.on("gameUpdate", response => {
             this.setState({
                 players: response.players,

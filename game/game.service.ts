@@ -6,10 +6,6 @@ export class GameService {
 
     private games = new Map<string, Game>();
 
-    constructor() {
-
-    }
-
     createGame(room: string): void {
         this.games.set(room, new Game());
     }
@@ -44,15 +40,6 @@ export class GameService {
         this.getGame(room).ready(playerId);
     }
 
-    isEveryoneReady(room: string): boolean {
-        return this.getGame(room).isEveryoneReady();
-    }
-
-    nextPlayer(room: string){
-        const game = this.getGame(room);
-         game.setNextPlayer();
-    }
-
     rollDice(room: string, playerId: string) {
         return this.getGame(room).rollDice(playerId);
     }
@@ -60,5 +47,4 @@ export class GameService {
     loseLife(room: string, playerId: string) {
         return this.getGame(room).loseLife(playerId);
     }
-
 }

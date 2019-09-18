@@ -52,7 +52,6 @@ export class SocketService {
         });
     }
 
-
     connect(server: http.Server): void {
         this.io = socketIo(server);
         this.io.sockets.on('connection', (client: socketIo.Socket) => {
@@ -67,5 +66,4 @@ export class SocketService {
             });
 
     }
-
 }
