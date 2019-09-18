@@ -12,7 +12,7 @@ class GameManager {
             return {players: game.players, started: game.started, over: game.over, currentValue: game.currentValue};
         }
 
-        return {players: undefined, started: undefined, currentValue: undefined};
+        return {players: undefined, started: undefined, over: undefined, currentValue: undefined};
     }
 
     hasGame(room: string): boolean {
@@ -35,8 +35,23 @@ class GameManager {
         return this.getGame(room).isEveryoneReady();
     }
 
-    nextPlayer(room: string) {
-        this.getGame(room).setNextPlayer();
+    nextPlayer(room: string): Promise<void> {
+        const game = this.getGame(room);
+        const over = game.setNextPlayer();
+
+        return new Promise<void>((resolve, reject) => {
+                if (over) {
+                    // restart after 5s
+                    setTimeout(() => {
+                        game.init();
+                        resolve();
+                    }, 5000);
+                } else {
+                    resolve();
+                }
+            },
+        );
+
     }
 
     rollDice(room: string, playerId: string) {
@@ -86,11 +101,12 @@ class Game {
     //     return this.players.filter(player => player.isPlayersTurn);
     // }
 
-    setNextPlayer() {
+    setNextPlayer(): boolean {
         const currentPlayerIndex = this.players.findIndex(player => player.isPlayersTurn);
 
         if (currentPlayerIndex === -1) {
             this.players[0].isPlayersTurn = true;
+            return false;
         } else {
             this.players[currentPlayerIndex].isPlayersTurn = false;
 
@@ -113,10 +129,11 @@ class Game {
                 } while (this.players[nextPlayerIndex].life <= 0);
                 this.players[nextPlayerIndex].isPlayersTurn = true;
 
+                return false;
             } else {
                 // game over
                 this.over = true;
-                this.init();
+                return true;
             }
         }
     }

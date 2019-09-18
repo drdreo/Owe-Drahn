@@ -2,6 +2,8 @@ import React, {Component} from "react";
 import {withRouter} from "react-router-dom";
 import axios from "axios";
 
+import "./Home.scss";
+
 const API_URL = "http://localhost:4000";
 
 class Home extends Component {
@@ -16,11 +18,16 @@ class Home extends Component {
 
     render() {
         return (
-            <div style={{textAlign: "center"}}>
+            <div className="page-container">
                 <h4>Owe Drahn</h4>
-                <input value={this.state.username} onChange={evt => this.updateUsername(evt)} placeholder="Username"/>
-                <input value={this.state.room} onChange={evt => this.updateRoom(evt)} placeholder="Room"/>
-                <button onClick={() => this.joinGame()}>Join</button>
+                <div className="form">
+                    <input className="input username" value={this.state.username}
+                           onChange={evt => this.updateUsername(evt)}
+                           placeholder="Username"/>
+                    <input className="input room" value={this.state.room} onChange={evt => this.updateRoom(evt)}
+                           placeholder="Room"/>
+                    <button className="button join" onClick={() => this.joinGame()}>Join</button>
+                </div>
             </div>
         );
     }

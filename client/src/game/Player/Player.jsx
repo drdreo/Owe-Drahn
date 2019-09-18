@@ -1,12 +1,16 @@
 import React, {Component} from "react";
 
-import "./Player.css";
+import "./Player.scss";
 
 class Player extends Component {
     render() {
         return (
             <div
-                className={`player ${sessionStorage.getItem("playerId") === this.props.player.id ? "me" : ""} ${this.props.player.ready ? "ready" : ""} ${this.props.player.isPlayersTurn ? "turn" : ""}`}>
+                className={`player ${sessionStorage.getItem("playerId") === this.props.player.id ? "me" : ""} 
+                ${this.props.player.ready ? "ready" : ""} 
+                ${this.props.player.isPlayersTurn ? "turn" : ""}
+                ${this.props.player.life <= 0 ? "lost" : ""} 
+                `}>
 
                 <div className="life">{this.props.player.life}</div>
                 <div className="name">{this.props.player.username}</div>

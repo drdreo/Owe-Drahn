@@ -77,12 +77,18 @@ io.on('connection', socket => {
                 if (rolledDice) {
                     io.to(room).emit('rolledDice', {data: rolledDice});
                 } else {
-                    io.to(room).emit('lost');
+                    io.to(room).emit('lost', {playerId});
                 }
 
-                gameManager.nextPlayer(room);
+                // send the reset delayed
+                gameManager.nextPlayer(room).then(() => {
+                    const data = gameManager.getGameUpdate(room);
+                    io.to(room).emit('gameUpdate', {data});
+                });
+
                 const data = gameManager.getGameUpdate(room);
                 io.to(room).emit('gameUpdate', {data});
+
             } catch (err) {
                 io.to(room).emit('gameError', err.message);
             }

@@ -1,9 +1,10 @@
 import React, {Component} from "react";
 import socketIOClient from "socket.io-client";
-import "./Game.css";
+
 import Player from "./Player/Player";
 import LifeLoseBtn from "./LifeLoseBtn/LifeLoseBtn";
 
+import "./Game.scss";
 
 class Game extends Component {
     constructor(props) {
@@ -25,6 +26,7 @@ class Game extends Component {
             this.setState({
                 players: response.data.players,
                 started: response.data.started,
+                over: response.data.over,
                 currentValue: response.data.currentValue
             });
         });
@@ -41,8 +43,8 @@ class Game extends Component {
             console.error(error);
         });
 
-        this.state.socket.on("lost", () => {
-            console.warn("PLAYER LOST");
+        this.state.socket.on("lost", (data) => {
+            console.warn("PLAYER LOST: " + data.playerId);
         });
     }
 
@@ -52,22 +54,22 @@ class Game extends Component {
     }
 
     render() {
-        const {rolledDice, currentValue, players, started} = this.state;
+        const {rolledDice, currentValue, players, started, over} = this.state;
         console.log(this.state);
 
         let controlButton;
-        if (started) {
-            controlButton = (<div>
-                <button onClick={() => this.rollDice()}>Wurf</button>
+        if (started && !over) {
+            controlButton = (<div style={{display: "flex"}}>
+                <button className="button" onClick={() => this.rollDice()}>Roll</button>
                 <LifeLoseBtn onClick={() => this.loseLife()}></LifeLoseBtn>
             </div>);
-        } else {
-            controlButton = <button onClick={() => this.ready()}>Ready</button>;
+        } else if (!over) {
+            controlButton = <button className="button light" onClick={() => this.ready()}>Ready</button>;
         }
 
         return (
             <div className="page-container">
-                <h5>Game</h5>
+                <h5 className="heading">Game</h5>
                 <div className="players-list">
                     {players.map((player, key) =>
                         <Player player={player} key={player.id}/>

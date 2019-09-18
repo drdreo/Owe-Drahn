@@ -1,0 +1,31 @@
+.button {
+  &.lose-life {
+    background-color: transparent;
+    padding: 0;
+    margin-left: .75rem;
+  }
+
+  .icon {
+    display: block;
+    height: auto;
+    width: 2rem;
+  }
+}
+
+#heart {
+  fill: none;
+  stroke: #D75A4A;
+
+  #minus {
+    fill: #D75A4A;
+    stroke: none;
+  }
+
+  &:hover {
+    fill: #D75A4A;
+
+    #minus {
+      fill: white;
+    }
+  }
+}

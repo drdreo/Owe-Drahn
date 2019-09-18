@@ -1,0 +1,40 @@
+@import "../utils";
+
+$rolled-dice-color: $primary-color;
+
+.heading {
+  position: absolute;
+  top:0;
+}
+
+.players-list {
+  display: flex;
+}
+
+.dice {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+
+.statistics {
+  display: flex;
+  position: absolute;
+  top: 25%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.current-value {
+  font-size: 5rem;
+  color: white;
+}
+
+.rolled-dice {
+  font-size: 2.5rem;
+  color: $rolled-dice-color;
+  display: flex;
+  align-items: center;
+}
