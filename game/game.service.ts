@@ -18,6 +18,14 @@ export class GameService {
         return this.games.has(room);
     }
 
+    hasGameStarted(room: string): boolean {
+        return this.games.get(room).started;
+    }
+
+    isPlayerOfGame(room: string, playerId: string): boolean {
+        return this.games.get(room).isPlayer(playerId);
+    }
+
     joinGame(room: string, playerId: string, username: string): void {
         this.getGame(room).joinGame(playerId, username);
     }
@@ -36,8 +44,8 @@ export class GameService {
     }
 
 
-    ready(room: string, playerId: string): void {
-        this.getGame(room).ready(playerId);
+    ready(room: string, playerId: string, ready: boolean): void {
+        this.getGame(room).ready(playerId, ready);
     }
 
     rollDice(room: string, playerId: string) {
@@ -46,5 +54,9 @@ export class GameService {
 
     loseLife(room: string, playerId: string) {
         return this.getGame(room).loseLife(playerId);
+    }
+
+    chooseNextPlayer(room: string, playerId: string, nextPlayerId: string) {
+        return this.getGame(room).chooseNextPlayer(playerId, nextPlayerId);
     }
 }

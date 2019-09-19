@@ -25,7 +25,8 @@ class Home extends Component {
                     <input className="input username" value={this.state.username}
                            onChange={evt => this.updateUsername(evt)}
                            placeholder="Username"/>
-                    <input className="input room" value={this.state.room} onChange={evt => this.updateRoom(evt)}
+                    <input className="input room" value={this.state.room}
+                           onChange={evt => this.updateRoom(evt)}
                            placeholder="Room"/>
                     <button className="button join" onClick={() => this.joinGame()}>Join</button>
                 </div>
@@ -46,14 +47,20 @@ class Home extends Component {
     }
 
     joinGame() {
-        const room = this.state.room;
+        const room = encodeURIComponent(this.state.room);
         const username = this.state.username;
 
         axios.get(`${API_URL}/join?room=${room}&username=${username}`, {withCredentials: true})
             .then((response) => {
                 console.log(response);
-                sessionStorage.setItem("playerId", response.data.playerId);
-                this.props.history.push("/game/" + room);
+                if (response.data.error) {
+                    // TODO: show error
+                    console.log(response.data.error);
+                } else {
+                    sessionStorage.setItem("playerId", response.data.playerId);
+                    this.props.history.push("/game/" + room);
+                }
+
             });
     }
 }

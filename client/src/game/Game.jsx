@@ -5,6 +5,7 @@ import Player from "./Player/Player";
 import LifeLoseBtn from "./LifeLoseBtn/LifeLoseBtn";
 
 import "./Game.scss";
+import rollADie from 'roll-a-die';
 
 const SERVER_URL = process.env.REACT_APP_DOMAIN;
 
@@ -32,12 +33,27 @@ class Game extends Component {
             });
         });
 
-        this.state.socket.on("rolledDice", dice => {
-            this.animateDice(dice);
+        this.state.socket.on("gameError", data => {
+            console.error(data);
+            switch (data.code) {
+                case "NO_GAME":
+                    setTimeout(() => {
+                        this.props.history.push("/");
+                    }, 2000);
+                    break;
+                case "NOT_ALLOWED":
+
+                    break;
+                case "NOT_YOUR_TURN":
+
+                    break;
+                default:
+                    console.warn(`gameError sent:[${data.message}] but isn't handled!`);
+            }
         });
 
-        this.state.socket.on("gameError", error => {
-            console.error(error);
+        this.state.socket.on("rolledDice", dice => {
+            this.animateDice(dice);
         });
 
         this.state.socket.on("lost", (data) => {
@@ -54,34 +70,38 @@ class Game extends Component {
         const {rolledDice, currentValue, players, started, over} = this.state;
         console.log(this.state);
 
+        const player = this.getPlayer();
+        // const currentPlayer = this.getCurrentPlayer();
+        const isChoosing = player && player.isPlayersTurn && player.choosing;
+
         let controlButton;
         if (started && !over) {
-            const currentPlayerId = sessionStorage.getItem("playerId");
-            const isWaiting = !players.find(player => player.id === currentPlayerId).isPlayersTurn;
+            const isWaiting = player && !player.isPlayersTurn;
 
             controlButton = (<div style={{display: "flex"}} className={`${isWaiting ? "waiting" : ""}`}>
                 <button disabled={isWaiting} className="button" onClick={() => this.rollDice()}>Roll</button>
                 <LifeLoseBtn disabled={isWaiting} onClick={() => this.loseLife()}></LifeLoseBtn>
             </div>);
         } else if (!over) {
-            controlButton = <button className="button light" onClick={() => this.ready()}>Ready</button>;
+            controlButton = <button className={`button ${player && player.ready ? "success" : "light"}`}
+                                    onClick={() => this.ready()}>Ready</button>;
         }
 
         return (
             <div className="page-container">
                 <h5 className="heading">Game</h5>
-                <div className="players-list">
-                    {players.map((player, key) =>
-                        <Player player={player} key={player.id}/>
-                    )}
-                </div>
-
-                <div className="controls">
-                    {controlButton}
-                </div>
                 <div className="statistics">
                     <div className="rolled-dice">{rolledDice}</div>
                     <div className="current-value">{currentValue}</div>
+                </div>
+                <div className="controls">
+                    {controlButton}
+                </div>
+                <div className="players-list">
+                    {players.map((player, key) =>
+                        <Player player={player} choosing={isChoosing} key={player.id}
+                                onClick={() => this.chooseNextPlayer(player.id)}/>
+                    )}
                 </div>
 
                 <div className="dice" ref={this.diceRef}></div>
@@ -89,26 +109,49 @@ class Game extends Component {
         );
     }
 
+    getPlayer() {
+        const currentPlayerId = sessionStorage.getItem("playerId");
+        return this.state.players.find(player => player.id === currentPlayerId);
+    }
+
+    getCurrentPlayer() {
+        return this.state.players.find(player => player.isPlayersTurn);
+    }
+
     handshake(room) {
         this.state.socket.emit("handshake", {playerId: sessionStorage.getItem("playerId"), room});
     }
 
     ready() {
-        this.state.socket.emit("ready");
+        const ready = !this.getPlayer().ready;
+        this.state.socket.emit("ready", ready);
     }
 
     rollDice() {
-        this.state.socket.emit("rollDice");
+        if (this.getPlayer().isPlayersTurn) {
+            this.state.socket.emit("rollDice");
+        }
     }
 
     loseLife() {
-        this.state.socket.emit("loseLife");
+        if (this.getPlayer().isPlayersTurn) {
+            this.state.socket.emit("loseLife");
+        }
+    }
+
+    chooseNextPlayer(playerId) {
+        const player = this.getPlayer();
+        if (player.isPlayersTurn && player.choosing) {
+            console.log("choosing next " + playerId);
+            this.state.socket.emit("chooseNextPlayer", playerId);
+        }
     }
 
     animateDice(value) {
-        window.rollADie({
+        rollADie({
             element: this.diceRef.current,
             numberOfDice: 1,
+            delay: 3000,
             callback: () => {
                 console.log("done animating");
                 this.setState({rolledDice: value});

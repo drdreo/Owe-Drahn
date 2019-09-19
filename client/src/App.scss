@@ -1,3 +1,5 @@
+@import "./utils";
+
 .page-container {
   display: flex;
   position: relative;
@@ -14,3 +16,58 @@
   }
 }
 
+
+.button {
+  padding: .75rem;
+  box-sizing: border-box;
+
+  outline: none;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+
+  font-size: 1rem;
+  color: white;
+  background-color: $button-background-color;
+  transition: background-color .17s ease, color .17s ease;
+
+  &:hover {
+    background-color: transparentize($button-background-color, 0.1); //#677bc4
+  }
+
+  &[disabled] {
+    background-color: gray;
+    cursor: initial;
+
+    &:hover {
+      background-color: gray;
+    }
+  }
+
+  &.light {
+    color: #080808;
+    background-color: lightgray;
+
+    &:hover {
+      background-color: transparentize(lightgray, 0.1);
+    }
+  }
+
+  &.success {
+    color: white;
+    background-color: $success-color;
+
+    &:hover {
+      background-color: transparentize($success-color, 0.1);
+    }
+  }
+
+  &.danger {
+    color: #080808;
+    background-color: $danger-color;
+
+    &:hover {
+      background-color: transparentize($danger-color, 0.1);
+    }
+  }
+}

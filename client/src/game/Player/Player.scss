@@ -7,6 +7,8 @@
 
   margin: 1rem;
 
+  transition: transform .5s ease;
+
   .name {
     display: flex;
     justify-content: center;
@@ -24,8 +26,29 @@
   }
 
   &.me {
+
+    .life {
+      border-left: 1px solid;
+      border-right: 2px solid;
+
+      border-color: saturate($primary-color, 25%);
+    }
+
     .name {
-      box-shadow: 0px 7px 11px 0px #999;
+      border-bottom: 2px solid;
+      border-left: 1px solid;
+      border-right: 2px solid;
+      border-color: saturate($primary-color, 25%);
+    }
+
+    &.turn {
+      .life {
+        animation: border 2s ease-in-out infinite;
+      }
+
+      .name {
+        animation: border 2s ease-in-out infinite;
+      }
     }
   }
 
@@ -43,6 +66,17 @@
     }
   }
 
+  &.choosing {
+    cursor: pointer;
+
+    animation: highlight 1s infinite;
+
+    &:hover {
+      animation: none;
+      transform: translateY(-10px);
+    }
+  }
+
   &.lost {
     .name {
       background-color: #c5c5c5ad;
@@ -53,6 +87,26 @@
 }
 
 
+@keyframes highlight {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+  }
+}
 
-
-
+@keyframes border {
+  0% {
+    border-color: saturate($primary-color, 25%);
+  }
+  50% {
+    border-color: transparent;
+  }
+  100% {
+    border-color: saturate($primary-color, 25%);
+  }
+}

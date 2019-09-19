@@ -1,29 +1,29 @@
 import 'reflect-metadata';
-import { Container } from 'typedi';
-import { GameService } from './game/game.service';
-import { SocketService } from './socket.service';
 
 import * as http from 'http';
-import * as express from 'express';
 import * as cors from 'cors';
-import * as path from 'path';
-
-const session = require('express-session');
+import * as session from 'express-session';
 import * as bodyParser from 'body-parser';
-import uuid = require('uuid');
-import { Request, Response } from 'express';
+import * as uuid from 'uuid';
+import * as  express from 'express';
 
-const port = process.env.PORT || 4000;
-const frontendPath = process.env.NODE_ENV === 'production' ? path.join(__dirname, '../client/build') : path.join(__dirname, './client/build');
+import { Container } from 'typedi';
+import { EnvironmentService } from './environment.service';
+import { GameService } from './game/game.service';
+import { SocketService } from './socket.service';
+import { GameErrorCode } from './game/GameError';
+
 const app = express();
 
-let gameService = Container.get<GameService>(GameService);
-let socketService = Container.get<SocketService>(SocketService);
+const environmentService = Container.get<EnvironmentService>(EnvironmentService);
+const gameService = Container.get<GameService>(GameService);
+const socketService = Container.get<SocketService>(SocketService);
 
 const whitelist = [
     'http://localhost:3000',
     'http://localhost:4000',
     'https://owe-drahn.herokuapp.com/',
+    'http://owe-drahn.herokuapp.com/',
 ];
 
 app.use(cors({
@@ -53,10 +53,12 @@ app.use(session({
 
 
 // Express Routers
-app.get('/api/join', (req: any, res: Response) => {
+app.get('/api/join', (req: any, res: express.Response) => {
     const room = req.query.room;
     const username = req.query.username;
     const playerId = req.session.playerId ? req.session.playerId : uuid.v4();
+
+    let error = undefined;
 
     if (room) {
         req.session.playerId = playerId;
@@ -66,26 +68,31 @@ app.get('/api/join', (req: any, res: Response) => {
             socketService.subscribeToGame(room);
         }
 
-        gameService.joinGame(room, playerId, username);
+        if (gameService.hasGameStarted(room)) {
+            error = {code: GameErrorCode.GAME_STARTED, message: `Game[${room}] has already started!`};
+        } else {
+            gameService.joinGame(room, playerId, username);
+        }
 
-        res.json({error: undefined, playerId});
+
+        res.json({error, playerId});
     } else {
         res.status(500).send('No room code provided!');
     }
 });
 
-app.use(express.static(frontendPath));
+app.use(express.static(environmentService.frontendPath));
 
 // general catch all
 app.get(/^((?!\/api).)*$/, (req, res) => {
-    console.log('serving: ' + frontendPath + '/index.html');
-    res.sendFile(frontendPath + '/index.html');
+    console.log('serving: ' + environmentService.frontendPath + '/index.html');
+    res.sendFile(environmentService.frontendPath + '/index.html');
 });
 
 const server = http.createServer(app);
 socketService.connect(server);
 
-server.listen(port, () => {
-    console.log(`Server listening on port[${port}]`);
+server.listen(environmentService.port, () => {
+    console.log(`Server listening on port[${environmentService.port}]`);
 });
 

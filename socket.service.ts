@@ -1,8 +1,10 @@
-import { Service } from 'typedi';
 import * as socketIo from 'socket.io';
-import { GameService } from './game/game.service';
 import * as http from 'http';
+
+import { Service } from 'typedi';
+import { GameService } from './game/game.service';
 import { Command } from './game/Command';
+import { GameErrorCode } from './game/GameError';
 
 @Service()
 export class SocketService {
@@ -13,18 +15,11 @@ export class SocketService {
         return this.io;
     }
 
-    constructor(private readonly gameService: GameService) {
-
-    }
+    constructor(private readonly gameService: GameService) { }
 
     // send too all clients in room
     private emitToRoom(room: string, eventName: string, data?: unknown) {
-
-        try {
-            this.Instance.in(room).emit(eventName, data);
-        } catch (e) {
-            // TODO: handle error, when we try to emit something to a player, that has left. --> no socket connection
-        }
+        this.Instance.in(room).emit(eventName, data);
     }
 
     private clientConnected(socket: socketIo.Socket): void {
@@ -32,23 +27,42 @@ export class SocketService {
         socket.on('handshake', (handshakeData) => {
             const {room, playerId} = handshakeData;
 
-            socket.join(room);
+            if (this.gameService.hasGame(room)) {
 
-            // someone joined, update others
-            const update = this.gameService.getGameUpdate(room);
-            this.emitToRoom(room, 'gameUpdate', update);
+                if (this.gameService.hasGameStarted(room) && !this.gameService.isPlayerOfGame(room, playerId)) {
+                    socket.emit('gameError', {
+                        code: GameErrorCode.GAME_STARTED,
+                        message: `Game[${room}] has already started!`,
+                    });
+                } else {
+                    socket.join(room);
 
-            socket.on('ready', () => {
-                this.gameService.ready(room, playerId);
-            });
+                    // someone joined, update others
+                    const update = this.gameService.getGameUpdate(room);
+                    this.emitToRoom(room, 'gameUpdate', update);
 
-            socket.on('rollDice', () => {
-                this.gameService.rollDice(room, playerId);
-            });
+                    socket.on('ready', (ready: boolean) => {
+                        this.gameService.ready(room, playerId, ready);
+                    });
 
-            socket.on('loseLife', () => {
-                this.gameService.loseLife(room, playerId);
-            });
+                    socket.on('rollDice', () => {
+                        this.gameService.rollDice(room, playerId);
+                    });
+
+                    socket.on('loseLife', () => {
+                        this.gameService.loseLife(room, playerId);
+                    });
+
+                    socket.on('chooseNextPlayer', (nextPlayerId: string) => {
+                        this.gameService.chooseNextPlayer(room, playerId, nextPlayerId);
+                    });
+                }
+            } else {
+                socket.emit('gameError', {
+                    code: GameErrorCode.NO_GAME,
+                    message: `Trying to join game[${room}], but does not exist!`,
+                });
+            }
         });
     }
 

@@ -1,13 +1,15 @@
 import { Player } from './Player';
 import { Subject } from 'rxjs';
 import { Command } from './Command';
+import { GameError, GameErrorCode } from './GameError';
+
 
 export class Game {
 
-    players: Player[] = [];
+    private players: Player[] = [];
     started: boolean = false;
-    over: boolean = false;
-    currentValue: number = 0;
+    private over: boolean = false;
+    private currentValue: number = 0;
 
     private _command$ = new Subject<Command>();
     command$ = this._command$.asObservable();
@@ -27,16 +29,24 @@ export class Game {
         });
     }
 
-    addPlayer(id: string, username: string) {
+    private addPlayer(id: string, username: string) {
         this.players.push(new Player(id, username));
     }
 
-    getPlayer(playerId: string): Player {
+    private getPlayer(playerId: string): Player {
         return this.players.find(player => player.id === playerId);
     }
 
     private isPlayersTurn(playerId: string) {
         return this.players.some(player => player.id === playerId && player.isPlayersTurn);
+    }
+
+    private getCurrentPlayer(): Player {
+        return this.players.filter(player => player.isPlayersTurn)[0];
+    }
+
+    isPlayer(playerId: string): boolean {
+        return this.players.some(player => player.id === playerId);
     }
 
     getGameUpdate() {
@@ -51,13 +61,21 @@ export class Game {
         this._command$.next({eventName: 'gameOver'});
     }
 
-    sendGameError(message: string) {
-        this._command$.next({eventName: 'gameError', data: message});
+    sendGameError(error: GameError) {
+        this._command$.next({eventName: 'gameError', data: error});
     }
 
-    // getNextPlayer() {
-    //     return this.players.filter(player => player.isPlayersTurn);
-    // }
+
+    chooseNextPlayer(playerId: string, nextPlayerId: string) {
+        const currentPlayer = this.getCurrentPlayer();
+        if (currentPlayer.id === playerId && currentPlayer.choosing) {
+            currentPlayer.isPlayersTurn = false;
+            this.getPlayer(nextPlayerId).isPlayersTurn = true;
+            currentPlayer.choosing = false;
+        }
+
+        this.sendGameUpdate();
+    }
 
     setNextPlayer(): void {
         const currentPlayerIndex = this.players.findIndex(player => player.isPlayersTurn);
@@ -122,12 +140,13 @@ export class Game {
             this._command$.next({eventName: 'rolledDice', data: dice});
             this.sendGameUpdate();
         } else {
-            this.sendGameError('Not your turn!');
+            this.sendGameError({code: GameErrorCode.NOT_YOUR_TURN, message: 'Not your turn!'});
+
         }
     }
 
-    ready(playerId: string) {
-        this.getPlayer(playerId).ready = true;
+    ready(playerId: string, ready: boolean) {
+        this.getPlayer(playerId).ready = ready;
 
         // check if everyone is ready
         if (this.isEveryoneReady()) {
@@ -147,12 +166,11 @@ export class Game {
         const player = this.getPlayer(playerId);
         if (this.isPlayersTurn(playerId) && player.life > 1) {
             player.life--;
+            player.choosing = true;
             this.currentValue = 0;
-
-            // TODO: player chooses next player;
-            this.setNextPlayer();
+            this.sendGameUpdate();
         } else {
-            this.sendGameError('You arent allowed to owe drahn!');
+            this.sendGameError({code: GameErrorCode.NOT_ALLOWED, message: 'You arent allowed to owe drahn!'});
         }
     }
 

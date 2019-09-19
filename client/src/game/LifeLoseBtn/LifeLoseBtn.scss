@@ -4,6 +4,10 @@
     padding: 0;
     margin-left: .75rem;
 
+    &:hover{
+      background-color: transparent;
+    }
+
     &[disabled] {
       background-color: transparent;
 
@@ -23,6 +27,22 @@
 #heart {
   fill: none;
   stroke: #D75A4A;
+
+  &[disabled] {
+    stroke: gray;
+
+    #minus {
+      fill: gray;
+    }
+
+    &:hover {
+      fill: none;
+
+      #minus {
+        fill: gray;
+      }
+    }
+  }
 
   #minus {
     fill: #D75A4A;

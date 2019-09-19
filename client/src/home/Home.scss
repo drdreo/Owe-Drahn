@@ -1,7 +1,5 @@
 @import "../utils";
 
-$input-background-color: #363a49;
-$button-background-color: $primary-color;
 
 .input {
   background-color: $input-background-color;
@@ -34,49 +32,6 @@ $button-background-color: $primary-color;
 
 
 .button {
-  padding: .75rem;
-  box-sizing: border-box;
-
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-
-  font-size: 1rem;
-  color: white;
-  background-color: $button-background-color;
-  transition: background-color .17s ease, color .17s ease;
-
-  &:hover {
-    background-color: transparentize($button-background-color, 0.1); //#677bc4
-  }
-
-  &[disabled] {
-    background-color: gray;
-    cursor: initial;
-
-    &:hover {
-      background-color: gray;
-    }
-  }
-
-  &.light {
-    color: #080808;
-    background-color: lightgray;
-
-    &:hover {
-      background-color: transparentize(lightgray, 0.1);
-    }
-  }
-
-  &.danger {
-    color: #080808;
-    background-color: lightgray;
-
-    &:hover {
-      background-color: transparentize(lightgray, 0.1);
-    }
-  }
-
   &.join {
     width: 100%;
 
