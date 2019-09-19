@@ -150,6 +150,10 @@ export class Game {
             }
             this.setNextPlayer();
 
+            if (player.choosing) {
+                player.choosing = false;
+            }
+
             this._command$.next({eventName: 'rolledDice', data: dice});
             this.sendGameUpdate();
         } else {

@@ -31,9 +31,10 @@
   background-color: $button-background-color;
   transition: background-color .17s ease, color .17s ease;
 
-  &:hover {
+  &:hover, &:focus {
     background-color: transparentize($button-background-color, 0.1); //#677bc4
   }
+
 
   &[disabled] {
     background-color: gray;
@@ -48,7 +49,7 @@
     color: #080808;
     background-color: lightgray;
 
-    &:hover {
+    &:hover, &:focus {
       background-color: transparentize(lightgray, 0.1);
     }
   }
@@ -57,7 +58,7 @@
     color: white;
     background-color: $success-color;
 
-    &:hover {
+    &:hover, &:focus {
       background-color: transparentize($success-color, 0.1);
     }
   }
@@ -66,7 +67,7 @@
     color: #080808;
     background-color: $danger-color;
 
-    &:hover {
+    &:hover, &:focus {
       background-color: transparentize($danger-color, 0.1);
     }
   }
