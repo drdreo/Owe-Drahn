@@ -18,14 +18,9 @@
 .env.development.local
 .env.test.local
 .env.production.local
+.idea
 
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-/routes/index.js
-/routes/index.js.map
-/game.js
-/game/game.js.map
-/server.js
-/server.js.map
 

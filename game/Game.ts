@@ -45,8 +45,16 @@ export class Game {
         return this.players.filter(player => player.isPlayersTurn)[0];
     }
 
+    hasPlayers() {
+        return !!this.players.length;
+    }
+
     isPlayer(playerId: string): boolean {
         return this.players.some(player => player.id === playerId);
+    }
+
+    isPlayerConnected(playerId: string) {
+        return this.getPlayer(playerId).connected;
     }
 
     getGameUpdate() {
@@ -80,6 +88,7 @@ export class Game {
     setNextPlayer(): void {
         const currentPlayerIndex = this.players.findIndex(player => player.isPlayersTurn);
 
+        // start of the game, nobodys turn
         if (currentPlayerIndex === -1) {
             this.players[0].isPlayersTurn = true;
         } else {
@@ -104,17 +113,21 @@ export class Game {
                 } while (this.players[nextPlayerIndex].life <= 0);
                 this.players[nextPlayerIndex].isPlayersTurn = true;
             } else {
-                // game over
-                this.over = true;
-                this.sendGameOver();
-                // restart after 5s
-                setTimeout(() => {
-                    this.init();
-                    this.sendGameUpdate();
-                }, 5000);
+                this.gameOver();
             }
 
         }
+
+        this.sendGameUpdate();
+    }
+
+    setNextPlayerRandom() {
+        let playerIndex;
+        do {
+            playerIndex = random(0, this.players.length - 1);
+        } while (this.players[playerIndex].life <= 0);
+
+        this.players[playerIndex].isPlayersTurn = true;
 
         this.sendGameUpdate();
     }
@@ -123,7 +136,7 @@ export class Game {
 
         const player = this.getPlayer(playerId);
         if (this.isPlayersTurn(playerId)) {
-            const dice = Math.floor(Math.random() * 6) + 1;
+            const dice = random(1, 6);
 
             // Rule of 3, doesn't count
             if (dice != 3) {
@@ -145,12 +158,35 @@ export class Game {
         }
     }
 
+    connect(playerId: string) {
+        this.getPlayer(playerId).connected = true;
+    }
+
+    disconnect(playerId: string) {
+        this.getPlayer(playerId).connected = false;
+    }
+
+    leave(playerId: string) {
+        const playerIndex = this.players.findIndex(player => player.id === playerId);
+        if (playerIndex !== -1) {
+            if (this.players[playerIndex].isPlayersTurn && this.players.length > 1) {
+                this.setNextPlayer();
+                this.players.splice(playerIndex, 1);
+                this.sendGameUpdate();
+            } else {
+                this.players.splice(playerIndex, 1);
+                this.gameOver();
+            }
+
+        }
+    }
+
     ready(playerId: string, ready: boolean) {
         this.getPlayer(playerId).ready = ready;
 
         // check if everyone is ready
         if (this.isEveryoneReady()) {
-            this.setNextPlayer();
+            this.setNextPlayerRandom();
             this.started = true;
             // reset everyones ready state for UI reasons
             this.players.map(player => player.ready = false);
@@ -179,5 +215,24 @@ export class Game {
             this.addPlayer(playerId, username);
         }
     }
+
+    gameOver() {
+        // game over
+        this.over = true;
+
+        if (this.players.length > 0) {
+            this.sendGameOver();
+            // restart after 5s
+            setTimeout(() => {
+                this.init();
+                this.sendGameUpdate();
+            }, 5000);
+        }
+    }
+
 }
 
+
+function random(min: number, max: number) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}

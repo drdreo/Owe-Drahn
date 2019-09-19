@@ -1,5 +1,7 @@
 import { Service } from 'typedi';
 import { Game } from './Game';
+import { Observable } from 'rxjs';
+import { Command } from './Command';
 
 @Service()
 export class GameService {
@@ -23,7 +25,7 @@ export class GameService {
     }
 
     isPlayerOfGame(room: string, playerId: string): boolean {
-        return this.games.get(room).isPlayer(playerId);
+        return playerId && this.games.get(room).isPlayer(playerId);
     }
 
     joinGame(room: string, playerId: string, username: string): void {
@@ -39,10 +41,30 @@ export class GameService {
         return undefined;
     }
 
-    getGameCommand(room: string) {
+    getGameCommand(room: string): Observable<Command> {
         return this.getGame(room).command$;
     }
 
+    connect(room: string, playerId: string): void {
+        this.getGame(room).connect(playerId);
+    }
+
+    isConnected(room: string, playerId: string): boolean {
+        return this.getGame(room).isPlayerConnected(playerId);
+    }
+
+    disconnect(room: string, playerId: string): void {
+        this.getGame(room).disconnect(playerId);
+    }
+
+    leave(room: string, playerId: string): void {
+        const game = this.getGame(room);
+        game.leave(playerId);
+        // clean up game
+        if (!game.hasPlayers()) {
+            this.games.delete(room);
+        }
+    }
 
     ready(room: string, playerId: string, ready: boolean): void {
         this.getGame(room).ready(playerId, ready);

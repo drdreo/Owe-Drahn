@@ -29,17 +29,24 @@ export class SocketService {
 
             if (this.gameService.hasGame(room)) {
 
-                if (this.gameService.hasGameStarted(room) && !this.gameService.isPlayerOfGame(room, playerId)) {
-                    socket.emit('gameError', {
-                        code: GameErrorCode.GAME_STARTED,
-                        message: `Game[${room}] has already started!`,
-                    });
-                } else {
+                if (this.gameService.isPlayerOfGame(room, playerId)) {
                     socket.join(room);
+
+                    this.gameService.connect(room, playerId);
 
                     // someone joined, update others
                     const update = this.gameService.getGameUpdate(room);
                     this.emitToRoom(room, 'gameUpdate', update);
+
+                    socket.on('disconnect', () => {
+                        this.gameService.disconnect(room, playerId);
+                        // remove player if he doesn't reconnect
+                        setTimeout(() => {
+                            if (!this.gameService.isConnected(room, playerId)) {
+                                this.gameService.leave(room, playerId);
+                            }
+                        }, 5000);
+                    });
 
                     socket.on('ready', (ready: boolean) => {
                         this.gameService.ready(room, playerId, ready);
@@ -56,6 +63,12 @@ export class SocketService {
                     socket.on('chooseNextPlayer', (nextPlayerId: string) => {
                         this.gameService.chooseNextPlayer(room, playerId, nextPlayerId);
                     });
+                } else {
+                    // Spectator Feature
+                    socket.join(room);
+                    // tell the spectator initial data
+                    const update = this.gameService.getGameUpdate(room);
+                    socket.emit('gameUpdate', update);
                 }
             } else {
                 socket.emit('gameError', {
