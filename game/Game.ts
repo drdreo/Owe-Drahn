@@ -73,7 +73,6 @@ export class Game {
         this._command$.next({eventName: 'gameError', data: error});
     }
 
-
     chooseNextPlayer(playerId: string, nextPlayerId: string) {
         const currentPlayer = this.getCurrentPlayer();
         if (currentPlayer.id === playerId && currentPlayer.choosing) {
@@ -146,7 +145,7 @@ export class Game {
             if (this.currentValue > 15) {
                 this.currentValue = 0;
                 player.life = 0;
-                this._command$.next({eventName: 'lost', data: {playerId}});
+                this._command$.next({eventName: 'lost', data: {player}});
             }
             this.setNextPlayer();
 
@@ -154,20 +153,29 @@ export class Game {
                 player.choosing = false;
             }
 
-            this._command$.next({eventName: 'rolledDice', data: dice});
-            this.sendGameUpdate();
+            this._command$.next({eventName: 'rolledDice', data: {dice, player}});
         } else {
             this.sendGameError({code: GameErrorCode.NOT_YOUR_TURN, message: 'Not your turn!'});
-
         }
     }
 
     connect(playerId: string) {
-        this.getPlayer(playerId).connected = true;
+        const player = this.getPlayer(playerId);
+        if (player) {
+            this.getPlayer(playerId).connected = true;
+        } else {
+            this.sendGameError({code: GameErrorCode.NO_PLAYER, message: 'You are not part of this game!'});
+
+        }
     }
 
     disconnect(playerId: string) {
-        this.getPlayer(playerId).connected = false;
+        const player = this.getPlayer(playerId);
+        if (player) {
+            this.getPlayer(playerId).connected = false;
+        } else {
+            this.sendGameError({code: GameErrorCode.NO_PLAYER, message: 'You are not part of this game!'});
+        }
     }
 
     leave(playerId: string) {
@@ -186,16 +194,21 @@ export class Game {
     }
 
     ready(playerId: string, ready: boolean) {
-        this.getPlayer(playerId).ready = ready ? ready : false;
+        const player = this.getPlayer(playerId);
+        if (player) {
+            player.ready = ready ? ready : false;
 
-        // check if everyone is ready
-        if (this.isEveryoneReady()) {
-            this.setNextPlayerRandom();
-            this.started = true;
-            // reset everyones ready state for UI reasons
-            this.players.map(player => player.ready = false);
+            // check if everyone is ready
+            if (this.isEveryoneReady()) {
+                this.setNextPlayerRandom();
+                this.started = true;
+                // reset everyones ready state for UI reasons
+                this.players.map(player => player.ready = false);
+            }
+            this.sendGameUpdate();
+        } else {
+            this.sendGameError({code: GameErrorCode.NO_PLAYER, message: 'You are not part of this game!'});
         }
-        this.sendGameUpdate();
     }
 
     isEveryoneReady() {
@@ -208,7 +221,8 @@ export class Game {
             player.life--;
             player.choosing = true;
             this.currentValue = 0;
-            this.sendGameUpdate();
+            this._command$.next({eventName: 'lostLife', data: {player}});
+            this._command$.next({eventName: 'gameUpdate', data: this.getGameUpdate()});
         } else {
             this.sendGameError({code: GameErrorCode.NOT_ALLOWED, message: 'You arent allowed to owe drahn!'});
         }

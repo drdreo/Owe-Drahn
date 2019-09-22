@@ -30,6 +30,10 @@ $rolled-dice-color: $primary-color;
 .current-value {
   font-size: 5rem;
   color: white;
+
+  &.warning {
+    color: $warning-color;
+  }
 }
 
 .rolled-dice {

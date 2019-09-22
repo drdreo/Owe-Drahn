@@ -1,0 +1,13 @@
+@import "../../../utils";
+
+.message {
+  &__rolled {
+    &__dice {
+      color: $primary-color;
+    }
+  }
+
+  &__lost {
+    color: $danger-color;
+  }
+}

@@ -1,3 +1,4 @@
+
 export const handshake = (room) => {
     return {
         type: "CONNECTION_HANDSHAKE",
@@ -38,16 +39,23 @@ export const chooseNextPlayer = (playerId) => {
     };
 };
 
-
 export const gameUpdate = (data) => {
     return {
         type: "GAME_UPDATE",
         payload: data
     };
 };
+
 export const gameError = (data) => {
     return {
         type: "GAME_ERROR",
+        payload: data
+    };
+};
+
+export const feedMessage = (data) => {
+    return {
+        type: "ADD_FEED_MESSAGE",
         payload: data
     };
 };

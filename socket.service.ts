@@ -26,7 +26,6 @@ export class SocketService {
 
         socket.on('handshake', (handshakeData) => {
             const {room, playerId} = handshakeData;
-            console.log('Handshake', handshakeData);
 
             if (this.gameService.hasGame(room)) {
 

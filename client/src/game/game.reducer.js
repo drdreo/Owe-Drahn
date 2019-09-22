@@ -1,15 +1,14 @@
+import { Subject} from "rxjs";
+
 const initialState = {
     rolledDice: undefined,
+    rolledDice$: new Subject(undefined),
     animatingDice: false,
     currentValue: 0,
     players: [],
     started: false,
     over: false,
-    gameError: {
-        noGame: false,
-        notAllowed: false,
-        notYourTurn: false
-    }
+    gameError$: new Subject(undefined)
 };
 
 
@@ -27,19 +26,11 @@ const gameReducer = (state = initialState, action) => {
             };
 
         case "GAME_ERROR":
-            switch (action.payload.code) {
-                case "NO_GAME":
-                    return {...state, gameError: {noGame: true}};
-                case "NOT_ALLOWED":
-                    return {...state, gameError: {notAllowed: true}};
-                case "NOT_YOUR_TURN":
-                    return {...state, gameError: {notYourTurn: true}};
-                default:
-                    console.warn(`gameError sent:[${action.payload.message}] but isn't handled!`);
-                    return state;
-            }
+            state.gameError$.next(action.payload);
+            return state;
 
         case "ROLLED_DICE":
+            state.rolledDice$.next(action.payload);
             return {...state, rolledDice: action.payload};
         default:
             return state;

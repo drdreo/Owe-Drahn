@@ -15,6 +15,9 @@ const socketReducer = (state = {socket: io}, action) => {
         case "PLAYER_ROLL_DICE":
             state.socket.emit("rollDice");
             return state;
+        case "PLAYER_LOSE_LIFE":
+            state.socket.emit("loseLife");
+            return state;
         case "PLAYER_CHOOSE_NEXT":
             state.socket.emit("chooseNextPlayer", action.payload);
             return state;

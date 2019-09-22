@@ -1,15 +1,22 @@
 import React, {Component} from "react";
 import {connect} from "react-redux";
+import {Subject} from "rxjs";
+import {takeUntil} from "rxjs/operators";
+
 import rollADie from "roll-a-die";
 
 import Player from "./Player/Player";
 import LifeLoseBtn from "./LifeLoseBtn/LifeLoseBtn";
+import Feed from "./Feed/Feed";
 
 import "./Game.scss";
 import {chooseNextPlayer, handshake, loseLife, ready, rollDice} from "../socket/socket.actions";
 
 
 class Game extends Component {
+
+    unsubscribe$ = new Subject();
+
     constructor(props) {
         super(props);
 
@@ -20,22 +27,43 @@ class Game extends Component {
 
     }
 
-    componentDidUpdate(prevProps, prevState) {
-        if (prevProps.gameError.noGame) {
-            setTimeout(() => {
-                this.props.history.push("/");
-            }, 2000);
-        }
+    componentDidUpdate() {
 
-        if (prevProps.rolledDice) {
-            console.log(prevProps.rolledDice);
-            this.animateDice(prevProps.rolledDice);
+        this.props.rolledDice$
+            .pipe(takeUntil(this.unsubscribe$))
+            .subscribe((value) => {
+                console.log({value});
+                if (value) {
+                    this.animateDice(value);
+                }
+            });
+
+        this.props.gameError$
+            .pipe(takeUntil(this.unsubscribe$))
+            .subscribe(this.handleGameError);
+    }
+
+    componentWillUnmount() {
+        this.unsubscribe$.next();
+        this.unsubscribe$.complete();
+    }
+
+    handleGameError(error) {
+        console.log({error});
+        switch (error.code) {
+            case "NO_GAME":
+                setTimeout(() => {
+                    this.props.history.push("/");
+                }, 2000);
+            case "NOT_ALLOWED":
+            case "NOT_YOUR_TURN":
+            default:
+                console.warn(`gameError sent:[${error.message}] but isn't handled!`);
         }
     }
 
     render() {
         const {rolledDice, currentValue, players, started, over} = this.props;
-        console.log(this.props);
 
         const player = this.getPlayer();
         // const currentPlayer = this.getCurrentPlayer();
@@ -67,7 +95,7 @@ class Game extends Component {
                 <h5 className="heading">Game</h5>
                 <div className="statistics">
                     <div className="rolled-dice">{rolledDice}</div>
-                    <div className="current-value">{currentValue}</div>
+                    <div className={`current-value ${currentValue >= 10 ? "warning" : ""}`}>{currentValue}</div>
                 </div>
 
                 {controls}
@@ -80,6 +108,7 @@ class Game extends Component {
                 </div>
 
                 <div className="dice" ref={this.diceRef}></div>
+                <Feed/>
             </div>
         );
     }
@@ -109,7 +138,7 @@ class Game extends Component {
     }
 
     loseLife() {
-        if (this.getPlayer().isPlayersTurn) {
+        if (this.getPlayer().isPlayersTurn && this.props.currentValue > 9) {
             this.props.loseLife();
         }
     }
@@ -117,7 +146,6 @@ class Game extends Component {
     chooseNextPlayer(playerId) {
         const player = this.getPlayer();
         if (player.isPlayersTurn && player.choosing) {
-            console.log("choosing next " + playerId);
             this.props.chooseNextPlayer(playerId);
         }
     }
