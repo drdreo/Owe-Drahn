@@ -26,6 +26,7 @@ export class SocketService {
 
         socket.on('handshake', (handshakeData) => {
             const {room, playerId} = handshakeData;
+            console.log('Handshake', handshakeData);
 
             if (this.gameService.hasGame(room)) {
 
@@ -82,6 +83,7 @@ export class SocketService {
     connect(server: http.Server): void {
         this.io = socketIo(server);
         this.io.sockets.on('connection', (client: socketIo.Socket) => {
+            console.log(`New connection from client[${client.id}]`);
             this.clientConnected(client);
         });
     }

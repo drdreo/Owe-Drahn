@@ -186,7 +186,7 @@ export class Game {
     }
 
     ready(playerId: string, ready: boolean) {
-        this.getPlayer(playerId).ready = ready;
+        this.getPlayer(playerId).ready = ready ? ready : false;
 
         // check if everyone is ready
         if (this.isEveryoneReady()) {

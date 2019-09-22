@@ -50,7 +50,8 @@ export class GameService {
     }
 
     isConnected(room: string, playerId: string): boolean {
-        return this.getGame(room).isPlayerConnected(playerId);
+        const game = this.getGame(room);
+        return game && game.isPlayerConnected(playerId);
     }
 
     disconnect(room: string, playerId: string): void {
