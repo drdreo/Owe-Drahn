@@ -2,11 +2,6 @@
 
 $rolled-dice-color: $primary-color;
 
-.heading {
-  position: absolute;
-  top: 0;
-}
-
 .players-list {
   display: flex;
   flex-wrap: wrap;
@@ -16,7 +11,7 @@ $rolled-dice-color: $primary-color;
 
 .dice {
   position: absolute;
-  top: 50%;
+  top: 20%;
   left: 50%;
   transform: translateX(-50%);
 }

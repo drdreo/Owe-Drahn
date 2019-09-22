@@ -8,6 +8,10 @@
       background-color: transparent;
     }
 
+    &:focus{
+      background-color: transparent;
+    }
+
     &[disabled] {
       background-color: transparent;
 

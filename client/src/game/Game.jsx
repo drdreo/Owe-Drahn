@@ -3,7 +3,7 @@ import {connect} from "react-redux";
 import {Subject} from "rxjs";
 import {takeUntil} from "rxjs/operators";
 
-import rollADie from "roll-a-die";
+import diceRoller from "dice-roller-3d";
 
 import Player from "./Player/Player";
 import LifeLoseBtn from "./LifeLoseBtn/LifeLoseBtn";
@@ -27,7 +27,7 @@ class Game extends Component {
 
     }
 
-    componentDidUpdate() {
+    componentDidMount() {
 
         this.props.rolledDice$
             .pipe(takeUntil(this.unsubscribe$))
@@ -92,7 +92,6 @@ class Game extends Component {
 
         return (
             <div className="page-container">
-                <h5 className="heading">Game</h5>
                 <div className="statistics">
                     <div className="rolled-dice">{rolledDice}</div>
                     <div className={`current-value ${currentValue >= 10 ? "warning" : ""}`}>{currentValue}</div>
@@ -151,10 +150,9 @@ class Game extends Component {
     }
 
     animateDice(value) {
-        rollADie({
+        diceRoller({
             element: this.diceRef.current,
             numberOfDice: 1,
-            delay: 3000,
             callback: () => {
                 console.log("done animating");
             },
