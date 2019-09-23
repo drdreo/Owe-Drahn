@@ -13,8 +13,8 @@ const LostLifeMessage = ({username}) => {
     return (<div className="message message__lost-life">{username} lost a life!</div>);
 };
 
-const LostMessage = ({username}) => {
-    return (<div className="message message__lost">{username} lost!</div>);
+const LostMessage = ({username, dice, total}) => {
+    return (<div className="message message__lost">{username} rolled <span className="message__rolled__dice">{dice}</span> and lost with {total}!</div>);
 };
 
 
@@ -31,7 +31,7 @@ class FeedMessage extends Component {
                 msgContent = <LostLifeMessage username={message.username}/>;
                 break;
             case "LOST":
-                msgContent = <LostMessage username={message.username}/>;
+                msgContent = <LostMessage username={message.username} dice={message.dice} total={message.total}/>;
                 break;
             default:
                 break;

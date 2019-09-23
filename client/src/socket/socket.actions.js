@@ -1,4 +1,3 @@
-
 export const handshake = (room) => {
     return {
         type: "CONNECTION_HANDSHAKE",
@@ -19,10 +18,10 @@ export const rollDice = () => {
     };
 };
 
-export const rolledDice = (value) => {
+export const rolledDice = (data) => {
     return {
         type: "ROLLED_DICE",
-        payload: value
+        payload: data
     };
 };
 
@@ -39,30 +38,3 @@ export const chooseNextPlayer = (playerId) => {
     };
 };
 
-export const gameUpdate = (data) => {
-    return {
-        type: "GAME_UPDATE",
-        payload: data
-    };
-};
-
-export const gameError = (data) => {
-    return {
-        type: "GAME_ERROR",
-        payload: data
-    };
-};
-
-export const feedMessage = (data) => {
-    return {
-        type: "ADD_FEED_MESSAGE",
-        payload: data
-    };
-};
-
-export const playerLost = (data) => {
-    return {
-        type: "PLAYER_LOST",
-        payload: data
-    };
-}

@@ -29,6 +29,10 @@ $rolled-dice-color: $primary-color;
   &.warning {
     color: $warning-color;
   }
+
+  &.danger {
+    color: $danger-color;
+  }
 }
 
 .rolled-dice {

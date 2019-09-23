@@ -10,7 +10,15 @@ import LifeLoseBtn from "./LifeLoseBtn/LifeLoseBtn";
 import Feed from "./Feed/Feed";
 
 import "./Game.scss";
-import {chooseNextPlayer, handshake, loseLife, ready, rollDice} from "../socket/socket.actions";
+import {
+    chooseNextPlayer,
+    handshake,
+    loseLife,
+    ready,
+    rollDice
+} from "../socket/socket.actions";
+import {animatedDice} from "./game.actions";
+import {feedMessage} from "./Feed/feed.actions";
 
 
 class Game extends Component {
@@ -20,22 +28,40 @@ class Game extends Component {
     constructor(props) {
         super(props);
 
+        this.state = {
+            animatingDice: false
+        };
+
         const {room} = this.props.match.params;
         this.handshake(room);
 
         this.diceRef = React.createRef();
-
     }
 
     componentDidMount() {
 
         this.props.rolledDice$
             .pipe(takeUntil(this.unsubscribe$))
-            .subscribe((value) => {
-                console.log({value});
-                if (value) {
-                    this.animateDice(value);
-                }
+            .subscribe((data) => {
+                this.animateDice(data.dice, data.total)
+                    .then(() => {
+                        console.log(data);
+                        if (data.total > 15) {
+                            this.props.feedMessage({
+                                type: "LOST",
+                                username: data.player.username,
+                                dice: data.dice,
+                                total: data.total
+                            });
+                        } else if (!this.props.over) {
+                            this.props.feedMessage({
+                                type: "ROLLED_DICE",
+                                username: data.player.username,
+                                dice: data.dice,
+                                total: data.total
+                            });
+                        }
+                    });
             });
 
         this.props.gameError$
@@ -63,7 +89,7 @@ class Game extends Component {
     }
 
     render() {
-        const {rolledDice, currentValue, players, started, over} = this.props;
+        const {rolledDice, ui_currentValue, players, started, over} = this.props;
 
         const player = this.getPlayer();
         // const currentPlayer = this.getCurrentPlayer();
@@ -74,11 +100,11 @@ class Game extends Component {
         if (player) {
             let controlButton;
 
-            if (!over) {
+            if (!over || this.state.animatingDice) {
                 controlButton = <button className={`button ${player.ready ? "success" : "light"}`}
                                         onClick={() => this.ready()}>Ready</button>;
                 if (started) {
-                    const isWaiting = !player.isPlayersTurn;
+                    const isWaiting = !player.isPlayersTurn || this.state.animatingDice;
 
                     controlButton = (<div style={{display: "flex"}} className={`${isWaiting ? "waiting" : ""}`}>
                         <button disabled={isWaiting} className="button" onClick={() => this.rollDice()}>Roll</button>
@@ -90,11 +116,13 @@ class Game extends Component {
 
         }
 
+        const totalModifier = ui_currentValue > 15 ? "danger" : ui_currentValue >= 10 ? "warning" : "";
+
         return (
             <div className="page-container">
                 <div className="statistics">
                     <div className="rolled-dice">{rolledDice}</div>
-                    <div className={`current-value ${currentValue >= 10 ? "warning" : ""}`}>{currentValue}</div>
+                    <div className={`current-value ${totalModifier}`}>{ui_currentValue}</div>
                 </div>
 
                 {controls}
@@ -149,14 +177,22 @@ class Game extends Component {
         }
     }
 
-    animateDice(value) {
-        diceRoller({
-            element: this.diceRef.current,
-            numberOfDice: 1,
-            callback: () => {
-                console.log("done animating");
-            },
-            values: [value]
+    animateDice(dice, total) {
+        this.setState({animatingDice: true});
+
+        return new Promise((resolve, reject) => {
+            diceRoller({
+                element: this.diceRef.current,
+                numberOfDice: 1,
+                delay: 1500,
+                callback: () => {
+                    this.setState({animatingDice: false});
+                    this.props.animatedDice({dice, total});
+                    resolve();
+                },
+                values: [dice],
+                noSound: true
+            });
         });
     }
 }
@@ -169,9 +205,11 @@ const mapDispatchToProps = dispatch => {
     return {
         handshake: (room) => dispatch(handshake(room)),
         ready: (isReady) => dispatch(ready(isReady)),
+        feedMessage: (message) => dispatch(feedMessage(message)),
         rollDice: () => dispatch(rollDice()),
         loseLife: () => dispatch(loseLife()),
-        chooseNextPlayer: playerId => dispatch(chooseNextPlayer(playerId))
+        chooseNextPlayer: playerId => dispatch(chooseNextPlayer(playerId)),
+        animatedDice: value => dispatch(animatedDice(value))
     };
 };
 export default connect(mapStateToProps, mapDispatchToProps)(Game);

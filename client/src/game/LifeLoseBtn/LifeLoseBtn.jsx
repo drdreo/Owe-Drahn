@@ -14,7 +14,6 @@ const Heart = ({disabled}) => (
 
 class LifeLoseBtn extends Component {
     render() {
-        console.log(this.props.disabled);
         return (
             <button disabled={this.props.disabled} onClick={this.props.onClick} className="button lose-life">
                 <Heart disabled={this.props.disabled}/>

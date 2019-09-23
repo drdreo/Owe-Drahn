@@ -3,6 +3,8 @@ import {withRouter} from "react-router-dom";
 import axios from "axios";
 
 import "./Home.scss";
+import {gameReset} from "../game/game.actions";
+import {connect} from "react-redux";
 
 console.log(process.env);
 const API_URL = process.env.REACT_APP_API_URL;
@@ -15,6 +17,7 @@ class Home extends Component {
             username: ""
         };
 
+        this.props.resetGameState();
     }
 
     render() {
@@ -65,4 +68,10 @@ class Home extends Component {
     }
 }
 
-export default withRouter(Home);
+const mapDispatchToProps = dispatch => {
+    return {
+        resetGameState: () => dispatch(gameReset())
+    };
+};
+export default connect(null, mapDispatchToProps)(withRouter(Home));
+
