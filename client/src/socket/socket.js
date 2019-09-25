@@ -29,7 +29,6 @@ export default (store) => {
 
     socket.on("rolledDice", data => {
         store.dispatch(rolledDice(data));
-
     });
 
     socket.on("lostLife", (data) => {

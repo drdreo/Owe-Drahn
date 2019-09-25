@@ -1,21 +1,34 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import {createStore} from "redux";
+import {createStore, compose, applyMiddleware} from "redux";
 import {Provider} from "react-redux";
+import {createBrowserHistory} from "history";
+import { routerMiddleware } from 'connected-react-router'
 
 import "./index.css";
 import App from "./App";
 import * as serviceWorker from "./serviceWorker";
-import socket from "./socket/socket";
+import connectSocket from "./socket/socket";
 
 import {allReducers} from "./reducers";
+import {routingMiddleware} from "./routing/routing.middleware";
+
+export const history = createBrowserHistory();
+
+const composeEnhancer = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 
 const store = createStore(
-    allReducers,
-    window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__());
+    allReducers(history),
+    {},
+    composeEnhancer(
+        applyMiddleware(
+            routerMiddleware(history),
+            routingMiddleware
+        )
+    ));
 
 // connect the socket to the store.
-socket(store);
+connectSocket(store);
 
 
 ReactDOM.render(

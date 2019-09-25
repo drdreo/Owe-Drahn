@@ -5,6 +5,7 @@ import axios from "axios";
 import "./Home.scss";
 import {gameReset} from "../game/game.actions";
 import {connect} from "react-redux";
+import {redirectToGame} from "../routing/routing.actions";
 
 console.log(process.env);
 const API_URL = process.env.REACT_APP_API_URL;
@@ -17,6 +18,7 @@ class Home extends Component {
             username: ""
         };
 
+        sessionStorage.removeItem("playerId");
         this.props.resetGameState();
     }
 
@@ -61,7 +63,7 @@ class Home extends Component {
                     console.log(response.data.error);
                 } else {
                     sessionStorage.setItem("playerId", response.data.playerId);
-                    this.props.history.push("/game/" + room);
+                    this.props.redirectToGame(room);
                 }
 
             });
@@ -70,7 +72,9 @@ class Home extends Component {
 
 const mapDispatchToProps = dispatch => {
     return {
-        resetGameState: () => dispatch(gameReset())
+        resetGameState: () => dispatch(gameReset()),
+        redirectToGame: (room) => dispatch(redirectToGame(room))
+
     };
 };
 export default connect(null, mapDispatchToProps)(withRouter(Home));

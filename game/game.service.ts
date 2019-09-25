@@ -55,7 +55,10 @@ export class GameService {
     }
 
     disconnect(room: string, playerId: string): void {
-        this.getGame(room).disconnect(playerId);
+        const game = this.getGame(room);
+        if (game) {
+            this.getGame(room).disconnect(playerId);
+        }
     }
 
     leave(room: string, playerId: string): void {

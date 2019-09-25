@@ -193,10 +193,12 @@ export class Game {
     leave(playerId: string) {
         const playerIndex = this.players.findIndex(player => player.id === playerId);
         if (playerIndex !== -1) {
-            if (this.players[playerIndex].isPlayersTurn && this.players.length > 1) {
-                this.setNextPlayer();
-                this.players.splice(playerIndex, 1);
-                this.sendGameUpdate();
+            if (this.players.length > 1) {
+                if (this.players[playerIndex].isPlayersTurn) {
+                    this.setNextPlayer();
+                    this.players.splice(playerIndex, 1);
+                    this.sendGameUpdate();
+                }
             } else {
                 this.players.splice(playerIndex, 1);
 
@@ -204,7 +206,6 @@ export class Game {
                     this.gameOver();
                 }
             }
-
         }
     }
 

@@ -22,7 +22,7 @@ export class SocketService {
         this.Instance.in(room).emit(eventName, data);
     }
 
-    private clientConnected(socket: socketIo.Socket): void {
+    private socketConnected(socket: socketIo.Socket): void {
 
         socket.on('handshake', (handshakeData) => {
             const {room, playerId} = handshakeData;
@@ -39,6 +39,8 @@ export class SocketService {
                     this.emitToRoom(room, 'gameUpdate', update);
 
                     socket.on('disconnect', () => {
+                        console.log(`Disconnected socket[${socket.id}]`);
+
                         this.gameService.disconnect(room, playerId);
                         // remove player if he doesn't reconnect
                         setTimeout(() => {
@@ -46,6 +48,10 @@ export class SocketService {
                                 this.gameService.leave(room, playerId);
                             }
                         }, 5000);
+                    });
+
+                    socket.on('leave', () => {
+                        this.gameService.leave(room, playerId);
                     });
 
                     socket.on('ready', (ready: boolean) => {
@@ -81,9 +87,9 @@ export class SocketService {
 
     connect(server: http.Server): void {
         this.io = socketIo(server);
-        this.io.sockets.on('connection', (client: socketIo.Socket) => {
-            console.log(`New connection from client[${client.id}]`);
-            this.clientConnected(client);
+        this.io.sockets.on('connection', (socket: socketIo.Socket) => {
+            console.log(`New connection from socket[${socket.id}]`);
+            this.socketConnected(socket);
         });
     }
 

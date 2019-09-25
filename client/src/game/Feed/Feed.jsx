@@ -12,12 +12,16 @@ class Feed extends Component {
     }
 
     render() {
-        const {messages} = this.props;
+        const {messages, enabled} = this.props;
+
+        if (!enabled) {
+            return null;
+        }
 
         if (this.feedRef.current) {
             setTimeout(() => {
                 this.scrollToBottom();
-            },10);
+            }, 10);
         }
         return (
             <div className="feed" ref={this.feedRef}>
@@ -34,7 +38,7 @@ class Feed extends Component {
 }
 
 const mapStateToProps = (state) => {
-    return state.feed;
+    return {...state.feed, enabled: state.settings.feed.enabled};
 };
 
 export default connect(mapStateToProps)(Feed);

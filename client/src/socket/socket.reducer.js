@@ -1,4 +1,11 @@
 import socketIOClient from "socket.io-client";
+import {
+    CONNECTION_HANDSHAKE,
+    PLAYER_CHOOSE_NEXT,
+    PLAYER_LOSE_LIFE,
+    PLAYER_READY,
+    PLAYER_ROLL_DICE
+} from "./socket.actions";
 
 const SERVER_URL = process.env.REACT_APP_DOMAIN;
 
@@ -6,19 +13,22 @@ const io = socketIOClient(SERVER_URL);
 
 const socketReducer = (state = {socket: io}, action) => {
     switch (action.type) {
-        case "CONNECTION_HANDSHAKE":
+        case "GAME_RESET":
+            state.socket.emit("leave");
+            return state;
+        case CONNECTION_HANDSHAKE:
             state.socket.emit("handshake", {playerId: sessionStorage.getItem("playerId"), room: action.payload});
             return state;
-        case "PLAYER_READY":
+        case PLAYER_READY:
             state.socket.emit("ready", action.payload);
             return state;
-        case "PLAYER_ROLL_DICE":
+        case PLAYER_ROLL_DICE:
             state.socket.emit("rollDice");
             return state;
-        case "PLAYER_LOSE_LIFE":
+        case PLAYER_LOSE_LIFE:
             state.socket.emit("loseLife");
             return state;
-        case "PLAYER_CHOOSE_NEXT":
+        case PLAYER_CHOOSE_NEXT:
             state.socket.emit("chooseNextPlayer", action.payload);
             return state;
         default:
