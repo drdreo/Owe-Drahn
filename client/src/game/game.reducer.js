@@ -6,6 +6,7 @@ const initialState = {
     currentValue: 0, // actual value from the server
     ui_currentValue: 0, // value to display delayed
     players: [],
+    ui_players: [],
     started: false,
     over: false,
     gameError$: new Subject(undefined)
@@ -16,7 +17,7 @@ const gameReducer = (state = initialState, action) => {
         case "GAME_RESET":
             return {...state, ...initialState};
         case "GAME_INIT":
-            return {...state, ...initialState, players: action.payload.players};
+            return {...state, ...initialState, players: action.payload.players, ui_players: state.players};
         case "GAME_STARTED":
             return {...state, started: true, over: false};
         case "GAME_UPDATE":
@@ -30,7 +31,12 @@ const gameReducer = (state = initialState, action) => {
             state.rolledDice$.next(action.payload);
             return state;
         case "ANIMATED_DICE":
-            return {...state, rolledDice: action.payload.dice, ui_currentValue: action.payload.total};
+            return {
+                ...state,
+                rolledDice: action.payload.dice,
+                ui_currentValue: action.payload.total,
+                ui_players: state.players
+            };
         case "PLAYER_LOST_LIFE":
             return {...state, rolledDice: 0, ui_currentValue: 0};
         default:
