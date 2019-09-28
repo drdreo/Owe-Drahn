@@ -1,7 +1,7 @@
 import {push} from "connected-react-router";
 import {REDIRECT_TO_GAME, REDIRECT_TO_HOME} from "./routing.actions";
 
-export const routingMiddleware = store => next => action => {
+const routingMiddleware = store => next => action => {
     if (action.type === REDIRECT_TO_HOME) {
         store.dispatch(push("/home"));
     } else if (action.type === REDIRECT_TO_GAME) {
@@ -9,3 +9,5 @@ export const routingMiddleware = store => next => action => {
     }
     return next(action);
 };
+
+export default routingMiddleware;
