@@ -3,6 +3,16 @@ import { Game } from './Game';
 import { Observable } from 'rxjs';
 import { Command } from './Command';
 
+interface Room {
+    room: string;
+    started: boolean;
+}
+
+export interface GamesOverview {
+    rooms: Room[];
+    totalPlayers: number;
+}
+
 @Service()
 export class GameService {
 
@@ -14,6 +24,18 @@ export class GameService {
 
     getGame(room: string): Game {
         return this.games.get(room);
+    }
+
+    getGamesOverview(): GamesOverview {
+
+        let totalPlayers = 0;
+        let rooms = [];
+
+        this.games.forEach((game, room) => {
+            rooms.push({room, started: game.started});
+            totalPlayers += game.getPlayers().length;
+        });
+        return {totalPlayers, rooms};
     }
 
     hasGame(room: string): boolean {

@@ -53,6 +53,10 @@ export class Game {
         return this.players.some(player => player.id === playerId);
     }
 
+    getPlayers(): Player[] {
+        return this.players;
+    }
+
     isPlayerConnected(playerId: string) {
         return this.getPlayer(playerId).connected;
     }

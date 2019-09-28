@@ -81,6 +81,13 @@ app.get('/api/join', (req: any, res: express.Response) => {
     }
 });
 
+// Express Routers
+app.get('/api/games/overview', (req: any, res: express.Response) => {
+
+    const overview = gameService.getGamesOverview();
+    res.json(overview);
+});
+
 app.use(express.static(environmentService.frontendPath));
 
 // general catch all

@@ -56,3 +56,58 @@
     }
   }
 }
+
+
+.overview {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  padding: 5px;
+
+  border-radius: 5px;
+  background-color: #373a49;
+  color: #aaa;
+  font-size: 12px;
+
+  &__total-players {
+    padding-bottom: 5px;
+
+    span {
+      color: #fff;
+    }
+  }
+
+  &__rooms {
+    max-height: 70px;
+    overflow-y: auto;
+
+    &__entry {
+      display: flex;
+      align-items: center;
+      padding: 5px 0 0 15px;
+
+      color: white;
+      cursor: pointer;
+
+      &.has-started {
+        color: inherit;
+        padding-left: 0;
+
+        &:hover {
+          color: white;
+        }
+      }
+    }
+
+
+  }
+}
+
+.live {
+  background-color: red;
+  width: 5px;
+  height: 5px;
+  border-radius: 20px;
+  display: flex;
+  margin: 0 5px;
+}
