@@ -1,5 +1,5 @@
 import {rolledDice} from "./socket.actions";
-import {gameError, gameInit, gameOver, gameStarted, gameUpdate, lostLife} from "../game/game.actions";
+import {gameError, gameInit, gameOver, gameStarted, gameUpdate, playerUpdate, lostLife} from "../game/game.actions";
 import {feedMessage} from "../game/Feed/feed.actions";
 
 export default (store) => {
@@ -25,6 +25,10 @@ export default (store) => {
 
     socket.on("gameError", data => {
         store.dispatch(gameError(data));
+    });
+
+    socket.on("playerUpdate", data => {
+        store.dispatch(playerUpdate(data));
     });
 
     socket.on("rolledDice", data => {

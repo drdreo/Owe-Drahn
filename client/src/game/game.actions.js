@@ -37,6 +37,14 @@ export const gameError = (data) => {
     };
 };
 
+export const playerUpdate = (data) => {
+    return {
+        type: "PLAYER_UPDATE",
+        payload: data
+    };
+};
+
+
 export const lostLife = () => {
     return {
         type: "PLAYER_LOST_LIFE"
