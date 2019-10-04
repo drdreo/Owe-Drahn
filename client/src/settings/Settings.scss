@@ -1,0 +1,59 @@
+@import "../utils";
+@import "./hamburger";
+
+$menu-background-color-closed: transparent;
+$menu-background-color-active: $primary-color;
+$menu-color: #fff;
+
+.menu {
+  background-color: $menu-background-color-closed;
+  color: $menu-color;
+
+  width: 70px;
+  height: 70px;
+
+  border-radius: 25px;
+  transition: 0.25s background-color ease-in-out, 0.2s height ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+
+  &.menu--open {
+    height: 350px;
+    transition: 0.3s background-color ease, 0.3s height ease-in-out;
+    background-color: $menu-background-color-active;
+
+    .menu-entries {
+      margin-top: 60%;
+      z-index: 50;
+      opacity: 1;
+      transition: 1s opacity ease-out;
+    }
+  }
+}
+
+.menu-entries {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 60%;
+  justify-content: space-between;
+  transition: 0.3s margin ease;
+  opacity: 0;
+
+  z-index: -1;
+
+  .icon {
+    transition: 0.2s transform ease;
+
+    &:hover {
+      transform: scale(0.8);
+    }
+  }
+}
+
+.profile-picture {
+  width: 50px;
+}

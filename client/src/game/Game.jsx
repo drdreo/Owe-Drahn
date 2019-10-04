@@ -1,3 +1,4 @@
+
 /*eslint no-fallthrough: ["warn", { "commentPattern": "break omitted" }]*/
 
 import React, {Component} from "react";
@@ -5,13 +6,14 @@ import {connect} from "react-redux";
 import {Subject} from "rxjs";
 import {takeUntil} from "rxjs/operators";
 
+
 import diceRoller from "dice-roller-3d";
 
 import Player from "./Player/Player";
 import LifeLoseBtn from "./LifeLoseBtn/LifeLoseBtn";
 import Feed from "./Feed/Feed";
+import Settings from "../settings/Settings";
 
-import "./Game.scss";
 import {
     chooseNextPlayer,
     handshake,
@@ -19,9 +21,10 @@ import {
     ready,
     rollDice
 } from "../socket/socket.actions";
-import {animatedDice} from "./game.actions";
-import {feedMessage} from "./Feed/feed.actions";
+import { animatedDice } from "./game.actions";
+import { feedMessage } from "./Feed/feed.actions";
 
+import "./Game.scss";
 
 class Game extends Component {
 
@@ -34,7 +37,7 @@ class Game extends Component {
             animatingDice: false
         };
 
-        const {room} = this.props.match.params;
+        const { room } = this.props.match.params;
         this.handshake(room);
 
         this.diceRef = React.createRef();
@@ -77,7 +80,7 @@ class Game extends Component {
     }
 
     handleGameError(error) {
-        console.log({error});
+        console.log({ error });
         switch (error.code) {
             case "NO_GAME":
                 setTimeout(() => {
@@ -92,7 +95,7 @@ class Game extends Component {
     }
 
     render() {
-        const {rolledDice, ui_currentValue, players, started, over} = this.props;
+        const { rolledDice, ui_currentValue, players, started, over } = this.props;
 
         const player = this.getPlayer();
         // const currentPlayer = this.getCurrentPlayer();
@@ -105,13 +108,13 @@ class Game extends Component {
 
             if (!over || this.state.animatingDice) {
                 controlButton = <button className={`button ${player.ready ? "success" : "light"}`}
-                                        onClick={() => this.ready()}>Ready</button>;
+                    onClick={() => this.ready()}>Ready</button>;
                 if (started) {
                     const isWaiting = !player.isPlayersTurn || this.state.animatingDice;
 
-                    controlButton = (<div style={{display: "flex"}} className={`${isWaiting ? "waiting" : ""}`}>
+                    controlButton = (<div style={{ display: "flex" }} className={`${isWaiting ? "waiting" : ""}`}>
                         <button disabled={isWaiting} className="button" onClick={() => this.rollDice()}>Roll</button>
-                        <LifeLoseBtn disabled={isWaiting} onClick={() => this.loseLife()}/>
+                        <LifeLoseBtn disabled={isWaiting} onClick={() => this.loseLife()} />
                     </div>);
                 }
                 controls = (<div className="controls">{controlButton}</div>);
@@ -133,12 +136,15 @@ class Game extends Component {
                 <div className="players-list">
                     {players.map((player) =>
                         <Player player={player} choosing={isChoosing} key={player.id}
-                                onClick={() => this.chooseNextPlayer(player.id)}/>
+                            onClick={() => this.chooseNextPlayer(player.id)} />
                     )}
                 </div>
 
+
                 <div className="dice" ref={this.diceRef}/>
-                <Feed/>
+                <Feed />
+                <Settings className="settings" />
+
             </div>
         );
     }
@@ -181,7 +187,7 @@ class Game extends Component {
     }
 
     animateDice(dice, total) {
-        this.setState({animatingDice: true});
+        this.setState({ animatingDice: true });
 
         return new Promise((resolve) => {
             diceRoller({
@@ -189,19 +195,19 @@ class Game extends Component {
                 numberOfDice: 1,
                 delay: 1500,
                 callback: () => {
-                    this.setState({animatingDice: false});
-                    this.props.animatedDice({dice, total});
+                    this.setState({ animatingDice: false });
+                    this.props.animatedDice({ dice, total });
                     resolve();
                 },
                 values: [dice],
-                noSound: true
+                noSound: !this.props.settings.sound.enabled
             });
         });
     }
 }
 
 const mapStateToProps = (state) => {
-    return state.game;
+    return { ...state.game, settings: state.settings };
 };
 
 const mapDispatchToProps = dispatch => {

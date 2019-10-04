@@ -25,7 +25,7 @@ export class SocketService {
     private socketConnected(socket: socketIo.Socket): void {
 
         socket.on('handshake', (handshakeData) => {
-            const {room, playerId} = handshakeData;
+            const { room, playerId } = handshakeData;
 
             if (this.gameService.hasGame(room)) {
 
@@ -51,22 +51,31 @@ export class SocketService {
                     });
 
                     socket.on('leave', () => {
+                        console.log(`socket[${socket.id}] - leave`);
                         this.gameService.leave(room, playerId);
                     });
 
                     socket.on('ready', (ready: boolean) => {
+                        console.log(`socket[${socket.id}] - ready`);
+
                         this.gameService.ready(room, playerId, ready);
                     });
 
                     socket.on('rollDice', () => {
+                        console.log(`socket[${socket.id}] - rollDice`);
+
                         this.gameService.rollDice(room, playerId);
                     });
 
                     socket.on('loseLife', () => {
+                        console.log(`socket[${socket.id}] - loseLife`);
+
                         this.gameService.loseLife(room, playerId);
                     });
 
                     socket.on('chooseNextPlayer', (nextPlayerId: string) => {
+                        console.log(`socket[${socket.id}] - chooseNextPlayer`);
+
                         this.gameService.chooseNextPlayer(room, playerId, nextPlayerId);
                     });
                 } else {
