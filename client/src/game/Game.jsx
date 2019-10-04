@@ -1,7 +1,11 @@
-import React, { Component } from "react";
-import { connect } from "react-redux";
-import { Subject } from "rxjs";
-import { takeUntil } from "rxjs/operators";
+
+/*eslint no-fallthrough: ["warn", { "commentPattern": "break omitted" }]*/
+
+import React, {Component} from "react";
+import {connect} from "react-redux";
+import {Subject} from "rxjs";
+import {takeUntil} from "rxjs/operators";
+
 
 import diceRoller from "dice-roller-3d";
 
@@ -82,6 +86,7 @@ class Game extends Component {
                 setTimeout(() => {
                     this.props.history.push("/");
                 }, 2000);
+            // break omitted
             case "NOT_ALLOWED":
             case "NOT_YOUR_TURN":
             default:
@@ -129,15 +134,17 @@ class Game extends Component {
                 {controls}
 
                 <div className="players-list">
-                    {players.map((player, key) =>
+                    {players.map((player) =>
                         <Player player={player} choosing={isChoosing} key={player.id}
                             onClick={() => this.chooseNextPlayer(player.id)} />
                     )}
                 </div>
 
-                <div className="dice" ref={this.diceRef}></div>
+
+                <div className="dice" ref={this.diceRef}/>
                 <Feed />
                 <Settings className="settings" />
+
             </div>
         );
     }
@@ -147,9 +154,9 @@ class Game extends Component {
         return this.props.players.find(player => player.id === currentPlayerId);
     }
 
-    getCurrentPlayer() {
-        return this.props.players.find(player => player.isPlayersTurn);
-    }
+    // getCurrentPlayer() {
+    //     return this.props.players.find(player => player.isPlayersTurn);
+    // }
 
     handshake(room) {
         this.props.handshake(room);
@@ -182,7 +189,7 @@ class Game extends Component {
     animateDice(dice, total) {
         this.setState({ animatingDice: true });
 
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
             diceRoller({
                 element: this.diceRef.current,
                 numberOfDice: 1,
