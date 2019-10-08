@@ -94,7 +94,7 @@ class Game extends Component {
     }
 
     render() {
-        const {rolledDice, ui_currentValue, players, started, over} = this.props;
+        const {rolledDice, ui_currentValue, players, ui_players, started, over} = this.props;
 
         const player = this.getPlayer();
         // const currentPlayer = this.getCurrentPlayer();
@@ -106,9 +106,9 @@ class Game extends Component {
             let controlButton;
 
             if (!over || this.state.animatingDice) {
-                if(players.length === 1){
+                if (players.length === 1) {
                     controlButton = "Waiting for Players";
-                }else{
+                } else {
                     controlButton = <button className={`button ${player.ready ? "success" : "light"}`}
                                             onClick={() => this.ready()}>Ready</button>;
                 }
@@ -138,7 +138,7 @@ class Game extends Component {
                 {controls}
 
                 <div className="players-list">
-                    {players.map((player) =>
+                    {ui_players.map((player) =>
                         <Player player={player} choosing={isChoosing} key={player.id}
                                 onClick={() => this.chooseNextPlayer(player.id)}/>
                     )}
@@ -197,7 +197,7 @@ class Game extends Component {
             diceRoller({
                 element: this.diceRef.current,
                 numberOfDice: 1,
-                delay: 1500,
+                delay: 1250,
                 callback: () => {
                     this.setState({animatingDice: false});
                     this.props.animatedDice({dice, total});

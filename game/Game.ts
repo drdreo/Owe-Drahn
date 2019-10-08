@@ -69,16 +69,16 @@ export class Game {
         this._command$.next({eventName: 'gameUpdate', data: this.getGameUpdate()});
     }
 
-    sendGameOver() {
-        this._command$.next({eventName: 'gameOver', data: this.players[0].username});
+    sendGameOver(winner: string) {
+        this._command$.next({eventName: 'gameOver', data: winner});
     }
 
     sendGameError(error: GameError) {
         this._command$.next({eventName: 'gameError', data: error});
     }
 
-    sendPlayerUpdate() {
-        this._command$.next({eventName: 'playerUpdate', data: this.players});
+    sendPlayerUpdate(updateUI: boolean = false) {
+        this._command$.next({eventName: 'playerUpdate', data: {players: this.players, updateUI}});
     }
 
     sendPlayerLeft(username: string) {
@@ -87,13 +87,14 @@ export class Game {
 
     chooseNextPlayer(playerId: string, nextPlayerId: string) {
         const currentPlayer = this.getCurrentPlayer();
-        if (currentPlayer.id === playerId && currentPlayer.choosing) {
+        const nextPlayer = this.getPlayer(nextPlayerId);
+        if (currentPlayer.id === playerId && currentPlayer.choosing && nextPlayer.life > 0) {
             currentPlayer.isPlayersTurn = false;
             this.getPlayer(nextPlayerId).isPlayersTurn = true;
             currentPlayer.choosing = false;
         }
 
-        this.sendPlayerUpdate();
+        this.sendPlayerUpdate(true);
     }
 
     setNextPlayer(): void {
@@ -124,7 +125,8 @@ export class Game {
                 } while (this.players[nextPlayerIndex].life <= 0);
                 this.players[nextPlayerIndex].isPlayersTurn = true;
             } else {
-                this.gameOver();
+                const winner = this.players.find(player => player.life > 0);
+                this.gameOver(winner.username);
             }
 
         }
@@ -212,12 +214,12 @@ export class Game {
                     this.setNextPlayer();
                 }
                 this.removePlayer(playerIndex);
-                this.sendPlayerUpdate();
+                this.sendPlayerUpdate(true);
             } else {
                 this.removePlayer(playerIndex);
-                this.sendPlayerUpdate();
+                this.sendPlayerUpdate(true);
                 if (this.started) {
-                    this.gameOver();
+                    this.gameOver(this.players[0].username);
                 }
             }
         }
@@ -238,7 +240,7 @@ export class Game {
                 this.players.map(player => player.ready = false);
             }
             // this.sendGameUpdate();
-            this.sendPlayerUpdate();
+            this.sendPlayerUpdate(true);
 
         } else {
             this.sendGameError({code: GameErrorCode.NO_PLAYER, message: 'You are not part of this game!'});
@@ -268,11 +270,11 @@ export class Game {
         }
     }
 
-    gameOver() {
+    gameOver(winner: string) {
         // game over
         this.over = true;
 
-        this.sendGameOver();
+        this.sendGameOver(winner);
         // restart after 5s
         setTimeout(() => {
             this.init();

@@ -23,11 +23,13 @@ class Home extends Component {
 
     componentDidMount() {
         console.log("Home mounted");
-        const wasPlayer = !!sessionStorage.getItem("playerId");
-        if (wasPlayer) {
-            // Probably redundant since socket sends leave when it was in a game
-            this.leaveGame();
-        }
+        sessionStorage.removeItem("playerId");
+
+        // const wasPlayer = !!sessionStorage.getItem("playerId");
+        // if (wasPlayer) {
+        //     // Probably redundant since socket sends leave when it was in a game
+        //     this.leaveGame();
+        // }
         // TODO: check why this is not always called
         this.props.resetGameState();
     }

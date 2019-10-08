@@ -23,10 +23,17 @@ export class SocketService {
         this.Instance.in(room).emit(eventName, data);
     }
 
+    connect(server: http.Server): void {
+        this.io = socketIo(server);
+        this.io.sockets.on('connection', (socket: socketIo.Socket) => {
+            this.socketConnected(socket);
+        });
+    }
+
     private socketConnected(socket: socketIo.Socket): void {
 
         socket.on('handshake', (handshakeData) => {
-            console.log(`New connection handshake from socket[${socket.id}] in room[${handshakeData.room}]`);
+            console.log(`New connection handshake from socket[${socket.id}] player[${handshakeData.playerId}] in room[${handshakeData.room}]`);
             const {room, playerId} = handshakeData;
 
             this.removeListener(socket);
@@ -41,7 +48,7 @@ export class SocketService {
                     const update = this.gameService.getGameUpdate(room);
                     this.emitToRoom(room, 'gameUpdate', update);
 
-                    socket.on('disconnect', () => {
+                    socket.once('disconnect', () => {
                         console.log(`Disconnected socket[${socket.id}]`);
 
                         this.gameService.disconnect(room, playerId);
@@ -50,7 +57,7 @@ export class SocketService {
                             if (!this.gameService.isConnected(room, playerId)) {
                                 this.gameService.leave(room, playerId);
                             }
-                        }, 5000);
+                        }, 10000);
                     });
 
                     socket.on('leave', () => {
@@ -100,12 +107,7 @@ export class SocketService {
         });
     }
 
-    connect(server: http.Server): void {
-        this.io = socketIo(server);
-        this.io.sockets.on('connection', (socket: socketIo.Socket) => {
-            this.socketConnected(socket);
-        });
-    }
+
 
     subscribeToGame(room: string): void {
         this.gameService.getGameCommand(room)
