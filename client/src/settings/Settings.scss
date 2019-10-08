@@ -78,14 +78,6 @@ $menu-color: #fff;
     path, line {
       stroke: transparentize(#fff, 0.7);
     }
-
-    .off {
-      display: block;
-    }
-
-    .on {
-      display: none;
-    }
   }
 
   path, line {
@@ -110,22 +102,16 @@ $menu-color: #fff;
     .on {
       display: none;
     }
+
+    &:hover {
+      path, line {
+        stroke: transparentize(#fff, 0.7);
+      }
+    }
   }
 }
 
 #Feed {
-
-  &:hover {
-    .messages {
-      line {
-        stroke: transparentize(white, 0.7);
-      }
-    }
-
-    .off {
-      display: block;
-    }
-  }
 
   path, line {
     fill: none;
@@ -135,10 +121,9 @@ $menu-color: #fff;
     stroke-miterlimit: 10;
   }
 
-  .messages {
-    line {
-      stroke: #000;
-      stroke-linejoin: round;
+  &:hover {
+    path, line {
+      stroke: transparentize(white, 0.7);
     }
   }
 
@@ -151,12 +136,16 @@ $menu-color: #fff;
       display: block;
     }
 
-
     .messages {
-      line {
+      path, line {
+        stroke: transparentize(white, 0.7);
+      }
+    }
+
+    &:hover {
+      path, line {
         stroke: transparentize(white, 0.7);
       }
     }
   }
-
 }
