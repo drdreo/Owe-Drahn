@@ -8,7 +8,7 @@ let initialState = !!storedSettings ? storedSettings : {
         enabled: true
     },
     sound: {
-        enabled: false
+        enabled: true
     }
 };
 

@@ -7,6 +7,8 @@ import {takeUntil} from "rxjs/operators";
 
 
 import diceRoller from "dice-roller-3d";
+import {Howl, Howler} from "howler";
+import yourTurnAudio from "../assets/sounds/your_turn.mp3";
 
 import Player from "./Player/Player";
 import LifeLoseBtn from "./LifeLoseBtn/LifeLoseBtn";
@@ -25,9 +27,15 @@ import {feedMessage} from "./Feed/feed.actions";
 
 import "./Game.scss";
 
+
 class Game extends Component {
 
     unsubscribe$ = new Subject();
+    sfx = {
+        yourTurn: {
+            played: false, audio: new Howl({src: [yourTurnAudio]})
+        }
+    };
 
     constructor(props) {
         super(props);
@@ -124,6 +132,8 @@ class Game extends Component {
                 controls = (<div className="controls">{controlButton}</div>);
             }
 
+
+            this.checkSoundFX(player);
         }
 
         const totalModifier = ui_currentValue > 15 ? "danger" : ui_currentValue >= 10 ? "warning" : "";
@@ -207,6 +217,19 @@ class Game extends Component {
                 noSound: !this.props.settings.sound.enabled
             });
         });
+    }
+
+    checkSoundFX(player) {
+        // Change global volume.
+        Howler.mute(!this.props.settings.sound.enabled);
+
+        // play players turn sound FX
+        if (player.isPlayersTurn && !this.sfx.yourTurn.played) {
+            this.sfx.yourTurn.played = true;
+            this.sfx.yourTurn.audio.play();
+        } else if (!player.isPlayersTurn) {
+            this.sfx.yourTurn.played = false;
+        }
     }
 }
 
