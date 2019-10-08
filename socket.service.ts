@@ -25,7 +25,7 @@ export class SocketService {
     private socketConnected(socket: socketIo.Socket): void {
 
         socket.on('handshake', (handshakeData) => {
-            const { room, playerId } = handshakeData;
+            const {room, playerId} = handshakeData;
 
             if (this.gameService.hasGame(room)) {
 
@@ -52,7 +52,10 @@ export class SocketService {
 
                     socket.on('leave', () => {
                         console.log(`socket[${socket.id}] - leave`);
-                        this.gameService.leave(room, playerId);
+                        const left = this.gameService.leave(room, playerId);
+                        if (left) {
+                            socket.leave(room);
+                        }
                     });
 
                     socket.on('ready', (ready: boolean) => {

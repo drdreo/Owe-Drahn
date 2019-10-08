@@ -73,7 +73,7 @@ export class GameService {
         }
     }
 
-    leave(room: string, playerId: string): void {
+    leave(room: string, playerId: string): boolean {
         const game = this.getGame(room);
         if (game) {
             game.leave(playerId);
@@ -82,7 +82,9 @@ export class GameService {
                 console.warn(`Removing game[${room}]`);
                 this.games.delete(room);
             }
+            return true;
         }
+        return false;
     }
 
     ready(room: string, playerId: string, ready: boolean): void {

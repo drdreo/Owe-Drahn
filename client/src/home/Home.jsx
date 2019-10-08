@@ -23,6 +23,7 @@ class Home extends Component {
             // Probably redundant since socket sends leave when it was in a game
             this.leaveGame();
         }
+        // TODO: check why this is not always called
         this.props.resetGameState();
     }
 
