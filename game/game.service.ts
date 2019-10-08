@@ -88,7 +88,10 @@ export class GameService {
     }
 
     ready(room: string, playerId: string, ready: boolean): void {
-        this.getGame(room).ready(playerId, ready);
+        const game = this.getGame(room);
+        if (game) {
+            game.ready(playerId, ready);
+        }
     }
 
     rollDice(room: string, playerId: string) {

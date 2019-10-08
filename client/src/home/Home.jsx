@@ -13,6 +13,8 @@ const API_URL = process.env.REACT_APP_API_URL;
 class Home extends Component {
     constructor(props) {
         super(props);
+        console.log("HOME constructed!");
+
         this.state = {
             room: "",
             username: ""
@@ -25,6 +27,10 @@ class Home extends Component {
         }
         // TODO: check why this is not always called
         this.props.resetGameState();
+    }
+
+    componentDidMount(){
+        console.log("HOME mounted");
     }
 
     render() {
