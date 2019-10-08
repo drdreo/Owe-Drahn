@@ -224,7 +224,7 @@ class Game extends Component {
         Howler.mute(!this.props.settings.sound.enabled);
 
         // play players turn sound FX
-        if (player.isPlayersTurn && !this.sfx.yourTurn.played) {
+        if (player.isPlayersTurn && !this.sfx.yourTurn.played && !this.state.animatingDice) {
             this.sfx.yourTurn.played = true;
             this.sfx.yourTurn.audio.play();
         } else if (!player.isPlayersTurn) {
