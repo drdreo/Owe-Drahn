@@ -18,7 +18,11 @@ class Home extends Component {
             username: ""
         };
 
-        sessionStorage.removeItem("playerId");
+        const wasPlayer = !!sessionStorage.getItem("playerId");
+        if (wasPlayer) {
+            // Probably redundant since socket sends leave when it was in a game
+            this.leaveGame();
+        }
         this.props.resetGameState();
     }
 
@@ -68,13 +72,22 @@ class Home extends Component {
 
             });
     }
+
+    leaveGame() {
+        const playerId = sessionStorage.getItem("playerId");
+
+        axios.post(`${API_URL}/leave`, {playerId}, {withCredentials: true})
+            .then((response) => {
+                console.log(response);
+                sessionStorage.removeItem("playerId");
+            });
+    }
 }
 
 const mapDispatchToProps = dispatch => {
     return {
         resetGameState: () => dispatch(gameReset()),
         redirectToGame: (room) => dispatch(redirectToGame(room))
-
     };
 };
 export default connect(null, mapDispatchToProps)(withRouter(Home));

@@ -6,6 +6,10 @@ $rolled-dice-color: $primary-color;
   position: absolute;
   top: 0.5rem;
   left: 0.5rem;
+
+  .button{
+    margin: 0 1rem;
+  }
 }
 
 .players-list {

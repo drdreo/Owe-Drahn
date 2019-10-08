@@ -20,6 +20,19 @@ $menu-color: #fff;
   justify-content: center;
   overflow: hidden;
 
+  &__button {
+    outline: none;
+    border: none;
+    background-color: transparent;
+    width: 100%;
+    padding: 15px 15px;
+    cursor: pointer;
+
+    svg {
+      width: 100%;
+    }
+  }
+
   &.menu--open {
     height: 350px;
     transition: 0.3s background-color ease, 0.3s height ease-in-out;
@@ -56,4 +69,94 @@ $menu-color: #fff;
 
 .profile-picture {
   width: 50px;
+}
+
+
+#Speaker {
+
+  &:hover {
+    path, line {
+      stroke: transparentize(#fff, 0.7);
+    }
+
+    .off {
+      display: block;
+    }
+
+    .on {
+      display: none;
+    }
+  }
+
+  path, line {
+    fill: none;
+    stroke: #000000;
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-miterlimit: 10;
+  }
+
+  .off {
+    display: none;
+  }
+
+  &[disabled] {
+    stroke: gray;
+
+    .off {
+      display: block;
+    }
+
+    .on {
+      display: none;
+    }
+  }
+}
+
+#Feed {
+
+  &:hover {
+    .messages {
+      line {
+        stroke: transparentize(white, 0.7);
+      }
+    }
+
+    .off {
+      display: block;
+    }
+  }
+
+  path, line {
+    fill: none;
+    stroke: #000000;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-miterlimit: 10;
+  }
+
+  .messages {
+    line {
+      stroke: #000;
+      stroke-linejoin: round;
+    }
+  }
+
+  .off {
+    display: none;
+  }
+
+  &[disabled] {
+    .off {
+      display: block;
+    }
+
+
+    .messages {
+      line {
+        stroke: transparentize(white, 0.7);
+      }
+    }
+  }
+
 }

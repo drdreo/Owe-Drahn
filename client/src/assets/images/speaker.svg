@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 19.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="Speaker" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="-278 370 54 54" style="enable-background:new -278 370 54 54;" xml:space="preserve">
+<style type="text/css">
+	.st0{fill:none;stroke:#000000;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;}
+	.st1{fill:none;stroke:#000000;stroke-width:2;stroke-linecap:round;stroke-miterlimit:10;}
+	.st2{display:none;}
+	.st3{display:inline;fill:none;stroke:#000000;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;}
+</style>
+<path class="st0" d="M-277,387v19l11,0l13.8,12.7c1.4,0.8,3.2-0.2,3.2-1.9v-39.7c0-1.7-1.8-2.7-3.2-1.9L-266,387H-277z"/>
+<line class="st1" x1="-266" y1="387" x2="-266" y2="392"/>
+<line class="st1" x1="-266" y1="401" x2="-266" y2="406"/>
+<g id="Off">
+	<line class="st0" x1="-242" y1="388" x2="-226" y2="404"/>
+	<line class="st0" x1="-242" y1="404" x2="-226" y2="388"/>
+</g>
+<g id="On" class="st2">
+	<path class="st3" d="M-242.4,387.4c9.8,9-0.4,18.6-0.4,18.6"/>
+	<path class="st3" d="M-238.6,384.3c12.8,11.8,0,25.2,0,25.2"/>
+	<path class="st3" d="M-234.6,381.2c15.9,14.7,0,31,0,31"/>
+</g>
+</svg>

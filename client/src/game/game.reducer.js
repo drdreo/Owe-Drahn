@@ -1,4 +1,4 @@
-import { Subject } from "rxjs";
+import {Subject} from "rxjs";
 
 const initialState = {
     rolledDice: undefined,
@@ -15,11 +15,11 @@ const initialState = {
 const gameReducer = (state = initialState, action) => {
     switch (action.type) {
         case "GAME_RESET":
-            return { ...state, ...initialState };
+            return {...state, ...initialState};
         case "GAME_INIT":
-            return { ...state, ...initialState, players: action.payload.players, ui_players: state.players };
+            return {...state, ...initialState, players: action.payload.players};
         case "GAME_STARTED":
-            return { ...state, started: true, over: false };
+            return {...state, started: true, over: false};
         case "GAME_UPDATE":
             return {
                 ...state,
@@ -30,24 +30,23 @@ const gameReducer = (state = initialState, action) => {
                 ui_currentValue: action.payload.currentValue
             };
         case "GAME_OVER":
-            return { ...state, over: true, started: false };
+            return {...state, over: true, started: false};
         case "GAME_ERROR":
             state.gameError$.next(action.payload);
             return state;
         case "PLAYER_UPDATE":
-            return { ...state, players: action.payload };
+            return {...state, players: action.payload};
         case "ROLLED_DICE":
             state.rolledDice$.next(action.payload);
-            return { ...state, currentValue: action.payload.total };
+            return {...state, currentValue: action.payload.total};
         case "ANIMATED_DICE":
             return {
                 ...state,
                 rolledDice: action.payload.dice,
-                ui_currentValue: action.payload.total,
-                ui_players: state.players
+                ui_currentValue: action.payload.total
             };
         case "PLAYER_LOST_LIFE":
-            return { ...state, rolledDice: 0, ui_currentValue: 0 };
+            return {...state, rolledDice: 0, ui_currentValue: 0};
         default:
             return state;
     }

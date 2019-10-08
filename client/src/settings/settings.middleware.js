@@ -3,7 +3,7 @@ export const settingsMiddleware = store => next => action => {
     next(action);
     const nextSettings = store.getState().settings;
 
-    if (prevSettings !== prevSettings) {
+    if (prevSettings !== nextSettings) {
         localStorage.setItem("settings", JSON.stringify(nextSettings));
     }
 };

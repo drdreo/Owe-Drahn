@@ -24,6 +24,18 @@ export class GameService {
         return this.games.get(room).started;
     }
 
+    removeIfPlayer(playerId: string): boolean {
+        let playersRoom;
+        for (let [room, game] of this.games) {
+            if (game.isPlayer(playerId)) {
+                playersRoom = room;
+                this.leave(room, playerId);
+                break;
+            }
+        }
+        return !!playersRoom;
+    }
+
     isPlayerOfGame(room: string, playerId: string): boolean {
         return playerId && this.games.get(room).isPlayer(playerId);
     }
@@ -63,10 +75,13 @@ export class GameService {
 
     leave(room: string, playerId: string): void {
         const game = this.getGame(room);
-        game.leave(playerId);
-        // clean up game
-        if (!game.hasPlayers()) {
-            this.games.delete(room);
+        if (game) {
+            game.leave(playerId);
+            // clean up game
+            if (!game.hasPlayers()) {
+                console.warn(`Removing game[${room}]`);
+                this.games.delete(room);
+            }
         }
     }
 
