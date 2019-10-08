@@ -95,6 +95,7 @@ export class GameService {
     }
 
     rollDice(room: string, playerId: string) {
+        console.log(`rollingDice in room[${room}]`);
         return this.getGame(room).rollDice(playerId);
     }
 

@@ -5,6 +5,7 @@ import { Service } from 'typedi';
 import { GameService } from './game/game.service';
 import { Command } from './game/Command';
 import { GameErrorCode } from './game/GameError';
+import { takeUntil } from 'rxjs/operators';
 
 @Service()
 export class SocketService {
@@ -25,8 +26,10 @@ export class SocketService {
     private socketConnected(socket: socketIo.Socket): void {
 
         socket.on('handshake', (handshakeData) => {
+            console.log(`New connection handshake from socket[${socket.id}] in room[${handshakeData.room}]`);
             const {room, playerId} = handshakeData;
 
+            this.removeListener(socket);
             if (this.gameService.hasGame(room)) {
 
                 if (this.gameService.isPlayerOfGame(room, playerId)) {
@@ -100,7 +103,6 @@ export class SocketService {
     connect(server: http.Server): void {
         this.io = socketIo(server);
         this.io.sockets.on('connection', (socket: socketIo.Socket) => {
-            console.log(`New connection from socket[${socket.id}]`);
             this.socketConnected(socket);
         });
     }
@@ -111,5 +113,12 @@ export class SocketService {
                 this.emitToRoom(room, command.eventName, command.data);
             });
 
+    }
+
+    removeListener(socket) {
+        const gameEvents = ['loseLife', 'rollDice', 'leave', 'disconnect', 'ready', 'chooseNextPlayer'];
+        for (let event of gameEvents) {
+            socket.removeAllListeners(event);
+        }
     }
 }

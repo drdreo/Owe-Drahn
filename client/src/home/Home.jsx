@@ -19,7 +19,10 @@ class Home extends Component {
             room: "",
             username: ""
         };
+    }
 
+    componentDidMount() {
+        console.log("Home mounted");
         const wasPlayer = !!sessionStorage.getItem("playerId");
         if (wasPlayer) {
             // Probably redundant since socket sends leave when it was in a game
@@ -27,10 +30,6 @@ class Home extends Component {
         }
         // TODO: check why this is not always called
         this.props.resetGameState();
-    }
-
-    componentDidMount(){
-        console.log("HOME mounted");
     }
 
     render() {

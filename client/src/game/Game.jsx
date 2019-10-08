@@ -36,13 +36,13 @@ class Game extends Component {
             animatingDice: false
         };
 
+    }
+
+    componentDidMount() {
         const {room} = this.props.match.params;
         this.handshake(room);
 
         this.diceRef = React.createRef();
-    }
-
-    componentDidMount() {
 
         this.props.rolledDice$
             .pipe(takeUntil(this.unsubscribe$))
