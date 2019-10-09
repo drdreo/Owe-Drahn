@@ -5,6 +5,7 @@ import { Service } from 'typedi';
 import { GameService } from './game/game.service';
 import { Command } from './game/Command';
 import { GameErrorCode } from './game/GameError';
+import { takeUntil } from 'rxjs/operators';
 
 @Service()
 export class SocketService {
@@ -22,13 +23,20 @@ export class SocketService {
         this.Instance.in(room).emit(eventName, data);
     }
 
+    connect(server: http.Server): void {
+        this.io = socketIo(server);
+        this.io.sockets.on('connection', (socket: socketIo.Socket) => {
+            this.socketConnected(socket);
+        });
+    }
+
     private socketConnected(socket: socketIo.Socket): void {
 
         socket.on('handshake', (handshakeData) => {
-            console.log(`New connection from socket[${socket.id}]`);
-
+            console.log(`New connection handshake from socket[${socket.id}] player[${handshakeData.playerId}] in room[${handshakeData.room}]`);
             const {room, playerId} = handshakeData;
 
+            this.removeListener(socket);
             if (this.gameService.hasGame(room)) {
 
                 if (this.gameService.isPlayerOfGame(room, playerId)) {
@@ -40,7 +48,7 @@ export class SocketService {
                     const update = this.gameService.getGameUpdate(room);
                     this.emitToRoom(room, 'gameUpdate', update);
 
-                    socket.on('disconnect', () => {
+                    socket.once('disconnect', () => {
                         console.log(`Disconnected socket[${socket.id}]`);
 
                         this.gameService.disconnect(room, playerId);
@@ -49,26 +57,38 @@ export class SocketService {
                             if (!this.gameService.isConnected(room, playerId)) {
                                 this.gameService.leave(room, playerId);
                             }
-                        }, 5000);
+                        }, 10000);
                     });
 
                     socket.on('leave', () => {
-                        this.gameService.leave(room, playerId);
+                        console.log(`socket[${socket.id}] - leave`);
+                        const left = this.gameService.leave(room, playerId);
+                        if (left) {
+                            socket.leave(room);
+                        }
                     });
 
                     socket.on('ready', (ready: boolean) => {
+                        console.log(`socket[${socket.id}] - ready`);
+
                         this.gameService.ready(room, playerId, ready);
                     });
 
                     socket.on('rollDice', () => {
+                        console.log(`socket[${socket.id}] - rollDice`);
+
                         this.gameService.rollDice(room, playerId);
                     });
 
                     socket.on('loseLife', () => {
+                        console.log(`socket[${socket.id}] - loseLife`);
+
                         this.gameService.loseLife(room, playerId);
                     });
 
                     socket.on('chooseNextPlayer', (nextPlayerId: string) => {
+                        console.log(`socket[${socket.id}] - chooseNextPlayer`);
+
                         this.gameService.chooseNextPlayer(room, playerId, nextPlayerId);
                     });
                 } else {
@@ -87,12 +107,7 @@ export class SocketService {
         });
     }
 
-    connect(server: http.Server): void {
-        this.io = socketIo(server);
-        this.io.sockets.on('connection', (socket: socketIo.Socket) => {
-            this.socketConnected(socket);
-        });
-    }
+
 
     subscribeToGame(room: string): void {
         this.gameService.getGameCommand(room)
@@ -100,5 +115,12 @@ export class SocketService {
                 this.emitToRoom(room, command.eventName, command.data);
             });
 
+    }
+
+    removeListener(socket) {
+        const gameEvents = ['loseLife', 'rollDice', 'leave', 'disconnect', 'ready', 'chooseNextPlayer'];
+        for (let event of gameEvents) {
+            socket.removeAllListeners(event);
+        }
     }
 }

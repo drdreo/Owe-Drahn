@@ -2,10 +2,12 @@ import {prod} from "./environment";
 
 import React from "react";
 import ReactDOM from "react-dom";
+
 import {createStore, compose, applyMiddleware} from "redux";
 import {Provider} from "react-redux";
 import {createBrowserHistory} from "history";
 import {routerMiddleware} from "connected-react-router";
+
 
 import "./index.css";
 import App from "./App";
@@ -15,9 +17,11 @@ import connectSocket from "./socket/socket";
 
 import {allReducers} from "./reducers";
 import routingMiddleware from "./routing/routing.middleware";
+import {settingsMiddleware} from "./settings/settings.middleware";
 import analyticsMiddleware from "./analytics/analytics.middleware";
 
 import {initGa} from "./analytics/ga";
+import {feedMiddleware} from "./game/Feed/feed.middleware";
 
 export const history = createBrowserHistory();
 
@@ -34,6 +38,8 @@ const store = createStore(
         applyMiddleware(
             routerMiddleware(history),
             routingMiddleware,
+            settingsMiddleware,
+            feedMiddleware,
             analyticsMiddleware
         )
     ));

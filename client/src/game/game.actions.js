@@ -24,9 +24,10 @@ export const gameUpdate = (data) => {
     };
 };
 
-export const gameOver = () => {
+export const gameOver = (winner) => {
     return {
-        type: "GAME_OVER"
+        type: "GAME_OVER",
+        payload: winner
     };
 };
 
@@ -34,6 +35,20 @@ export const gameError = (data) => {
     return {
         type: "GAME_ERROR",
         payload: data
+    };
+};
+
+export const playerUpdate = (data) => {
+    return {
+        type: "PLAYER_UPDATE",
+        payload: data
+    };
+};
+
+export const playerLeft = (username) => {
+    return {
+        type: "PLAYER_LEFT",
+        payload: username
     };
 };
 

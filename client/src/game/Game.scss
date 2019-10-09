@@ -2,6 +2,22 @@
 
 $rolled-dice-color: $primary-color;
 
+.settings {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+
+  .button {
+    margin: 0 1rem;
+  }
+}
+
+.controls {
+  button {
+    margin: 0 1.2rem;
+  }
+}
+
 .players-list {
   display: flex;
   flex-wrap: wrap;
@@ -16,10 +32,8 @@ $rolled-dice-color: $primary-color;
   transform: translateX(-50%);
 }
 
-
 .statistics {
   display: flex;
-
 }
 
 .current-value {

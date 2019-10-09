@@ -62,7 +62,7 @@ export class Game {
     }
 
     getGameUpdate() {
-        return {players: this.players, currentValue: this.currentValue};
+        return {players: this.players, currentValue: this.currentValue, started: this.started, over: this.over};
     }
 
     sendGameInit() {
@@ -73,23 +73,32 @@ export class Game {
         this._command$.next({eventName: 'gameUpdate', data: this.getGameUpdate()});
     }
 
-    sendGameOver() {
-        this._command$.next({eventName: 'gameOver'});
+    sendGameOver(winner: string) {
+        this._command$.next({eventName: 'gameOver', data: winner});
     }
 
     sendGameError(error: GameError) {
         this._command$.next({eventName: 'gameError', data: error});
     }
 
+    sendPlayerUpdate(updateUI: boolean = false) {
+        this._command$.next({eventName: 'playerUpdate', data: {players: this.players, updateUI}});
+    }
+
+    sendPlayerLeft(username: string) {
+        this._command$.next({eventName: 'playerLeft', data: username});
+    }
+
     chooseNextPlayer(playerId: string, nextPlayerId: string) {
         const currentPlayer = this.getCurrentPlayer();
-        if (currentPlayer.id === playerId && currentPlayer.choosing) {
+        const nextPlayer = this.getPlayer(nextPlayerId);
+        if (currentPlayer.id === playerId && currentPlayer.choosing && nextPlayer.life > 0) {
             currentPlayer.isPlayersTurn = false;
             this.getPlayer(nextPlayerId).isPlayersTurn = true;
             currentPlayer.choosing = false;
         }
 
-        this.sendGameUpdate();
+        this.sendPlayerUpdate(true);
     }
 
     setNextPlayer(): void {
@@ -120,13 +129,14 @@ export class Game {
                 } while (this.players[nextPlayerIndex].life <= 0);
                 this.players[nextPlayerIndex].isPlayersTurn = true;
             } else {
-                this.gameOver();
+                const winner = this.players.find(player => player.life > 0);
+                this.gameOver(winner.username);
             }
 
         }
 
         if (!this.over) {
-            this.sendGameUpdate();
+            this.sendPlayerUpdate();
         }
     }
 
@@ -138,7 +148,7 @@ export class Game {
 
         this.players[playerIndex].isPlayersTurn = true;
 
-        this.sendGameUpdate();
+        this.sendPlayerUpdate();
     }
 
     rollDice(playerId: string) {
@@ -194,20 +204,26 @@ export class Game {
         }
     }
 
+    removePlayer(index: number) {
+        this.sendPlayerLeft(this.players[index].username);
+        this.players.splice(index, 1);
+
+    }
+
     leave(playerId: string) {
         const playerIndex = this.players.findIndex(player => player.id === playerId);
         if (playerIndex !== -1) {
-            if (this.players.length > 1) {
+            if (this.players.length > 2) {
                 if (this.players[playerIndex].isPlayersTurn) {
                     this.setNextPlayer();
-                    this.players.splice(playerIndex, 1);
-                    this.sendGameUpdate();
                 }
+                this.removePlayer(playerIndex);
+                this.sendPlayerUpdate(true);
             } else {
-                this.players.splice(playerIndex, 1);
-
+                this.removePlayer(playerIndex);
+                this.sendPlayerUpdate(true);
                 if (this.started) {
-                    this.gameOver();
+                    this.gameOver(this.players[0].username);
                 }
             }
         }
@@ -220,13 +236,16 @@ export class Game {
 
             // check if everyone is ready
             if (this.isEveryoneReady()) {
-                this.setNextPlayerRandom();
                 this.started = true;
+                this._command$.next({eventName: 'gameStarted'});
+
+                this.setNextPlayerRandom();
                 // reset everyones ready state for UI reasons
                 this.players.map(player => player.ready = false);
-                this._command$.next({eventName: 'gameStarted'});
             }
-            this.sendGameUpdate();
+            // this.sendGameUpdate();
+            this.sendPlayerUpdate(true);
+
         } else {
             this.sendGameError({code: GameErrorCode.NO_PLAYER, message: 'You are not part of this game!'});
         }
@@ -242,7 +261,7 @@ export class Game {
             player.life--;
             player.choosing = true;
             this.currentValue = 0;
-            this._command$.next({eventName: 'gameUpdate', data: this.getGameUpdate()});
+            this.sendGameUpdate();
             this._command$.next({eventName: 'lostLife', data: {player}});
         } else {
             this.sendGameError({code: GameErrorCode.NOT_ALLOWED, message: 'You arent allowed to owe drahn!'});
@@ -255,18 +274,16 @@ export class Game {
         }
     }
 
-    gameOver() {
+    gameOver(winner: string) {
         // game over
         this.over = true;
 
-        if (this.players.length > 0) {
-            this.sendGameOver();
-            // restart after 5s
-            setTimeout(() => {
-                this.init();
-                this.sendGameInit();
-            }, 5000);
-        }
+        this.sendGameOver(winner);
+        // restart after 5s
+        setTimeout(() => {
+            this.init();
+            this.sendGameInit();
+        }, 5000);
     }
 
 }

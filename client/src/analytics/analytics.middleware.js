@@ -1,5 +1,5 @@
 import * as ReactGA from "react-ga";
-import {debug} from "../environment";
+import { prod} from "../environment";
 
 import {TOGGLE_FEED, TOGGLE_SOUND} from "../settings/settings.actions";
 
@@ -13,7 +13,7 @@ const TRACKED_ACTIONS = [TOGGLE_FEED, TOGGLE_SOUND];
 //     nonInteraction: true
 // });
 const analyticsMiddleware = store => next => action => {
-    if (!debug && TRACKED_ACTIONS.includes(action.type)) {
+    if (prod && TRACKED_ACTIONS.includes(action.type)) {
         ReactGA.event({
             category: "Settings",
             action: "click",

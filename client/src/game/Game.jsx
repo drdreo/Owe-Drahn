@@ -5,13 +5,16 @@ import {connect} from "react-redux";
 import {Subject} from "rxjs";
 import {takeUntil} from "rxjs/operators";
 
+
 import diceRoller from "dice-roller-3d";
+import {Howl, Howler} from "howler";
+import yourTurnAudio from "../assets/sounds/your_turn.mp3";
 
 import Player from "./Player/Player";
 import LifeLoseBtn from "./LifeLoseBtn/LifeLoseBtn";
 import Feed from "./Feed/Feed";
+import Settings from "../settings/Settings";
 
-import "./Game.scss";
 import {
     chooseNextPlayer,
     handshake,
@@ -22,10 +25,17 @@ import {
 import {animatedDice} from "./game.actions";
 import {feedMessage} from "./Feed/feed.actions";
 
+import "./Game.scss";
+
 
 class Game extends Component {
 
     unsubscribe$ = new Subject();
+    sfx = {
+        yourTurn: {
+            played: false, audio: new Howl({src: [yourTurnAudio]})
+        }
+    };
 
     constructor(props) {
         super(props);
@@ -34,13 +44,13 @@ class Game extends Component {
             animatingDice: false
         };
 
+    }
+
+    componentDidMount() {
         const {room} = this.props.match.params;
         this.handshake(room);
 
         this.diceRef = React.createRef();
-    }
-
-    componentDidMount() {
 
         this.props.rolledDice$
             .pipe(takeUntil(this.unsubscribe$))
@@ -92,7 +102,7 @@ class Game extends Component {
     }
 
     render() {
-        const {rolledDice, ui_currentValue, players, started, over} = this.props;
+        const {rolledDice, ui_currentValue, players, ui_players, started, over} = this.props;
 
         const player = this.getPlayer();
         // const currentPlayer = this.getCurrentPlayer();
@@ -104,8 +114,13 @@ class Game extends Component {
             let controlButton;
 
             if (!over || this.state.animatingDice) {
-                controlButton = <button className={`button ${player.ready ? "success" : "light"}`}
-                                        onClick={() => this.ready()}>Ready</button>;
+                if (players.length === 1) {
+                    controlButton = "Waiting for Players";
+                } else {
+                    controlButton = <button className={`button ${player.ready ? "success" : "light"}`}
+                                            onClick={() => this.ready()}>Ready</button>;
+                }
+
                 if (started) {
                     const isWaiting = !player.isPlayersTurn || this.state.animatingDice;
 
@@ -117,6 +132,8 @@ class Game extends Component {
                 controls = (<div className="controls">{controlButton}</div>);
             }
 
+
+            this.checkSoundFX(player);
         }
 
         const totalModifier = ui_currentValue > 15 ? "danger" : ui_currentValue >= 10 ? "warning" : "";
@@ -131,14 +148,17 @@ class Game extends Component {
                 {controls}
 
                 <div className="players-list">
-                    {players.map((player) =>
+                    {ui_players.map((player) =>
                         <Player player={player} choosing={isChoosing} key={player.id}
                                 onClick={() => this.chooseNextPlayer(player.id)}/>
                     )}
                 </div>
 
+
                 <div className="dice" ref={this.diceRef}/>
                 <Feed/>
+                <Settings className="settings"/>
+
             </div>
         );
     }
@@ -187,21 +207,34 @@ class Game extends Component {
             diceRoller({
                 element: this.diceRef.current,
                 numberOfDice: 1,
-                delay: 1500,
+                delay: 1250,
                 callback: () => {
                     this.setState({animatingDice: false});
                     this.props.animatedDice({dice, total});
                     resolve();
                 },
                 values: [dice],
-                noSound: true
+                noSound: !this.props.settings.sound.enabled
             });
         });
+    }
+
+    checkSoundFX(player) {
+        // Change global volume.
+        Howler.mute(!this.props.settings.sound.enabled);
+
+        // play players turn sound FX
+        if (player.isPlayersTurn && !this.sfx.yourTurn.played && !this.state.animatingDice) {
+            this.sfx.yourTurn.played = true;
+            this.sfx.yourTurn.audio.play();
+        } else if (!player.isPlayersTurn) {
+            this.sfx.yourTurn.played = false;
+        }
     }
 }
 
 const mapStateToProps = (state) => {
-    return state.game;
+    return {...state.game, settings: state.settings};
 };
 
 const mapDispatchToProps = dispatch => {

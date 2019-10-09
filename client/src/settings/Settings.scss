@@ -1,0 +1,151 @@
+@import "../utils";
+@import "./hamburger";
+
+$menu-background-color-closed: transparent;
+$menu-background-color-active: $primary-color;
+$menu-color: #fff;
+
+.menu {
+  background-color: $menu-background-color-closed;
+  color: $menu-color;
+
+  width: 70px;
+  height: 70px;
+
+  border-radius: 25px;
+  transition: 0.25s background-color ease-in-out, 0.2s height ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+
+  &__button {
+    outline: none;
+    border: none;
+    background-color: transparent;
+    width: 100%;
+    padding: 15px 15px;
+    cursor: pointer;
+
+    svg {
+      width: 100%;
+    }
+  }
+
+  &.menu--open {
+    height: 350px;
+    transition: 0.3s background-color ease, 0.3s height ease-in-out;
+    background-color: $menu-background-color-active;
+
+    .menu-entries {
+      margin-top: 60%;
+      z-index: 50;
+      opacity: 1;
+      transition: 1s opacity ease-out;
+    }
+  }
+}
+
+.menu-entries {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 60%;
+  justify-content: space-between;
+  transition: 0.3s margin ease;
+  opacity: 0;
+
+  z-index: -1;
+
+  .icon {
+    transition: 0.2s transform ease;
+
+    &:hover {
+      transform: scale(0.8);
+    }
+  }
+}
+
+.profile-picture {
+  width: 50px;
+}
+
+
+#Speaker {
+
+  &:hover {
+    path, line {
+      stroke: transparentize(#fff, 0.7);
+    }
+  }
+
+  path, line {
+    fill: none;
+    stroke: #000000;
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-miterlimit: 10;
+  }
+
+  .off {
+    display: none;
+  }
+
+  &[disabled] {
+    stroke: gray;
+
+    .off {
+      display: block;
+    }
+
+    .on {
+      display: none;
+    }
+
+    &:hover {
+      path, line {
+        stroke: transparentize(#fff, 0.7);
+      }
+    }
+  }
+}
+
+#Feed {
+
+  path, line {
+    fill: none;
+    stroke: #000000;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-miterlimit: 10;
+  }
+
+  &:hover {
+    path, line {
+      stroke: transparentize(white, 0.7);
+    }
+  }
+
+  .off {
+    display: none;
+  }
+
+  &[disabled] {
+    .off {
+      display: block;
+    }
+
+    .messages {
+      path, line {
+        stroke: transparentize(white, 0.7);
+      }
+    }
+
+    &:hover {
+      path, line {
+        stroke: transparentize(white, 0.7);
+      }
+    }
+  }
+}

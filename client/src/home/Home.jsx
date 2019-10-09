@@ -13,6 +13,8 @@ const API_URL = process.env.REACT_APP_API_URL;
 class Home extends Component {
     constructor(props) {
         super(props);
+        console.log("HOME constructed!");
+
         this.state = {
             room: "",
             username: "",
@@ -21,10 +23,19 @@ class Home extends Component {
                 totalPlayers: 0
             }
         };
+    }
 
+    componentDidMount() {
+        console.log("Home mounted");
+        sessionStorage.removeItem("playerId");
         this.fetchOverview();
 
-        sessionStorage.removeItem("playerId");
+        // const wasPlayer = !!sessionStorage.getItem("playerId");
+        // if (wasPlayer) {
+        //     // Probably redundant since socket sends leave when it was in a game
+        //     this.leaveGame();
+        // }
+        // TODO: check why this is not always called
         this.props.resetGameState();
     }
 
@@ -108,6 +119,16 @@ class Home extends Component {
                     this.setState({overview: response.data});
                 }
 
+            });
+    }
+
+    leaveGame() {
+        const playerId = sessionStorage.getItem("playerId");
+
+        axios.post(`${API_URL}/leave`, {playerId}, {withCredentials: true})
+            .then((response) => {
+                console.log(response);
+                sessionStorage.removeItem("playerId");
             });
     }
 }

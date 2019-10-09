@@ -88,6 +88,23 @@ app.get('/api/games/overview', (req: any, res: express.Response) => {
     res.json(overview);
 });
 
+app.post('/api/leave', (req: any, res: express.Response) => {
+    const playerId = req.session.playerId ? req.session.playerId : req.body.playerId;
+
+    let error = undefined;
+    if (playerId) {
+
+        const removed = gameService.removeIfPlayer(playerId);
+        if (!removed) {
+            error = {code: GameErrorCode.NO_PLAYER, message: 'Player is not part of ANY game!'};
+        }
+
+        res.json({error});
+    } else {
+        res.status(500).send('No playerId provided!');
+    }
+});
+
 app.use(express.static(environmentService.frontendPath));
 
 // general catch all
