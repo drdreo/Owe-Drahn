@@ -46,7 +46,9 @@ class Home extends Component {
             <div className="page-container">
                 <div className="overview">
                     <div className="overview__total-players">Online: <span>{totalPlayers}</span></div>
+                    Rooms
                     <div className="overview__rooms">
+
                         {rooms.map(room => {
                             return (
                                 <div key={room.room}

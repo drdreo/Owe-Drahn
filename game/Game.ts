@@ -222,7 +222,7 @@ export class Game {
             } else {
                 this.removePlayer(playerIndex);
                 this.sendPlayerUpdate(true);
-                if (this.started) {
+                if (this.started && this.players.length > 0) {
                     this.gameOver(this.players[0].username);
                 }
             }
