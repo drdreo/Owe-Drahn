@@ -1,5 +1,6 @@
-$mobile: 320px;
+$mobile: 768px;
 $desktop: 1024px;
+$fullhd: 1408px;
 
 @mixin respond-to($media) {
   @if $media == mobile {
@@ -22,7 +23,6 @@ $primary-color: #7289da;
 $success-color: rgba(67, 181, 129, 0.8);
 $danger-color: rgba(207, 73, 80, 0.8);
 $warning-color: #daa520;
-
 
 
 $input-background-color: #363a49;

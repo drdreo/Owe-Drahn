@@ -53,6 +53,10 @@ export class Game {
         return this.players.some(player => player.id === playerId);
     }
 
+    getPlayers(): Player[] {
+        return this.players;
+    }
+
     isPlayerConnected(playerId: string) {
         return this.getPlayer(playerId).connected;
     }
@@ -218,7 +222,7 @@ export class Game {
             } else {
                 this.removePlayer(playerIndex);
                 this.sendPlayerUpdate(true);
-                if (this.started) {
+                if (this.started && this.players.length > 0) {
                     this.gameOver(this.players[0].username);
                 }
             }

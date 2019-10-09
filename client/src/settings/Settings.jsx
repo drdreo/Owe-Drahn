@@ -3,9 +3,10 @@ import {connect} from "react-redux";
 
 import "./Settings.scss";
 import {toggleFeed, toggleSound} from "./settings.actions";
+import {redirectToGame, redirectToHome} from "../routing/routing.actions";
 
 const Speaker = ({disabled}) => (
-    <svg id="Speaker" disabled={disabled} version="1.1"  x="0px" y="0px" viewBox="-278 370 54 54">
+    <svg id="Speaker" disabled={disabled} version="1.1" x="0px" y="0px" viewBox="-278 370 54 54">
         <path d="M-277,387v19l11,0l13.8,12.7c1.4,0.8,3.2-0.2,3.2-1.9v-39.7c0-1.7-1.8-2.7-3.2-1.9L-266,387H-277z"/>
         <line x1="-266" y1="387" x2="-266" y2="392"/>
         <line x1="-266" y1="401" x2="-266" y2="406"/>
@@ -36,6 +37,20 @@ const Feed = ({disabled}) => (
             <path className="window" d="M-232,414.5h-38c-2.8,0-5-2.3-5-5v-25c0-2.8,2.3-5,5-5h38c2.8,0,5,2.3,5,5v25
 		C-227,412.3-229.3,414.5-232,414.5z"/>
         </g>
+    </svg>
+);
+
+const Leave = () => (
+    <svg version="1.1" id="Leave" x="0px" y="0px" viewBox="-49 141 512 512">
+        <polygon className="door" points="-21,240 136,169 136,624 -21,551 "/>
+        <path className="arrow" d="M440.5,400.9c0.1-0.2,0.2-0.3,0.3-0.5c0.3-0.4,0.5-0.9,0.6-1.4c0.1-0.2,0.1-0.4,0.2-0.6c0.2-0.9,0.2-1.8,0-2.7
+	c0-0.2-0.1-0.4-0.2-0.6c-0.1-0.2-0.1-0.5-0.2-0.7c-0.1-0.2-0.2-0.5-0.4-0.7c-0.1-0.2-0.2-0.3-0.3-0.5c-0.3-0.4-0.6-0.7-0.9-1.1
+	l-50-50c-2.7-2.7-7.2-2.7-9.9,0c-2.7,2.7-2.7,7.2,0,9.9l38.1,38.1H204.7c-3.9,0-7,3.1-7,7s3.1,7,7,7h213.1l-38.1,38.1
+	c-2.7,2.7-2.7,7.2,0,9.9s7.2,2.7,9.9,0l0,0l50-50C440,401.6,440.3,401.3,440.5,400.9z"/>
+        <path  d="M332.7,430c-3.9,0-7,3.1-7,7v147.6H145.5V209.4h180.2V357c0,3.9,3.1,7,7,7s7-3.1,7-7l0,0V202.4c0-3.9-3.1-7-7-7H145.5V167
+	c0-3.9-3.1-7-7-7c-1,0-2,0.2-2.8,0.6l-159.2,70.8c-2.5,1.1-4.2,3.6-4.2,6.4v318.5c0,2.8,1.6,5.3,4.2,6.4l159.2,70.8
+	c3.5,1.6,7.7,0,9.2-3.6c0.4-0.9,0.6-1.9,0.6-2.8v-28.4h187.2c3.9,0,7-3.1,7-7V437C339.7,433.1,336.6,430,332.7,430z M131.5,616.2
+	l-145.2-64.6V242.3l145.2-64.6V616.2z"/>
     </svg>
 );
 
@@ -81,6 +96,9 @@ class Settings extends Component {
                     <button className="menu__button" onClick={() => this.props.toggleFeed()}>
                         <Feed disabled={!feedEnabled}/>
                     </button>
+                    <button className="menu__button" onClick={() => this.props.redirectToHome()}>
+                        <Leave/>
+                    </button>
                 </div>
             </div>
         );
@@ -98,7 +116,8 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = dispatch => {
     return {
         toggleSound: () => dispatch(toggleSound()),
-        toggleFeed: () => dispatch(toggleFeed())
+        toggleFeed: () => dispatch(toggleFeed()),
+        redirectToHome: () => dispatch(redirectToHome())
     };
 };
 export default connect(mapStateToProps, mapDispatchToProps)(Settings);

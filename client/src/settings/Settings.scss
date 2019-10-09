@@ -52,6 +52,7 @@ $menu-color: #fff;
   flex-direction: column;
   align-items: center;
   height: 60%;
+  width: 100%;
   justify-content: space-between;
   transition: 0.3s margin ease;
   opacity: 0;
@@ -146,6 +147,18 @@ $menu-color: #fff;
       path, line {
         stroke: transparentize(white, 0.7);
       }
+    }
+  }
+}
+
+#Leave {
+  .door {
+    fill: $danger-color;
+  }
+
+  &:hover{
+    .arrow{
+      fill: white;
     }
   }
 }

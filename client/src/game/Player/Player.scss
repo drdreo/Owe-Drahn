@@ -79,6 +79,7 @@
   }
 
   &.lost {
+    text-decoration: line-through;
     .name {
       background-color: #c5c5c5ad;
       color: #fff;
