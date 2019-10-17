@@ -4,13 +4,6 @@ import { compose } from 'recompose';
 
 import { withFirebase } from '../Firebase';
 
-const SignInPage = () => (
-    <div>
-        <h1>SignIn</h1>
-        <SignInGoogle />
-    </div>
-);
-
 const ERROR_CODE_ACCOUNT_EXISTS =
     'auth/account-exists-with-different-credential';
 
@@ -41,7 +34,7 @@ class SignInGoogleBase extends Component {
             })
             .then(() => {
                 this.setState({ error: null });
-                // this.props.history.push(ROUTES.HOME);
+                //this.props.history.push(ROUTES.HOME);
             })
             .catch(error => {
                 if (error.code === ERROR_CODE_ACCOUNT_EXISTS) {
@@ -74,6 +67,5 @@ const SignInGoogle = compose(
 )(SignInGoogleBase);
 
 
-export default SignInPage;
 
 export { SignInGoogle };
