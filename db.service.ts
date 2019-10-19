@@ -1,17 +1,32 @@
-import { Firestore } from '@google-cloud/firestore';
-
-
+import * as admin from 'firebase-admin';
 import { Service } from 'typedi';
 import { Game } from './game/Game';
+import { Environment, EnvironmentService } from './environment.service';
+
 
 @Service()
 export class DBService {
 
-    private firestore = new Firestore();
+    firestore;
 
-    constructor() {
+    constructor(private environmentService: EnvironmentService) {
+        let serviceAccount = '';
+        if (environmentService.env === Environment.production) {
+            serviceAccount = JSON.parse(process.env.GCS_CREDENTIALS);
+        } else {
+            serviceAccount = require('./credentials/owe-drahn-b01e77bcc3a4.json');
+        }
 
+        console.log(serviceAccount);
+
+        admin.initializeApp({
+            credential: admin.credential.cert(serviceAccount),
+        });
+
+        this.firestore = admin.firestore();
+        this.quickstart();
     }
+
 
     async quickstart() {
         // Obtain a document reference.

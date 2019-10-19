@@ -6,20 +6,21 @@
   },
   "description": "",
   "dependencies": {
+    "@google-cloud/firestore": "latest",
     "body-parser": "^1.19.0",
     "connect-redis": "^4.0.2",
     "cors": "^2.8.5",
     "cross-env": "^6.0.0",
     "express": "^4.17.1",
     "express-session": "^1.16.2",
+    "firebase-admin": "^8.6.1",
     "redis": "^2.8.0",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^6.5.3",
     "socket.io": "^2.2.0",
     "ts-node": "^8.4.1",
     "typedi": "^0.8.0",
-    "uuid": "^3.3.3",
-    "@google-cloud/firestore": "latest"
+    "uuid": "^3.3.3"
   },
   "devDependencies": {
     "@types/express": "^4.17.1",
