@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@types/react": "^16.9.9",
     "axios": "^0.19.0",
     "connected-react-router": "^6.5.2",
     "dice-roller-3d": "^1.0.4",

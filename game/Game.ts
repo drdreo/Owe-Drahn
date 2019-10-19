@@ -186,10 +186,14 @@ export class Game {
         }
     }
 
-    connect(playerId: string) {
+    connect(playerId: string, uid?: string) {
         const player = this.getPlayer(playerId);
         if (player) {
             player.connected = true;
+            if (uid) {
+                console.log(`User[${uid}] connected to player[${playerId}]`);
+                player.uid = uid;
+            }
         } else {
             this.sendGameError({code: GameErrorCode.NO_PLAYER, message: 'You are not part of this game!'});
         }

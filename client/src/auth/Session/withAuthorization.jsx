@@ -12,10 +12,10 @@ const withAuthorization = condition => Component => {
       this.listener = this.props.firebase.onAuthUserListener(
         authUser => {
           if (!condition(authUser)) {
-            this.props.history.push(ROUTES.SIGN_IN);
+            this.props.redirectToHome();
           }
         },
-        () => this.props.history.push(ROUTES.SIGN_IN),
+        () => this.props.redirectToHome,
       );
     }
 
@@ -31,7 +31,7 @@ const withAuthorization = condition => Component => {
   }
 
   const mapStateToProps = state => ({
-    authUser: state.sessionState.authUser,
+    authUser: state.auth.authUser,
   });
 
   return compose(

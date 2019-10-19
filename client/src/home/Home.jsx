@@ -1,17 +1,17 @@
-import React, { Component } from "react";
-import { withRouter } from "react-router-dom";
+import React, {Component} from "react";
+import {withRouter} from "react-router-dom";
 import axios from "axios";
-import { connect } from "react-redux";
+import {connect} from "react-redux";
 
-import { compose } from "recompose";
-import { withFirebase } from '../auth/Firebase';
+import {compose} from "recompose";
+import {withFirebase} from "../auth/Firebase";
 
 import "./Home.scss";
-import { gameReset } from "../game/game.actions";
-import { redirectToGame } from "../routing/routing.actions";
-import { SignInGoogle } from "../auth/SignIn/SignIn";
+import {gameReset} from "../game/game.actions";
+import {redirectToGame} from "../routing/routing.actions";
+import {SignInGoogle} from "../auth/SignIn/SignIn";
+import {debounce} from "../utils/helpers";
 
-console.log(process.env);
 const API_URL = process.env.REACT_APP_API_URL;
 
 class Home extends Component {
@@ -41,10 +41,20 @@ class Home extends Component {
         // }
         // TODO: check why this is not always called
         this.props.resetGameState();
+
+
+    }
+
+    componentWillReceiveProps(nextProps) {
+        if (nextProps.auth) {
+            if (nextProps.auth.authUser && nextProps.auth.authUser.username !== this.state.username) {
+                this.setState({username: nextProps.auth.authUser.username});
+            }
+        }
     }
 
     render() {
-        const { totalPlayers, rooms } = this.state.overview;
+        const {totalPlayers, rooms} = this.state.overview;
 
         const authUser = this.props.auth.authUser;
 
@@ -59,8 +69,8 @@ class Home extends Component {
                         {rooms.map(room => {
                             return (
                                 <div key={room.room}
-                                    className={`overview__rooms__entry ${room.started ? "has-started" : ""}`}
-                                    onClick={() => this.onRoomClick(room.room, room.started)}>
+                                     className={`overview__rooms__entry ${room.started ? "has-started" : ""}`}
+                                     onClick={() => this.onRoomClick(room.room, room.started)}>
                                     {room.started ? <span className="live"></span> : ""} {room.room}
                                 </div>
                             );
@@ -69,20 +79,21 @@ class Home extends Component {
                     </div>
                 </div>
                 <h4>Owe Drahn</h4>
-                {!authUser &&
-                    <SignInGoogle />
-                }
+                <SignInGoogle className={`${authUser ? "is-hidden" : ""}`}/>
 
                 {authUser &&
+                <>
                     <div>Hello {authUser.username}</div>
+                    <button className="link" onClick={() => this.props.firebase.doSignOut()}>Logout?</button>
+                </>
                 }
                 <div className="form">
                     <input className="input username" value={this.state.username}
-                        onChange={evt => this.updateUsername(evt)}
-                        placeholder="Username" />
+                           onChange={evt => this.updateUsername(evt)}
+                           placeholder="Username"/>
                     <input className="input room" value={this.state.room}
-                        onChange={evt => this.updateRoom(evt.target.value)}
-                        placeholder="Room" />
+                           onChange={evt => this.updateRoom(evt.target.value)}
+                           placeholder="Room"/>
                     <button className="button join" onClick={() => this.joinGame()}>Join</button>
                 </div>
             </div>
@@ -101,11 +112,13 @@ class Home extends Component {
             username
         });
 
-        this.updateDBUsername(username);
+        if (this.props.auth.authUser) {
+            this.updateDBUsername(username);
+        }
     }
 
     updateDBUsername = debounce((username) => {
-        this.props.firebase.user(this.props.auth.authUser.uid).update({ username });
+        this.props.firebase.user(this.props.auth.authUser.uid).update({username});
     }, 200);
 
     onRoomClick(room, started) {
@@ -120,7 +133,7 @@ class Home extends Component {
         const room = encodeURIComponent(this.state.room);
         const username = this.state.username;
 
-        axios.get(`${API_URL}/join?room=${room}&username=${username}`, { withCredentials: true })
+        axios.get(`${API_URL}/join?room=${room}&username=${username}`, {withCredentials: true})
             .then((response) => {
                 console.log(response);
                 if (response.data.error) {
@@ -135,11 +148,11 @@ class Home extends Component {
     }
 
     fetchOverview() {
-        axios.get(`${API_URL}/games/overview`, { withCredentials: true })
+        axios.get(`${API_URL}/games/overview`, {withCredentials: true})
             .then((response) => {
                 console.log(response);
                 if (response.data) {
-                    this.setState({ overview: response.data });
+                    this.setState({overview: response.data});
                 }
 
             });
@@ -148,7 +161,7 @@ class Home extends Component {
     leaveGame() {
         const playerId = sessionStorage.getItem("playerId");
 
-        axios.post(`${API_URL}/leave`, { playerId }, { withCredentials: true })
+        axios.post(`${API_URL}/leave`, {playerId}, {withCredentials: true})
             .then((response) => {
                 console.log(response);
                 sessionStorage.removeItem("playerId");
@@ -158,7 +171,7 @@ class Home extends Component {
 
 
 const mapStateToProps = (state) => {
-    return { auth: state.auth };
+    return {auth: state.auth};
 };
 
 
@@ -170,17 +183,7 @@ const mapDispatchToProps = dispatch => {
 };
 
 
-const debounce = (func, delay) => {
-    let inDebounce
-    return function () {
-        const context = this
-        const args = arguments
-        clearTimeout(inDebounce)
-        inDebounce = setTimeout(() => func.apply(context, args), delay)
-    }
-}
-
 export default compose(
     withFirebase,
-    connect(mapStateToProps, mapDispatchToProps),
+    connect(mapStateToProps, mapDispatchToProps)
 )(withRouter(Home));

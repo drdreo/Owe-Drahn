@@ -72,3 +72,27 @@
     }
   }
 }
+
+
+
+button{
+  &.link{
+    background-color: #0000;
+    border: none;
+  }
+}
+.link {
+  text-decoration: underline;
+  cursor: pointer;
+  color: $primary-color;
+
+  &:hover {
+    color: darken($primary-color, 10);
+  }
+
+
+}
+
+.is-hidden {
+  display: none;
+}

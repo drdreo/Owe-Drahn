@@ -5,10 +5,10 @@ export const ROLLED_DICE = "ROLLED_DICE";
 export const PLAYER_LOSE_LIFE = "PLAYER_LOSE_LIFE";
 export const PLAYER_CHOOSE_NEXT = "PLAYER_CHOOSE_NEXT";
 
-export const handshake = (room) => {
+export const handshake = (room, uid) => {
     return {
         type: CONNECTION_HANDSHAKE,
-        payload: room
+        payload: {room, uid}
     };
 };
 

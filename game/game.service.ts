@@ -79,8 +79,8 @@ export class GameService {
         return this.getGame(room).command$;
     }
 
-    connect(room: string, playerId: string): void {
-        this.getGame(room).connect(playerId);
+    connect(room: string, playerId: string, uid?: string): void {
+        this.getGame(room).connect(playerId, uid);
     }
 
     isConnected(room: string, playerId: string): boolean {

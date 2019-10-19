@@ -1,7 +1,7 @@
-import app from 'firebase/app';
-import 'firebase/auth';
-import 'firebase/firestore';
-import 'firebase/analytics';
+import app from "firebase/app";
+import "firebase/auth";
+import "firebase/firestore";
+import "firebase/analytics";
 
 const config = {
     apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
@@ -19,9 +19,6 @@ class Firebase {
         app.initializeApp(config);
         app.analytics();
 
-        /* Helper */
-        this.emailAuthProvider = app.auth.EmailAuthProvider;
-
         /* Firebase APIs */
 
         this.auth = app.auth();
@@ -34,8 +31,7 @@ class Firebase {
 
     // *** Auth API ***
 
-    doSignInWithGoogle = () =>
-        this.auth.signInWithPopup(this.googleProvider);
+    doSignInWithGoogle = () => this.auth.signInWithPopup(this.googleProvider);
 
     doSignOut = () => this.auth.signOut();
 
@@ -66,7 +62,7 @@ class Firebase {
                             email: authUser.email,
                             emailVerified: authUser.emailVerified,
                             providerData: authUser.providerData,
-                            ...dbUser,
+                            ...dbUser
                         };
 
                         next(authUser);
@@ -75,7 +71,7 @@ class Firebase {
                 fallback();
             }
         });
-    }
+    };
 
     onUserListener = (uid, cb) => {
         this.user(uid).onSnapshot(doc => {
