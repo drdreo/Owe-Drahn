@@ -19,7 +19,6 @@ const app = express();
 const environmentService = Container.get<EnvironmentService>(EnvironmentService);
 const gameService = Container.get<GameService>(GameService);
 const socketService = Container.get<SocketService>(SocketService);
-const dbService = Container.get<DBService>(DBService);
 
 const whitelist = [
     'http://localhost:3000',

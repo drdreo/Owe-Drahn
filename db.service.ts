@@ -7,7 +7,7 @@ import { Environment, EnvironmentService } from './environment.service';
 @Service()
 export class DBService {
 
-    firestore;
+    firestore: FirebaseFirestore.Firestore;
 
     constructor(private environmentService: EnvironmentService) {
         let serviceAccount = '';
@@ -24,7 +24,6 @@ export class DBService {
         });
 
         this.firestore = admin.firestore();
-        this.quickstart();
     }
 
 
