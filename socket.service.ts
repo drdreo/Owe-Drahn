@@ -5,7 +5,6 @@ import { Service } from 'typedi';
 import { GameService } from './game/game.service';
 import { Command } from './game/Command';
 import { GameErrorCode } from './game/GameError';
-import { takeUntil } from 'rxjs/operators';
 
 @Service()
 export class SocketService {

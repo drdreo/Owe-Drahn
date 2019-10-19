@@ -2,6 +2,8 @@ import { Service } from 'typedi';
 import { Game } from './Game';
 import { Observable } from 'rxjs';
 import { Command } from './Command';
+import { DBService } from '../db.service';
+import { tap } from 'rxjs/operators';
 
 interface Room {
     room: string;
@@ -17,6 +19,10 @@ export interface GamesOverview {
 export class GameService {
 
     private games = new Map<string, Game>();
+
+    constructor(private dbService: DBService) {
+
+    }
 
     createGame(room: string): void {
         this.games.set(room, new Game());
@@ -76,7 +82,12 @@ export class GameService {
     }
 
     getGameCommand(room: string): Observable<Command> {
-        return this.getGame(room).command$;
+        const game = this.getGame(room);
+        return game.command$.pipe(tap(cmd => {
+            if (cmd.eventName === 'gameOver') {
+                this.dbService.storeGame(game);
+            }
+        }));
     }
 
     connect(room: string, playerId: string, uid?: string): void {

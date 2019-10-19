@@ -18,7 +18,8 @@
     "socket.io": "^2.2.0",
     "ts-node": "^8.4.1",
     "typedi": "^0.8.0",
-    "uuid": "^3.3.3"
+    "uuid": "^3.3.3",
+    "@google-cloud/firestore": "latest"
   },
   "devDependencies": {
     "@types/express": "^4.17.1",
@@ -30,7 +31,7 @@
   },
   "scripts": {
     "start": "cross-env NODE_ENV=production node dist/server.js",
-    "dev": "cross-env NODE_ENV=development ts-node server.ts",
+    "dev": "cross-env NODE_ENV=development GOOGLE_APPLICATION_CREDENTIALS=D:/Projekte/WEBSTORM/Owe-Drahn/credentials/owe-drahn-b01e77bcc3a4.json ts-node server.ts",
     "build": "tsc && cd client && npm run build",
     "postinstall": "cd client && npm install"
   },

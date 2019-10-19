@@ -22,6 +22,7 @@ class Home extends Component {
         this.state = {
             room: "",
             username: "",
+            usernameSetFromDB: false,
             overview: {
                 rooms: [],
                 totalPlayers: 0
@@ -45,19 +46,19 @@ class Home extends Component {
 
     }
 
-    componentWillReceiveProps(nextProps) {
-        if (nextProps.auth) {
-            if (nextProps.auth.authUser && nextProps.auth.authUser.username !== this.state.username) {
-                this.setState({username: nextProps.auth.authUser.username});
-            }
+    static getDerivedStateFromProps(props, state) {
+        if (props.auth && props.auth.authUser && props.auth.authUser.username !== state.username && !state.usernameSetFromDB) {
+            return {username: props.auth.authUser.username, usernameSetFromDB: true};
+        } else if (!props.auth.authUser) {
+            return {usernameSetFromDB: false};
         }
+
+        return null;
     }
 
     render() {
         const {totalPlayers, rooms} = this.state.overview;
-
         const authUser = this.props.auth.authUser;
-
 
         return (
             <div className="page-container">

@@ -1,8 +1,14 @@
-import { Player } from './Player';
+import { FormattedPlayer, Player } from './Player';
 import { Subject } from 'rxjs';
 import { Command } from './Command';
 import { GameError, GameErrorCode } from './GameError';
 
+export interface Rolls {
+    username: string;
+    dice: number;
+    total: number;
+    uid: string;
+}
 
 export class Game {
 
@@ -11,6 +17,7 @@ export class Game {
     private over: boolean = false;
     private currentValue: number = 0;
 
+    private rolls: Rolls[] = [];
     private _command$ = new Subject<Command>();
     command$ = this._command$.asObservable();
 
@@ -27,6 +34,8 @@ export class Game {
             player.life = 6;
             player.ready = false;
         });
+
+        this.rolls = [];
     }
 
     private addPlayer(id: string, username: string) {
@@ -55,6 +64,14 @@ export class Game {
 
     getPlayers(): Player[] {
         return this.players;
+    }
+
+    getFormattedPlayers(): FormattedPlayer[] {
+        return this.players.map(player => player.getFormattedPlayer());
+    }
+
+    getRolls(): Rolls[] {
+        return this.rolls;
     }
 
     isPlayerConnected(playerId: string) {
@@ -174,6 +191,7 @@ export class Game {
                 total = this.currentValue;
             }
 
+            this.rolls.push({username: player.username, dice, total, uid: player.uid || null});
             this._command$.next({eventName: 'rolledDice', data: {dice, player, total}});
 
             if (player.choosing) {

@@ -1,3 +1,10 @@
+export interface FormattedPlayer {
+    life: number;
+    points: number;
+    uid: string;
+    username: string;
+}
+
 export class Player {
 
     isPlayersTurn: boolean = false;
@@ -10,4 +17,8 @@ export class Player {
     uid: string; // only set if User is logged in
 
     constructor(readonly id: string, readonly username: string) { }
+
+    getFormattedPlayer(): FormattedPlayer {
+        return {life: this.life, points: this.points, uid: this.uid || null, username: this.username};
+    }
 }
