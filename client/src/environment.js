@@ -1,9 +1,6 @@
 export const prod = process.env.NODE_ENV === "production";
 export const debug = !prod;
 
-console.log(process.env);
-
-
 if (prod) {
     console.log("%cOwe Drahn", "font-size:40px; color:#7289da;");
 
@@ -22,4 +19,7 @@ if (prod) {
 
     console.log = function () {
     };
+} else {
+    console.log(process.env);
+
 }

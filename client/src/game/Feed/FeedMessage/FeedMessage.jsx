@@ -10,7 +10,7 @@ const RolledDiceMessage = ({username, dice, total}) => {
 };
 
 const LostLifeMessage = ({username}) => {
-    return (<div className="message message__lost-life">{username} sacrificed a life!</div>);
+    return (<div className="message message__lost-life">{username} draht owe!</div>);
 };
 
 const LostMessage = ({username, dice, total}) => {
