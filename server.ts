@@ -12,12 +12,14 @@ import { EnvironmentService } from './environment.service';
 import { GameService } from './game/game.service';
 import { SocketService } from './socket.service';
 import { GameErrorCode } from './game/GameError';
+import { DBService } from './db.service';
 
 const app = express();
 
 const environmentService = Container.get<EnvironmentService>(EnvironmentService);
 const gameService = Container.get<GameService>(GameService);
 const socketService = Container.get<SocketService>(SocketService);
+const dbService = Container.get<DBService>(DBService);
 
 const whitelist = [
     'http://localhost:3000',

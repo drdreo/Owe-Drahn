@@ -5,7 +5,6 @@ import { Service } from 'typedi';
 import { GameService } from './game/game.service';
 import { Command } from './game/Command';
 import { GameErrorCode } from './game/GameError';
-import { takeUntil } from 'rxjs/operators';
 
 @Service()
 export class SocketService {
@@ -34,7 +33,7 @@ export class SocketService {
 
         socket.on('handshake', (handshakeData) => {
             console.log(`New connection handshake from socket[${socket.id}] player[${handshakeData.playerId}] in room[${handshakeData.room}]`);
-            const {room, playerId} = handshakeData;
+            const {room, playerId, uid} = handshakeData;
 
             this.removeListener(socket);
             if (this.gameService.hasGame(room)) {
@@ -42,7 +41,7 @@ export class SocketService {
                 if (this.gameService.isPlayerOfGame(room, playerId)) {
                     socket.join(room);
 
-                    this.gameService.connect(room, playerId);
+                    this.gameService.connect(room, playerId, uid);
 
                     // someone joined, update others
                     const update = this.gameService.getGameUpdate(room);

@@ -1,13 +1,17 @@
 import React, {Component} from "react";
 import {withRouter} from "react-router-dom";
 import axios from "axios";
+import {connect} from "react-redux";
+
+import {compose} from "recompose";
+import {withFirebase} from "../auth/Firebase";
 
 import "./Home.scss";
 import {gameReset} from "../game/game.actions";
-import {connect} from "react-redux";
 import {redirectToGame} from "../routing/routing.actions";
+import {SignInGoogle} from "../auth/SignIn/SignIn";
+import {debounce} from "../utils/helpers";
 
-console.log(process.env);
 const API_URL = process.env.REACT_APP_API_URL;
 
 class Home extends Component {
@@ -18,6 +22,7 @@ class Home extends Component {
         this.state = {
             room: "",
             username: "",
+            usernameSetFromDB: false,
             overview: {
                 rooms: [],
                 totalPlayers: 0
@@ -37,10 +42,23 @@ class Home extends Component {
         // }
         // TODO: check why this is not always called
         this.props.resetGameState();
+
+
+    }
+
+    static getDerivedStateFromProps(props, state) {
+        if (props.auth && props.auth.authUser && props.auth.authUser.username !== state.username && !state.usernameSetFromDB) {
+            return {username: props.auth.authUser.username, usernameSetFromDB: true};
+        } else if (!props.auth.authUser) {
+            return {usernameSetFromDB: false};
+        }
+
+        return null;
     }
 
     render() {
         const {totalPlayers, rooms} = this.state.overview;
+        const authUser = this.props.auth.authUser;
 
         return (
             <div className="page-container">
@@ -62,6 +80,14 @@ class Home extends Component {
                     </div>
                 </div>
                 <h4>Owe Drahn</h4>
+                <SignInGoogle className={`${authUser ? "is-hidden" : ""}`}/>
+
+                {authUser &&
+                <>
+                    <div>Hello {authUser.username}</div>
+                    <button className="link" onClick={() => this.props.firebase.doSignOut()}>Logout?</button>
+                </>
+                }
                 <div className="form">
                     <input className="input username" value={this.state.username}
                            onChange={evt => this.updateUsername(evt)}
@@ -82,10 +108,19 @@ class Home extends Component {
     }
 
     updateUsername(evt) {
+        const username = evt.target.value;
         this.setState({
-            username: evt.target.value
+            username
         });
+
+        if (this.props.auth.authUser) {
+            this.updateDBUsername(username);
+        }
     }
+
+    updateDBUsername = debounce((username) => {
+        this.props.firebase.user(this.props.auth.authUser.uid).update({username});
+    }, 200);
 
     onRoomClick(room, started) {
         if (started) {
@@ -135,11 +170,21 @@ class Home extends Component {
     }
 }
 
+
+const mapStateToProps = (state) => {
+    return {auth: state.auth};
+};
+
+
 const mapDispatchToProps = dispatch => {
     return {
         resetGameState: () => dispatch(gameReset()),
         redirectToGame: (room) => dispatch(redirectToGame(room))
     };
 };
-export default connect(null, mapDispatchToProps)(withRouter(Home));
 
+
+export default compose(
+    withFirebase,
+    connect(mapStateToProps, mapDispatchToProps)
+)(withRouter(Home));

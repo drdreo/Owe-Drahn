@@ -6,12 +6,14 @@
   },
   "description": "",
   "dependencies": {
+    "@google-cloud/firestore": "latest",
     "body-parser": "^1.19.0",
     "connect-redis": "^4.0.2",
     "cors": "^2.8.5",
     "cross-env": "^6.0.0",
     "express": "^4.17.1",
     "express-session": "^1.16.2",
+    "firebase-admin": "^8.6.1",
     "redis": "^2.8.0",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^6.5.3",
@@ -30,7 +32,7 @@
   },
   "scripts": {
     "start": "cross-env NODE_ENV=production node dist/server.js",
-    "dev": "cross-env NODE_ENV=development ts-node server.ts",
+    "dev": "cross-env NODE_ENV=development GOOGLE_APPLICATION_CREDENTIALS=D:/Projekte/WEBSTORM/Owe-Drahn/credentials/owe-drahn-b01e77bcc3a4.json ts-node server.ts",
     "build": "tsc && cd client && npm run build",
     "postinstall": "cd client && npm install"
   },

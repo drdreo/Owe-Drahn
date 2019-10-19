@@ -26,6 +26,7 @@ import {animatedDice} from "./game.actions";
 import {feedMessage} from "./Feed/feed.actions";
 
 import "./Game.scss";
+import {redirectToHome} from "../routing/routing.actions";
 
 
 class Game extends Component {
@@ -78,7 +79,7 @@ class Game extends Component {
 
         this.props.gameError$
             .pipe(takeUntil(this.unsubscribe$))
-            .subscribe(this.handleGameError);
+            .subscribe((error) => this.handleGameError(error));
     }
 
     componentWillUnmount() {
@@ -91,9 +92,9 @@ class Game extends Component {
         switch (error.code) {
             case "NO_GAME":
                 setTimeout(() => {
-                    this.props.history.push("/");
+                    this.props.redirectToHome();
                 }, 2000);
-            // break omitted
+                break;
             case "NOT_ALLOWED":
             case "NOT_YOUR_TURN":
             default:
@@ -173,7 +174,8 @@ class Game extends Component {
     // }
 
     handshake(room) {
-        this.props.handshake(room);
+        const uid = this.props.auth.authUser ? this.props.auth.authUser.uid : undefined;
+        this.props.handshake(room, uid);
     }
 
     ready() {
@@ -234,18 +236,19 @@ class Game extends Component {
 }
 
 const mapStateToProps = (state) => {
-    return {...state.game, settings: state.settings};
+    return {...state.game, settings: state.settings, auth: state.auth};
 };
 
 const mapDispatchToProps = dispatch => {
     return {
-        handshake: (room) => dispatch(handshake(room)),
+        handshake: (room, uid) => dispatch(handshake(room, uid)),
         ready: (isReady) => dispatch(ready(isReady)),
         feedMessage: (message) => dispatch(feedMessage(message)),
         rollDice: () => dispatch(rollDice()),
         loseLife: () => dispatch(loseLife()),
         chooseNextPlayer: playerId => dispatch(chooseNextPlayer(playerId)),
-        animatedDice: value => dispatch(animatedDice(value))
+        animatedDice: value => dispatch(animatedDice(value)),
+        redirectToHome: () => dispatch(redirectToHome())
     };
 };
 export default connect(mapStateToProps, mapDispatchToProps)(Game);
