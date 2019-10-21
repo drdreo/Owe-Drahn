@@ -2,6 +2,7 @@ import * as admin from 'firebase-admin';
 import { Service } from 'typedi';
 import { Game } from './game/Game';
 import { Environment, EnvironmentService } from './environment.service';
+import { defaultStats, extractPlayerStats, PlayerStats } from './game/utils';
 
 
 @Service()
@@ -53,9 +54,57 @@ export class DBService {
 
     storeGame(game: Game) {
         try {
-            this.firestore.collection('games').add({players: game.getFormattedPlayers(), rolls: game.getRolls()});
+            this.firestore.collection('games')
+                .add({
+                    startedAt: game.startedAt,
+                    finishedAt: game.finishedAt,
+                    players: game.getFormattedPlayers(),
+                    rolls: game.getRolls(),
+                });
+
+            const registeredPlayers = game.getRegisteredPlayers();
+            for (let player of registeredPlayers) {
+                this.updatePlayerStats(player.uid, game)
+                    .then(result => {
+                        // console.log('Successfully updated player stats!', result);
+                    })
+                    .catch(err => {
+                        console.error('Update player stats - transaction failure: ', err);
+                    });
+            }
+
         } catch (e) {
             console.error(e.message);
         }
+    }
+
+    updatePlayerStats(uid: string, game: Game) {
+        const userRef = this.firestore.collection('users').doc(uid);
+        // extract the stats before the transaction, because it can run multiple times
+        const newStats = extractPlayerStats(uid, game);
+
+        // In a transaction, add the new rating and update the aggregate totals
+        return this.firestore.runTransaction(transaction => {
+            return transaction.get(userRef).then(doc => {
+                if (!doc.exists) {
+                    throw 'User does not exist!';
+                }
+
+                const stats: PlayerStats = doc.data().stats || defaultStats;
+
+                stats.perfectRoll += newStats.perfectRoll;
+                stats.luckiestRoll += newStats.luckiestRoll;
+                stats.worstRoll += newStats.perfectRoll;
+                stats.rolled21 += newStats.rolled21;
+                stats.maxLifeLoss += newStats.maxLifeLoss;
+                stats.wins = newStats.won ? stats.wins + 1 : stats.wins;
+                stats.totalGames++;
+                for (let i = 0; i < 6; i++) {
+                    stats.rolledDice[i] += newStats.rolledDice[i];
+                }
+                // Commit to Firestore
+                transaction.set(userRef, {stats}, {merge: true});
+            });
+        });
     }
 }

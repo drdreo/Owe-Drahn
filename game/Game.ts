@@ -4,10 +4,9 @@ import { Command } from './Command';
 import { GameError, GameErrorCode } from './GameError';
 
 export interface Rolls {
-    username: string;
+    player: FormattedPlayer;
     dice: number;
     total: number;
-    uid: string;
 }
 
 export class Game {
@@ -20,6 +19,9 @@ export class Game {
     private rolls: Rolls[] = [];
     private _command$ = new Subject<Command>();
     command$ = this._command$.asObservable();
+
+    startedAt: Date;
+    finishedAt: Date;
 
     constructor() {
         this.init();
@@ -65,6 +67,11 @@ export class Game {
     getPlayers(): Player[] {
         return this.players;
     }
+
+    getRegisteredPlayers(): Player[] {
+        return this.players.filter(player => player.uid);
+    }
+
 
     getFormattedPlayers(): FormattedPlayer[] {
         return this.players.map(player => player.getFormattedPlayer());
@@ -191,7 +198,7 @@ export class Game {
                 total = this.currentValue;
             }
 
-            this.rolls.push({username: player.username, dice, total, uid: player.uid || null});
+            this.rolls.push({player: player.getFormattedPlayer(), dice, total});
             this._command$.next({eventName: 'rolledDice', data: {dice, player, total}});
 
             if (player.choosing) {
@@ -259,6 +266,7 @@ export class Game {
             // check if everyone is ready
             if (this.isEveryoneReady()) {
                 this.started = true;
+                this.startedAt = new Date();
                 this._command$.next({eventName: 'gameStarted'});
 
                 this.setNextPlayerRandom();
@@ -299,7 +307,7 @@ export class Game {
     gameOver(winner: string) {
         // game over
         this.over = true;
-
+        this.finishedAt = new Date();
         this.sendGameOver(winner);
         // restart after 5s
         setTimeout(() => {
