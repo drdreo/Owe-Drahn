@@ -1,4 +1,5 @@
 import { Game } from './Game';
+import { DBGame } from '../db.service';
 
 export interface PlayerStats {
     rolledDice: number[];
@@ -75,9 +76,9 @@ export function extractPlayerStats(uid: string, game: Game) {
 }
 
 
-export function extractPlayerGames(uid: string, games: Game[]) {
+export function extractPlayerGames(uid: string, games: DBGame[]) {
     return games.filter(game =>
-        game.getPlayers().some(player => player.uid === uid),
+        game.players.some(player => player.uid === uid),
     );
 }
 

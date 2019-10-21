@@ -1,9 +1,16 @@
 import * as admin from 'firebase-admin';
 import { Service } from 'typedi';
-import { Game } from './game/Game';
+import { Game, Rolls } from './game/Game';
 import { Environment, EnvironmentService } from './environment.service';
 import { defaultStats, extractPlayerStats, PlayerStats } from './game/utils';
+import { FormattedPlayer } from './game/Player';
 
+export interface DBGame {
+    players: FormattedPlayer[];
+    rolls: Rolls[];
+    createdAt: Date;
+    finishedAt: Date;
+}
 
 @Service()
 export class DBService {
@@ -106,5 +113,11 @@ export class DBService {
                 transaction.set(userRef, {stats}, {merge: true});
             });
         });
+    }
+
+    getAllGames(): Promise<FirebaseFirestore.QuerySnapshot> {
+        return this.firestore.collection('games')
+                   .get();
+
     }
 }

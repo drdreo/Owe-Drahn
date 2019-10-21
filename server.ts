@@ -4,15 +4,13 @@ import * as http from 'http';
 import * as cors from 'cors';
 import * as session from 'express-session';
 import * as bodyParser from 'body-parser';
-import * as uuid from 'uuid';
 import * as  express from 'express';
 
 import { Container } from 'typedi';
 import { EnvironmentService } from './environment.service';
 import { GameService } from './game/game.service';
 import { SocketService } from './socket.service';
-import { GameErrorCode } from './game/GameError';
-import { DBService } from './db.service';
+import { apiRouter } from './routes/api';
 
 const app = express();
 
@@ -52,59 +50,7 @@ app.use(session({
     },
 }));
 
-
-// Express Routers
-app.get('/api/join', (req: any, res: express.Response) => {
-    const room = req.query.room;
-    const username = req.query.username;
-    const playerId = req.session.playerId ? req.session.playerId : uuid.v4();
-
-    let error = undefined;
-
-    if (room) {
-        req.session.playerId = playerId;
-
-        if (!gameService.hasGame(room)) {
-            gameService.createGame(room);
-            socketService.subscribeToGame(room);
-        }
-
-        if (gameService.hasGameStarted(room)) {
-            error = {code: GameErrorCode.GAME_STARTED, message: `Game[${room}] has already started!`};
-        } else {
-            gameService.joinGame(room, playerId, username);
-        }
-
-
-        res.json({error, playerId});
-    } else {
-        res.status(500).send('No room code provided!');
-    }
-});
-
-// Express Routers
-app.get('/api/games/overview', (req: any, res: express.Response) => {
-
-    const overview = gameService.getGamesOverview();
-    res.json(overview);
-});
-
-app.post('/api/leave', (req: any, res: express.Response) => {
-    const playerId = req.session.playerId ? req.session.playerId : req.body.playerId;
-
-    let error = undefined;
-    if (playerId) {
-
-        const removed = gameService.removeIfPlayer(playerId);
-        if (!removed) {
-            error = {code: GameErrorCode.NO_PLAYER, message: 'Player is not part of ANY game!'};
-        }
-
-        res.json({error});
-    } else {
-        res.status(500).send('No playerId provided!');
-    }
-});
+app.use('/api', apiRouter);
 
 app.use(express.static(environmentService.frontendPath));
 
