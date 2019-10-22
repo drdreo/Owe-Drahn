@@ -1,4 +1,4 @@
-import { extractPlayerStats } from './utils';
+import { extractPlayerStats, mergeStats } from './utils';
 import { FormattedGame } from './Game';
 
 const games: FormattedGame[] = [
@@ -1274,7 +1274,7 @@ const games: FormattedGame[] = [
                     'username': 'DrDreo',
                     'points': 0,
                 },
-            }
+            },
         ],
         'startedAt': {
             '_seconds': 1571684742,
@@ -1337,6 +1337,75 @@ describe('Player Statistics', () => {
         it('should calculate a maxLifeLoss', () => {
             const {maxLifeLoss} = extractPlayerStats('TEST_UID', games[5]);
             expect(maxLifeLoss).toBe(1);
+        });
+    });
+    describe('mergeStats', () => {
+        it('should merge old and new stats together', () => {
+            let oldStats = {
+                rolled21: 0,
+                perfectRoll: 1,
+                worstRoll: 0,
+                luckiestRoll: 0,
+                rolledDice: [30, 21, 28, 22, 29, 29],
+                totalGames: 18,
+                wins: 6,
+                maxLifeLoss: 1,
+            };
+
+            const newStats = {
+                rolledDice: [0, 0, 0, 1, 0, 1],
+                won: true,
+                perfectRoll: 1,
+                luckiestRoll: 1,
+                worstRoll: 1,
+                rolled21: 1,
+                maxLifeLoss: 1,
+            };
+
+            oldStats = mergeStats(oldStats, newStats);
+
+            expect(oldStats.worstRoll).toBe(1);
+            expect(oldStats.perfectRoll).toBe(2);
+            expect(oldStats.luckiestRoll).toBe(1);
+            expect(oldStats.maxLifeLoss).toBe(2);
+            expect(oldStats.rolled21).toBe(1);
+            expect(oldStats.rolledDice[5]).toBe(30);
+            expect(oldStats.wins).toBe(7);
+
+        });
+
+        it('should merge old and new stats together2', () => {
+            let oldStats = {
+                wins: 6,
+                maxLifeLoss: 2,
+                rolled21: 0,
+                perfectRoll: 0,
+                worstRoll: 0,
+                luckiestRoll: 0,
+                rolledDice: [30, 21, 28, 23, 29, 30],
+                totalGames: 19,
+            };
+
+            const newStats = {
+                rolledDice: [0, 0, 0, 0, 1, 1],
+                won: true,
+                perfectRoll: 1,
+                luckiestRoll: 0,
+                worstRoll: 0,
+                rolled21: 0,
+                maxLifeLoss: 0,
+            };
+
+            oldStats = mergeStats(oldStats, newStats);
+
+            expect(oldStats.worstRoll).toBe(0);
+            expect(oldStats.perfectRoll).toBe(1);
+            expect(oldStats.luckiestRoll).toBe(0);
+            expect(oldStats.maxLifeLoss).toBe(2);
+            expect(oldStats.rolled21).toBe(0);
+            expect(oldStats.rolledDice[5]).toBe(31);
+            expect(oldStats.wins).toBe(7);
+
         });
     });
 });

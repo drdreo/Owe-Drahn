@@ -115,14 +115,16 @@ class Game extends Component {
             let controlButton;
 
             if (!over || this.state.animatingDice) {
-                if (players.length === 1) {
-                    controlButton = "Waiting for Players";
-                } else {
-                    controlButton = <button className={`button ${player.ready ? "success" : "primary"}`}
-                                            onClick={() => this.ready()}>Ready</button>;
+                if (!this.state.animatingDice) {
+                    if (players.length === 1) {
+                        controlButton = "Waiting for Players";
+                    } else {
+                        controlButton = <button className={`button ${player.ready ? "success" : "primary"}`}
+                                                onClick={() => this.ready()}>Ready</button>;
+                    }
                 }
 
-                if (started) {
+                if (started || this.state.animatingDice) {
                     const isWaiting = !player.isPlayersTurn || this.state.animatingDice;
 
                     controlButton = (<div style={{display: "flex"}} className={`${isWaiting ? "waiting" : ""}`}>

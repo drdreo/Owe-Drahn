@@ -80,7 +80,7 @@ class Home extends Component {
                     </div>
                 </div>
                 <h4>Owe Drahn</h4>
-                <SignInGoogle className={`${authUser ? "is-hidden" : ""}`}/>
+                <SignInGoogle className={`${authUser ? "is-hidden" : ""} sign-in-form`}/>
 
                 {authUser &&
                 <>

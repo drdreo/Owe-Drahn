@@ -1,6 +1,7 @@
 @import "../utils";
 
 
+
 .input {
   background-color: $input-background-color;
   outline: none;
@@ -110,4 +111,10 @@
   border-radius: 20px;
   display: flex;
   margin: 0 5px;
+}
+
+.sign-in-form{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }

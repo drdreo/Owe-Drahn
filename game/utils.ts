@@ -102,3 +102,18 @@ export function extractPlayerRollsOfGames(uid: string, games: Game[]) {
 }
 
 
+export function mergeStats(oldStats, newStats){
+
+    oldStats.perfectRoll += newStats.perfectRoll;
+    oldStats.luckiestRoll += newStats.luckiestRoll;
+    oldStats.worstRoll += newStats.worstRoll;
+    oldStats.rolled21 += newStats.rolled21;
+    oldStats.maxLifeLoss += newStats.maxLifeLoss;
+    oldStats.wins = newStats.won ? oldStats.wins + 1 : oldStats.wins;
+    oldStats.totalGames++;
+    for (let i = 0; i < 6; i++) {
+        oldStats.rolledDice[i] += newStats.rolledDice[i];
+    }
+
+    return oldStats;
+}

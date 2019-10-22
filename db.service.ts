@@ -2,7 +2,7 @@ import * as admin from 'firebase-admin';
 import { Service } from 'typedi';
 import { FormattedGame, Game } from './game/Game';
 import { Environment, EnvironmentService } from './environment.service';
-import { defaultStats, extractPlayerStats, PlayerStats } from './game/utils';
+import { defaultStats, extractPlayerStats, mergeStats, PlayerStats } from './game/utils';
 
 export interface FirestoreDate {
     _seconds: number;
@@ -89,18 +89,8 @@ export class DBService {
                     throw 'User does not exist!';
                 }
 
-                const stats: PlayerStats = doc.data().stats || defaultStats;
-
-                stats.perfectRoll += newStats.perfectRoll;
-                stats.luckiestRoll += newStats.luckiestRoll;
-                stats.worstRoll += newStats.perfectRoll;
-                stats.rolled21 += newStats.rolled21;
-                stats.maxLifeLoss += newStats.maxLifeLoss;
-                stats.wins = newStats.won ? stats.wins + 1 : stats.wins;
-                stats.totalGames++;
-                for (let i = 0; i < 6; i++) {
-                    stats.rolledDice[i] += newStats.rolledDice[i];
-                }
+                let stats: PlayerStats = doc.data().stats || defaultStats;
+                stats = mergeStats(stats, newStats);
                 // Commit to Firestore
                 transaction.set(userRef, {stats}, {merge: true});
             });
