@@ -55,4 +55,8 @@ $rolled-dice-color: $primary-color;
   color: $rolled-dice-color;
   display: flex;
   align-items: center;
+
+  &.number-3 {
+    color: $gray;
+  }
 }

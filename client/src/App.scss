@@ -47,10 +47,10 @@
 
   &.light {
     color: #080808;
-    background-color: lightgray;
+    background-color: $gray;
 
     &:hover, &:focus {
-      background-color: transparentize(lightgray, 0.1);
+      background-color: transparentize($gray, 0.1);
     }
   }
 

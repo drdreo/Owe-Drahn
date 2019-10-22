@@ -29,16 +29,16 @@
     "@types/node": "^12.7.5",
     "@types/socket.io": "^2.1.2",
     "@types/uuid": "^3.4.5",
-    "jest": "^24.9.0",
+    "jest": "24.8.0",
     "ts-jest": "^24.1.0",
     "typescript": "^3.6.3"
   },
   "scripts": {
-    "start": "cross-env NODE_ENV=production node dist/server.js",
-    "dev": "cross-env NODE_ENV=development ts-node server.ts",
-    "build": "tsc && cd client && npm run build",
-    "test": "jest",
-    "coverage": "jest --coverage",
+    "start": "./node_modules/.bin/cross-env NODE_ENV=production node dist/server.js",
+    "dev": "./node_modules/.bin/cross-env NODE_ENV=development ts-node server.ts",
+    "build": "./node_modules/.bin/tsc && cd client && npm run build",
+    "test": "./node_modules/.bin/jest",
+    "coverage": "./node_modules/.bin/jest --coverage",
     "postinstall": "cd client && npm install"
   },
   "author": "DrDreo",

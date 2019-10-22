@@ -194,19 +194,15 @@ export class Game {
             if (dice != 3) {
                 this.currentValue += dice;
             }
+            total = this.currentValue;
+
+            this.rolls.push({player: player.getFormattedPlayer(), dice, total});
 
             if (this.currentValue > 15) {
                 player.life = 0;
-                // const data = {player, dice, total: this.currentValue};
-                // console.log(data);
-                // this._command$.next({eventName: 'lost', data});
-                total = this.currentValue;
                 this.currentValue = 0;
-            } else {
-                total = this.currentValue;
             }
 
-            this.rolls.push({player: player.getFormattedPlayer(), dice, total});
             this._command$.next({eventName: 'rolledDice', data: {dice, player, total}});
 
             if (player.choosing) {

@@ -29,5 +29,5 @@ During local development, this config needs to be stored inside [root/credential
 In production, you need to have the environment variable `GCS_CREDENTIALS` set to the exact same JSON data.
 
 ## Running
-1. Start the server: `npm run dev`
+1. Start the server: `cd server && npm run dev`
 2. Start the client: `cd client && npm start`

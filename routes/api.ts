@@ -7,8 +7,9 @@ import { GameErrorCode } from '../game/GameError';
 import { Container } from 'typedi';
 import { GameService } from '../game/game.service';
 import { SocketService } from '../socket.service';
-import { FormattedGame, DBService } from '../db.service';
+import { DBService } from '../db.service';
 import { extractPlayerGames } from '../game/utils';
+import { FormattedGame } from '../game/Game';
 
 const gameService = Container.get<GameService>(GameService);
 const socketService = Container.get<SocketService>(SocketService);

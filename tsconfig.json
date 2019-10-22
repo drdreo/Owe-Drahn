@@ -2,8 +2,7 @@
   "include": [
     "game/**/*",
     "routes/**/*",
-    "server.ts",
-    "socket.service.ts"
+    "./*.ts"
   ],
   "compilerOptions": {
     "experimentalDecorators": true,
@@ -18,14 +17,16 @@
     ],
     "importHelpers": true,
     "removeComments": true,
-    "outDir": "dist",
+    "outDir": "./dist",
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
     "sourceMap": true,
     "inlineSources": true
   },
   "exclude": [
-    "node_modules",
+    "./node_modules",
+    "**/*.spec.ts",
+    "client",
     "dist"
   ]
 }

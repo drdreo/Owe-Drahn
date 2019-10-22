@@ -1243,6 +1243,62 @@ const games: FormattedGame[] = [
             },
         ],
     },
+    {
+        'rolls': [
+            {
+                'player': {
+                    'points': 0,
+                    'life': 6,
+                    'uid': 'TEST_UID',
+                    'username': 'DrDreo',
+                },
+                'total': 6,
+                'dice': 6,
+            },
+            {
+                'total': 11,
+                'dice': 5,
+                'player': {
+                    'points': 0,
+                    'life': 6,
+                    'uid': 'TEST_UID3',
+                    'username': 'Hackl',
+                },
+            },
+            {
+                'total': 17,
+                'dice': 6,
+                'player': {
+                    'life': 6,
+                    'uid': 'TEST_UID',
+                    'username': 'DrDreo',
+                    'points': 0,
+                },
+            }
+        ],
+        'startedAt': {
+            '_seconds': 1571684742,
+            '_nanoseconds': 461000000,
+        },
+        'players': [
+            {
+                'points': 0,
+                'life': 0,
+                'uid': null,
+                'username': 'Hackl',
+            },
+            {
+                'username': 'DrDreo',
+                'points': 0,
+                'life': 4,
+                'uid': 'TEST_UID',
+            },
+        ],
+        'finishedAt': {
+            '_seconds': 1571684785,
+            '_nanoseconds': 505000000,
+        },
+    },
 ];
 
 
@@ -1276,6 +1332,11 @@ describe('Player Statistics', () => {
         it('should calculate a rolled21', () => {
             const {rolled21} = extractPlayerStats('TEST_UID3', games[0]);
             expect(rolled21).toBe(1);
+        });
+
+        it('should calculate a maxLifeLoss', () => {
+            const {maxLifeLoss} = extractPlayerStats('TEST_UID', games[5]);
+            expect(maxLifeLoss).toBe(1);
         });
     });
 });

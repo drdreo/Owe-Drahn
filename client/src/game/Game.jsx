@@ -118,7 +118,7 @@ class Game extends Component {
                 if (players.length === 1) {
                     controlButton = "Waiting for Players";
                 } else {
-                    controlButton = <button className={`button ${player.ready ? "success" : "light"}`}
+                    controlButton = <button className={`button ${player.ready ? "success" : "primary"}`}
                                             onClick={() => this.ready()}>Ready</button>;
                 }
 
@@ -142,7 +142,7 @@ class Game extends Component {
         return (
             <div className="page-container">
                 <div className="statistics">
-                    <div className="rolled-dice">{rolledDice}</div>
+                    <div className={`rolled-dice number-${rolledDice}`}>{rolledDice}</div>
                     <div className={`current-value ${totalModifier}`}>{ui_currentValue}</div>
                 </div>
 
