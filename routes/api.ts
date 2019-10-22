@@ -7,9 +7,8 @@ import { GameErrorCode } from '../game/GameError';
 import { Container } from 'typedi';
 import { GameService } from '../game/game.service';
 import { SocketService } from '../socket.service';
-import { DBGame, DBService } from '../db.service';
+import { FormattedGame, DBService } from '../db.service';
 import { extractPlayerGames } from '../game/utils';
-import { Game } from '../game/Game';
 
 const gameService = Container.get<GameService>(GameService);
 const socketService = Container.get<SocketService>(SocketService);
@@ -74,7 +73,7 @@ router.get('/user/:uid/games', async (req: any, res: express.Response) => {
         throw new Error('Invalid user ID!');
     }
     const gamesSnapshot = await dbService.getAllGames();
-    const allGames: DBGame[] = gamesSnapshot.docs.map(doc => doc.data() as DBGame);
+    const allGames: FormattedGame[] = gamesSnapshot.docs.map(doc => doc.data() as FormattedGame);
 
     const playersGames = extractPlayerGames(uid, allGames);
     res.json(playersGames);

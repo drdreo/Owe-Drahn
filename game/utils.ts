@@ -1,5 +1,4 @@
-import { Game } from './Game';
-import { DBGame } from '../db.service';
+import { FormattedGame, Game } from './Game';
 
 export interface PlayerStats {
     rolledDice: number[];
@@ -23,7 +22,7 @@ export const defaultStats: PlayerStats = {
     maxLifeLoss: 0,
 };
 
-export function extractPlayerStats(uid: string, game: Game) {
+export function extractPlayerStats(uid: string, game: FormattedGame) {
     const aggregation = {
         rolledDice: [0, 0, 0, 0, 0, 0],
         won: false,
@@ -35,7 +34,7 @@ export function extractPlayerStats(uid: string, game: Game) {
     };
 
     // aggregate all player rolls
-    const playerRolls = game.getRolls().reduce((total, cur) => {
+    const playerRolls = game.rolls.reduce((total, cur) => {
         if (cur.player.uid === uid) {
             total.push(cur);
         }
@@ -43,7 +42,7 @@ export function extractPlayerStats(uid: string, game: Game) {
     }, []);
 
     // calculate if player won
-    aggregation.won = game.getPlayers().some(player => player.uid === uid && player.life > 0);
+    aggregation.won = game.players.some(player => player.uid === uid && player.life > 0);
 
     // extract statistics of rolled dice
     for (const roll of playerRolls) {
@@ -57,26 +56,29 @@ export function extractPlayerStats(uid: string, game: Game) {
         if (roll.dice === 3 && roll.total === 15) {
             aggregation.luckiestRoll++;
         }
-        // worst roll
-        if (roll.dice === 6 && roll.total === 16) {
-            aggregation.worstRoll++;
-        }
-        // rolled 21
-        if (roll.total === 21) {
-            aggregation.rolled21++;
-        }
+    }
 
-        // lost at max life
-        if (roll.player.life === 6 && roll.total > 15) {
-            aggregation.maxLifeLoss++;
-        }
+    // only have to check last roll of this players rolls, was the ending one
+    const lastRoll = playerRolls[playerRolls.length - 1];
+    // worst roll
+    if (lastRoll.dice === 6 && lastRoll.total === 16) {
+        aggregation.worstRoll++;
+    }
+    // rolled 21
+    if (lastRoll.total === 21) {
+        aggregation.rolled21++;
+    }
+
+    // lost at max life
+    if (lastRoll.player.life === 6 && lastRoll.total > 15) {
+        aggregation.maxLifeLoss++;
     }
 
     return aggregation;
 }
 
 
-export function extractPlayerGames(uid: string, games: DBGame[]) {
+export function extractPlayerGames(uid: string, games: FormattedGame[]) {
     return games.filter(game =>
         game.players.some(player => player.uid === uid),
     );

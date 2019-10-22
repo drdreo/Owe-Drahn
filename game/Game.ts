@@ -2,11 +2,19 @@ import { FormattedPlayer, Player } from './Player';
 import { Subject } from 'rxjs';
 import { Command } from './Command';
 import { GameError, GameErrorCode } from './GameError';
+import { FirestoreDate } from '../db.service';
 
 export interface Rolls {
     player: FormattedPlayer;
     dice: number;
     total: number;
+}
+
+export interface FormattedGame {
+    players: FormattedPlayer[];
+    rolls: Rolls[];
+    startedAt: Date | FirestoreDate;
+    finishedAt: Date | FirestoreDate;
 }
 
 export class Game {
@@ -243,12 +251,14 @@ export class Game {
         const playerIndex = this.players.findIndex(player => player.id === playerId);
         if (playerIndex !== -1) {
             if (this.players.length > 2) {
+                // set new player, then remove the leaver and send update
                 if (this.players[playerIndex].isPlayersTurn) {
                     this.setNextPlayer();
                 }
                 this.removePlayer(playerIndex);
                 this.sendPlayerUpdate(true);
             } else {
+                // remove player, tell the last player about the leaver and send gameOver if he is last
                 this.removePlayer(playerIndex);
                 this.sendPlayerUpdate(true);
                 if (this.started && this.players.length > 0) {
@@ -316,6 +326,14 @@ export class Game {
         }, 5000);
     }
 
+    format(): FormattedGame {
+        return {
+            startedAt: this.startedAt,
+            finishedAt: this.finishedAt,
+            players: this.getFormattedPlayers(),
+            rolls: this.getRolls(),
+        };
+    }
 }
 
 

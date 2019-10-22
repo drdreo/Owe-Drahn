@@ -15,7 +15,6 @@ import { apiRouter } from './routes/api';
 const app = express();
 
 const environmentService = Container.get<EnvironmentService>(EnvironmentService);
-const gameService = Container.get<GameService>(GameService);
 const socketService = Container.get<SocketService>(SocketService);
 
 const whitelist = [

@@ -1,15 +1,12 @@
 import * as admin from 'firebase-admin';
 import { Service } from 'typedi';
-import { Game, Rolls } from './game/Game';
+import { FormattedGame, Game } from './game/Game';
 import { Environment, EnvironmentService } from './environment.service';
 import { defaultStats, extractPlayerStats, PlayerStats } from './game/utils';
-import { FormattedPlayer } from './game/Player';
 
-export interface DBGame {
-    players: FormattedPlayer[];
-    rolls: Rolls[];
-    createdAt: Date;
-    finishedAt: Date;
+export interface FirestoreDate {
+    _seconds: number;
+    _nanoseconds: number;
 }
 
 @Service()
@@ -62,16 +59,11 @@ export class DBService {
     storeGame(game: Game) {
         try {
             this.firestore.collection('games')
-                .add({
-                    startedAt: game.startedAt,
-                    finishedAt: game.finishedAt,
-                    players: game.getFormattedPlayers(),
-                    rolls: game.getRolls(),
-                });
+                .add(game.format());
 
             const registeredPlayers = game.getRegisteredPlayers();
             for (let player of registeredPlayers) {
-                this.updatePlayerStats(player.uid, game)
+                this.updatePlayerStats(player.uid, game.format())
                     .then(result => {
                         // console.log('Successfully updated player stats!', result);
                     })
@@ -85,7 +77,7 @@ export class DBService {
         }
     }
 
-    updatePlayerStats(uid: string, game: Game) {
+    updatePlayerStats(uid: string, game: FormattedGame) {
         const userRef = this.firestore.collection('users').doc(uid);
         // extract the stats before the transaction, because it can run multiple times
         const newStats = extractPlayerStats(uid, game);
