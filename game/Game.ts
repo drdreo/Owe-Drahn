@@ -2,7 +2,8 @@ import { FormattedPlayer, Player } from './Player';
 import { Subject } from 'rxjs';
 import { Command } from './Command';
 import { GameError, GameErrorCode } from './GameError';
-import { FirestoreDate } from '../db.service';
+import { DBService, FirestoreDate } from '../db.service';
+import { Container } from 'typedi';
 
 export interface Rolls {
     player: FormattedPlayer;
@@ -16,6 +17,8 @@ export interface FormattedGame {
     startedAt: Date | FirestoreDate;
     finishedAt: Date | FirestoreDate;
 }
+
+const dbService = Container.get<DBService>(DBService);
 
 export class Game {
 
@@ -222,6 +225,11 @@ export class Game {
             if (uid) {
                 console.log(`User[${uid}] connected to player[${playerId}]`);
                 player.uid = uid;
+                if (!player.rank) {
+                    dbService.getPlayersRank(uid).then(rank => {
+                        player.rank = rank;
+                    });
+                }
             }
         } else {
             this.sendGameError({code: GameErrorCode.NO_PLAYER, message: 'You are not part of this game!'});

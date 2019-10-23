@@ -9,6 +9,14 @@ export interface FirestoreDate {
     _nanoseconds: number;
 }
 
+
+export interface User {
+    stats: PlayerStats;
+    username: string;
+    email: string;
+    uid: string;
+}
+
 @Service()
 export class DBService {
 
@@ -100,6 +108,23 @@ export class DBService {
     getAllGames(): Promise<FirebaseFirestore.QuerySnapshot> {
         return this.firestore.collection('games')
                    .get();
+
+    }
+
+    getUserSnapshot(uid: string): Promise<FirebaseFirestore.DocumentSnapshot> {
+        return this.firestore.collection('users').doc(uid).get();
+    }
+
+    async getPlayersRank(uid: string): Promise<number> {
+        const doc = await this.getUserSnapshot(uid);
+
+        if (!doc.exists) {
+            console.error('No such user!');
+            return 0;
+        } else {
+            const user = doc.data() as User;
+            return Math.floor(user.stats.totalGames / 10) + user.stats.totalGames;
+        }
 
     }
 }

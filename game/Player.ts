@@ -14,7 +14,8 @@ export class Player {
     points: number = 0;
     connected: boolean = false;
 
-    uid: string; // only set if User is logged in
+    uid: string | null; // only set if User is logged in
+    rank: number = 0;
 
     constructor(readonly id: string, readonly username: string) { }
 
