@@ -9,7 +9,8 @@ const initialState = {
     ui_players: [],
     started: false,
     over: false,
-    gameError$: new Subject(undefined)
+    gameError$: new Subject(undefined),
+    gameInfo: {message: ""}
 };
 
 const gameReducer = (state = initialState, action) => {
@@ -42,7 +43,7 @@ const gameReducer = (state = initialState, action) => {
             return {...state, players: action.payload.players};
         case "ROLLED_DICE":
             state.rolledDice$.next(action.payload);
-            return {...state, currentValue: action.payload.total};
+            return {...state, currentValue: action.payload.total, gameInfo: {message: ""}};
         case "ANIMATED_DICE":
             return {
                 ...state,
@@ -51,7 +52,13 @@ const gameReducer = (state = initialState, action) => {
                 ui_players: state.players
             };
         case "PLAYER_LOST_LIFE":
-            return {...state, rolledDice: 0, ui_currentValue: 0};
+            const currentPlayerId = sessionStorage.getItem("playerId");
+            const playersTurn = state.players.some(player => player.id === currentPlayerId && player.isPlayersTurn);
+            const message = playersTurn ? "Choose next Player" : "";
+            return {...state, rolledDice: 0, ui_currentValue: 0, gameInfo: {message}};
+
+        case "PLAYER_CHOOSE_NEXT":
+            return {...state, gameInfo: {message: ""}};
         default:
             return state;
     }

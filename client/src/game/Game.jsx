@@ -27,7 +27,11 @@ import {feedMessage} from "./Feed/feed.actions";
 
 import "./Game.scss";
 import {redirectToHome} from "../routing/routing.actions";
+import RollButton from "./RollButton/RollButton";
+import GameInfo from "./GameInfo/GameInfo";
 
+
+const MIN_VAL_TO_OWE_DRAHN = 10;
 
 class Game extends Component {
 
@@ -42,7 +46,9 @@ class Game extends Component {
         super(props);
 
         this.state = {
-            animatingDice: false
+            animatingDice: false,
+            animatingHeart: false,
+            isRolling: false
         };
 
     }
@@ -126,10 +132,15 @@ class Game extends Component {
 
                 if (started || this.state.animatingDice) {
                     const isWaiting = !player.isPlayersTurn || this.state.animatingDice;
+                    const isRolling = this.state.isRolling;
+                    const animatingHeart = this.state.animatingHeart;
 
                     controlButton = (<div style={{display: "flex"}} className={`${isWaiting ? "waiting" : ""}`}>
-                        <button disabled={isWaiting} className="button" onClick={() => this.rollDice()}>Roll</button>
-                        <LifeLoseBtn disabled={isWaiting} onClick={() => this.loseLife()}/>
+                        {/*<button disabled={isWaiting} className="button" onClick={() => this.rollDice()}>Roll</button>*/}
+                        <RollButton rolling={isRolling} disabled={isWaiting} onClick={() => this.rollDice()}/>
+                        <LifeLoseBtn animating={animatingHeart}
+                                     disabled={isWaiting || player.life <= 1 || ui_currentValue < MIN_VAL_TO_OWE_DRAHN}
+                                     onClick={() => this.loseLife()}/>
                     </div>);
                 }
                 controls = (<div className="controls">{controlButton}</div>);
@@ -161,6 +172,7 @@ class Game extends Component {
                 <div className="dice" ref={this.diceRef}/>
                 <Feed/>
                 <Settings className="settings"/>
+                <GameInfo/>
 
             </div>
         );
@@ -187,12 +199,26 @@ class Game extends Component {
 
     rollDice() {
         if (this.getPlayer().isPlayersTurn) {
+            if (!this.state.isRolling) {
+                this.setState({isRolling: true});
+                setTimeout(() => {
+                    this.setState({isRolling: false});
+                }, 1300);
+            }
             this.props.rollDice();
         }
     }
 
     loseLife() {
-        if (this.getPlayer().isPlayersTurn && this.props.currentValue > 9) {
+        const player = this.getPlayer();
+        if (player.isPlayersTurn && player.life > 1 && this.props.currentValue >= MIN_VAL_TO_OWE_DRAHN) {
+            if (!this.state.animatingHeart) {
+                this.setState({animatingHeart: true});
+                // remove the animation class after some arbitrary time. Player won't trigger this again soon
+                setTimeout(() => {
+                    this.setState({animatingHeart: false});
+                }, 2500);
+            }
             this.props.loseLife();
         }
     }

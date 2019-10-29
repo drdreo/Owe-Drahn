@@ -1,61 +1,83 @@
-body {
-  align-items: center;
+@import "../../utils";
+
+$btn-width: 100px;
+$btn-width-rolling: 40px;
+$animation-time: 1.25s;
+
+.roll-button-container {
+  min-width: $btn-width;
   display: flex;
-  font-family: sans-serif;
-  font-weight: 600;
-  font-size: 26px;
-  height: 100vh;
   justify-content: center;
-  margin: 0;
 }
-.container {
-  align-items: center;
-  background: #000;
-  border-radius: 40px;
-  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22);
+
+.roll-button {
   display: flex;
-  height: 80px;
   justify-content: center;
+  align-items: center;
   position: relative;
-  width: 200px;
-}
-.text {
-  color: white;
-  position: absolute;
-  user-select: none;
-  -moz-user-select: none;
-}
-.dice {
-  width: 20px;
-  opacity: 0;
-  stroke: #777;
-  top: -9px;
+  height: 40px;
+  width: $btn-width;
+
+  background: $primary-color;
+  outline: none;
+  border-radius: 20px;
+  box-shadow: 0 7px 14px rgba(0, 0, 0, 0.25), 0 5px 5px rgba(0, 0, 0, 0.22);
+  cursor: pointer;
+
+  transition: transform 0.17s ease, background-color .17s ease;
+
+  &.disabled {
+    background: gray;
+    box-shadow: unset;
+  }
+
+  &.rolling {
+    animation: #{$animation-time} Button;
+    background-color: $primary-color;
+
+    .text {
+      animation: #{$animation-time} Text forwards;
+    }
+
+    .dice {
+      animation: #{$animation-time} Dice forwards;
+    }
+  }
+
+  .text {
+    color: white;
+    position: absolute;
+    user-select: none;
+    -moz-user-select: none;
+  }
+
+  .dice {
+    width: 20px;
+    opacity: 0;
+    top: 9px;
+
+    path {
+      fill: #ffffff;
+    }
+  }
 }
 
-.active.container {
-  animation: 3s Container;
-}
-.active .text {
-  animation: 3s Text forwards;
-}
-.active .dice {
-   animation: 3s Dice forwards;
 
-}
-@keyframes Container {
+@keyframes Button {
   0% {
-    width: 200px;
+    width: $btn-width;
   }
   6% {
-    width: 80px;
+    width: $btn-width-rolling;
   }
   94% {
-    width: 80px;
+    width: $btn-width-rolling;
   }
   100% {
-    width: 200px;
+    width: $btn-width;
   }
 }
+
 @keyframes Text {
   0% {
     opacity: 1;

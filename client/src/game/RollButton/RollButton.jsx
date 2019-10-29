@@ -1,8 +1,11 @@
-<div class="container" onclick="this.classList.toggle('active')">
-  <span class="text">Roll</span>
-  <svg class="dice" version="1.1" width="20"  x="0px" y="0px"
-	 viewBox="0 0 26.99 26.99"  >
-    <path fill="white" d="M24.844,0.616H2.146C0.96,0.616,0,1.577,0,2.761v21.467c0,1.184,0.96,2.145,2.146,2.145h22.698
+import React, {Component} from "react";
+
+import "./RollButton.scss";
+
+const Roll = () => (
+    <svg className="dice" version="1.1" width="20" x="0px" y="0px"
+         viewBox="0 0 26.99 26.99">
+        <path  d="M24.844,0.616H2.146C0.96,0.616,0,1.577,0,2.761v21.467c0,1.184,0.96,2.145,2.146,2.145h22.698
       c1.182,0,2.146-0.961,2.146-2.145V2.761C26.99,1.577,26.025,0.616,24.844,0.616z M6.168,8.78c-1.533,0-2.779-1.244-2.779-2.779
       c0-1.531,1.246-2.777,2.779-2.777c1.534,0,2.777,1.246,2.777,2.777C8.945,7.536,7.702,8.78,6.168,8.78z M20.949,16.272
       c-1.535,0-2.778-1.242-2.778-2.777c0-1.533,1.243-2.777,2.778-2.777c1.533,0,2.779,1.244,2.779,2.777
@@ -12,5 +15,23 @@
       c-1.533,0-2.777-1.244-2.777-2.775c0-1.533,1.244-2.777,2.777-2.777s2.777,1.244,2.777,2.777
       C23.783,7.583,22.539,8.828,21.006,8.828z M6.235,23.557c-1.533,0-2.777-1.244-2.777-2.777c0-1.535,1.244-2.777,2.777-2.777
       c1.534,0,2.779,1.242,2.779,2.777C9.015,22.313,7.77,23.557,6.235,23.557z"/>
-          </svg>
-</div>
+    </svg>
+);
+
+
+class RollButton extends Component {
+    render() {
+        return (
+            <div className="roll-button-container">
+                <div
+                    className={`roll-button ${this.props.rolling ? "rolling" : ""} ${this.props.disabled ? "disabled" : ""}`}
+                    onClick={this.props.onClick}>
+                    <span className="text">Roll</span>
+                    <Roll/>
+                </div>
+            </div>
+        );
+    }
+}
+
+export default RollButton;
