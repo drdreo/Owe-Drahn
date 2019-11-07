@@ -1,14 +1,15 @@
 import * as admin from 'firebase-admin';
-import { Service } from 'typedi';
+import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { FormattedGame, Game } from './game/Game';
 import { Environment, EnvironmentService } from './environment.service';
-import { defaultStats, extractPlayerStats, mergeStats, PlayerStats } from './game/utils';
+import { defaultStats, extractPlayerStats, mergeStats, PlayerStats } from './game/game.utils';
+import { Logger } from './utils/logger/logger.decorator';
+import { LoggerService } from './utils/logger/logger.service';
 
 export interface FirestoreDate {
     _seconds: number;
     _nanoseconds: number;
 }
-
 
 export interface User {
     stats: PlayerStats;
@@ -17,28 +18,35 @@ export interface User {
     uid: string;
 }
 
-@Service()
-export class DBService {
+@Injectable()
+export class DBService implements OnApplicationBootstrap {
 
     firestore: FirebaseFirestore.Firestore;
 
-    constructor(private environmentService: EnvironmentService) {
-        let serviceAccount = '';
-        if (environmentService.env === Environment.production) {
-            serviceAccount = JSON.parse(process.env.GCS_CREDENTIALS);
-        } else {
-            serviceAccount = require('./credentials/owe-drahn-b01e77bcc3a4.json');
-        }
-
-        console.log(serviceAccount);
-
-        admin.initializeApp({
-            credential: admin.credential.cert(serviceAccount),
-        });
-
-        this.firestore = admin.firestore();
+    constructor(@Logger('DBService') private logger: LoggerService, private environmentService: EnvironmentService) {
+        this.logger.log("DBService - Constructed!");
     }
 
+    onApplicationBootstrap() {
+        let serviceAccount = '';
+        if (this.environmentService.env === Environment.production) {
+            serviceAccount = JSON.parse(process.env.GCS_CREDENTIALS);
+        } else {
+            // serviceAccount = require('./credentials/owe-drahn-b01e77bcc3a4.json');
+            serviceAccount = require('../../credentials/owe-drahn-95b28ef424c4.json');
+        }
+        this.logger.log("Google service acount loaded");
+
+
+
+        if (admin.apps.length === 0) {
+            admin.initializeApp({
+                credential: admin.credential.cert(serviceAccount),
+            });
+        }
+        this.firestore = admin.firestore();
+        this.logger.log("firestore initialized");
+    }
 
     async quickstart() {
         // Obtain a document reference.
@@ -100,14 +108,14 @@ export class DBService {
                 let stats: PlayerStats = doc.data().stats || defaultStats;
                 stats = mergeStats(stats, newStats);
                 // Commit to Firestore
-                transaction.set(userRef, {stats}, {merge: true});
+                transaction.set(userRef, { stats }, { merge: true });
             });
         });
     }
 
     getAllGames(): Promise<FirebaseFirestore.QuerySnapshot> {
         return this.firestore.collection('games')
-                   .get();
+            .get();
 
     }
 

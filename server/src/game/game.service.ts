@@ -1,9 +1,11 @@
-import { Service } from 'typedi';
+import { Injectable } from '@nestjs/common';
 import { Game } from './Game';
 import { Observable } from 'rxjs';
 import { Command } from './Command';
 import { DBService } from '../db.service';
 import { tap } from 'rxjs/operators';
+import { LoggerService } from 'src/utils/logger/logger.service';
+import { Logger } from 'src/utils/logger/logger.decorator';
 
 interface Room {
     room: string;
@@ -15,13 +17,13 @@ export interface GamesOverview {
     totalPlayers: number;
 }
 
-@Service()
+@Injectable()
 export class GameService {
 
     private games = new Map<string, Game>();
 
-    constructor(private dbService: DBService) {
-
+    constructor(@Logger('GameService') private logger: LoggerService, private readonly dbService: DBService) {
+        this.logger.log("constructed!");
     }
 
     createGame(room: string): void {
@@ -38,10 +40,10 @@ export class GameService {
         let rooms = [];
 
         this.games.forEach((game, room) => {
-            rooms.push({room, started: game.started});
+            rooms.push({ room, started: game.started });
             totalPlayers += game.getPlayers().length;
         });
-        return {totalPlayers, rooms};
+        return { totalPlayers, rooms };
     }
 
     hasGame(room: string): boolean {
@@ -90,8 +92,9 @@ export class GameService {
         }));
     }
 
-    connect(room: string, playerId: string, uid?: string): void {
-        this.getGame(room).connect(playerId, uid);
+    async connect(room: string, playerId: string, uid?: string) {
+        const rank = await this.dbService.getPlayersRank(uid);
+        this.getGame(room).connect(playerId, uid, rank);
     }
 
     isConnected(room: string, playerId: string): boolean {
