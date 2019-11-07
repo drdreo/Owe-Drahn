@@ -4,8 +4,8 @@ import { Observable } from 'rxjs';
 import { Command } from './Command';
 import { DBService } from '../db.service';
 import { tap } from 'rxjs/operators';
-import { LoggerService } from 'src/utils/logger/logger.service';
-import { Logger } from 'src/utils/logger/logger.decorator';
+import { LoggerService } from '../utils/logger/logger.service';
+import { Logger } from '../utils/logger/logger.decorator';
 
 interface Room {
     room: string;

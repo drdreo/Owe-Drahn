@@ -2,7 +2,7 @@ import { FormattedPlayer, Player } from './Player';
 import { Subject } from 'rxjs';
 import { Command } from './Command';
 import { GameError, GameErrorCode } from './GameError';
-import { DBService, FirestoreDate } from '../db.service';
+import { FirestoreDate } from '../db.service';
 
 export interface Rolls {
     player: FormattedPlayer;

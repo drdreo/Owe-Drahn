@@ -5,7 +5,9 @@
     "node": "10.15.1"
   },
   "description": "",
-  "dependencies": {},
+  "dependencies": {
+    "express-session": "^1.17.0"
+  },
   "scripts": {
     "start": "cd server && npm run start:prod",
     "dev": "./node_modules/.bin/cross-env NODE_ENV=development ts-node server.ts",
@@ -17,5 +19,8 @@
     "install:server": "cd server && npm install"
   },
   "author": "DrDreo",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "@types/express-session": "^1.15.15"
+  }
 }

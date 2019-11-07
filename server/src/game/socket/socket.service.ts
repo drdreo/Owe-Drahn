@@ -2,12 +2,13 @@ import { Injectable } from '@nestjs/common';
 
 import { GameService } from '../game.service';
 import { Command } from '../Command';
-import { LoggerService } from 'src/utils/logger/logger.service';
+import { LoggerService } from '../../utils/logger/logger.service';
+import { Logger } from '../../utils/logger/logger.decorator';
 
 @Injectable() export class SocketService {
 
 
-    constructor(@LoggerServiceer('SocketService') private logger: LoggerService, private readonly gameService: GameService) {
+    constructor(@Logger('SocketService') private logger: LoggerService, private readonly gameService: GameService) {
         this.logger.log("Constructed!")
     }
 

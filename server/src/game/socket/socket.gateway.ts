@@ -13,7 +13,6 @@ import { GameService } from '../game.service';
 import { LoggerService } from 'src/utils/logger/logger.service';
 import { Logger } from 'src/utils/logger/logger.decorator';
 import { GameErrorCode } from '../GameError';
-import { Command } from '../Command';
 import { SocketService } from './socket.service';
 
 
@@ -56,6 +55,8 @@ export class SocketGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 
     // send too all clients in room
     private emitToRoom(room: string, eventName: string, data?: unknown) {
+        console.log("emitToRoom", eventName);
+
         this.server.in(room).emit(eventName, data);
     }
 
