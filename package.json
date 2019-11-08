@@ -4,13 +4,12 @@
   "engines": {
     "node": "10.15.1"
   },
-  "description": "",
-  "dependencies": {
-    "express-session": "^1.17.0"
-  },
+  "description": "The monorepo of Owe Drahn",
+  "dependencies": {},
   "scripts": {
     "start": "cd server && npm run start:prod",
-    "dev": "./node_modules/.bin/cross-env NODE_ENV=development ts-node server.ts",
+    "dev:client": "cd client && npm run start",
+    "dev:server": "cd server && npm run start:dev",
     "build": "npm run build:client && npm run build:server",
     "build:client": "cd client && npm run build",
     "build:server": "cd server && npm run build",
@@ -19,8 +18,5 @@
     "install:server": "cd server && npm install"
   },
   "author": "DrDreo",
-  "license": "ISC",
-  "devDependencies": {
-    "@types/express-session": "^1.15.15"
-  }
+  "license": "ISC"
 }

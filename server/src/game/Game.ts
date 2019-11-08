@@ -2,7 +2,7 @@ import { FormattedPlayer, Player } from './Player';
 import { Subject } from 'rxjs';
 import { Command } from './Command';
 import { GameError, GameErrorCode } from './GameError';
-import { FirestoreDate } from '../db.service';
+import { FirestoreDate } from '../db/db.service';
 
 export interface Rolls {
     player: FormattedPlayer;
@@ -216,7 +216,7 @@ export class Game {
         }
     }
 
-    connect(playerId: string, uid?: string, rank?: any) {
+    connect(playerId: string, uid?: string, rank?: number) {
         const player = this.getPlayer(playerId);
         if (player) {
             player.connected = true;
@@ -308,7 +308,7 @@ export class Game {
         }
     }
 
-    joinGame(playerId: string, username: string) {
+    join(playerId: string, username: string) {
         if (!this.started) {
             this.addPlayer(playerId, username);
         }

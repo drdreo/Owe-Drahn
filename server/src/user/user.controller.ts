@@ -3,7 +3,7 @@ import { Controller, Get, Param } from "@nestjs/common";
 import { FormattedGame } from '../game/Game';
 import { extractPlayerGames } from '../game/game.utils';
 
-import { DBService } from '../db.service';
+import { DBService } from '../db/db.service';
 
 @Controller("api/users")
 export class UserController {

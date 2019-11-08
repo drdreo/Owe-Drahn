@@ -16,14 +16,17 @@ export class LoggerService extends Logger {
     super.verbose(message, this.prefix);
   }
 
-  debug(message: string) {
-    let formattedMessage = message;
+  debug(data: string | object) {
+    let formattedMessage = data;
 
-    if (this.prefix) {
-      formattedMessage = `[${this.prefix}] ${message}`;
+    if (typeof data === 'string' || data instanceof String) {
+      if (this.prefix) {
+        formattedMessage = `[${this.prefix}] ${data}`;
+      }
+      console.log(formattedMessage);
+    } else {
+      console.log(`[${this.prefix}] : %j`, data);
     }
-
-    console.log(formattedMessage);
   }
 
   setPrefix(prefix: string) {
