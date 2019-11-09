@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import * as session from 'express-session';
+import { EnvironmentService } from './environment.service';
 
 const whitelistDomains = [
     'http://localhost:3000',
@@ -33,8 +34,9 @@ async function bootstrap() {
         },
     }));
 
-    await app.listen(process.env.PORT || 4000);
-    console.log('Server listening at https://localhost:4000');
+    const envService = app.get<EnvironmentService>(EnvironmentService);
+    await app.listen(envService.port);
+    console.log('Server listening at port:' + envService.port);
 }
 
 bootstrap();
