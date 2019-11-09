@@ -24,6 +24,14 @@ $rolled-dice-color: $primary-color;
   align-items: center;
   justify-content: center;
   max-height: 25vh;
+
+  &.circle-board {
+    z-index: -1;
+    position: absolute;
+    height: 100%;
+    width: 100%;
+  }
+
 }
 
 .dice {

@@ -39,7 +39,7 @@ export class SocketGateway implements OnModuleDestroy, OnGatewayConnection, OnGa
     private unsubscribe$ = new Subject();
 
     constructor(@Logger('SocketGateway') private logger: LoggerService, private readonly socketService: SocketService) {
-        this.socketService.messsages$
+        this.socketService.messages$
             .pipe(takeUntil(this.unsubscribe$))
             .subscribe((message: SocketMessage) => {
                 this.emitToRoom(message.room, message.eventName, message.data);

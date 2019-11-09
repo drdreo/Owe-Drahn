@@ -1,4 +1,4 @@
-import { PlayerStats } from "src/game/game.utils";
+import { PlayerStats } from "../game/game.utils";
 
 export interface User {
     stats: PlayerStats;

@@ -23,8 +23,13 @@ export class GameService {
     private games = new Map<string, Game>();
 
     constructor(@Logger('GameService') private logger: LoggerService, private readonly dbService: DBService) {
-        this.logger.log("constructed!");
+        this.logger.log('constructed!');
     }
+
+    /**
+     * Helpers
+     */
+
 
     createGame(room: string): void {
         this.games.set(room, new Game());
@@ -35,15 +40,14 @@ export class GameService {
     }
 
     getGamesOverview(): GamesOverview {
-
         let totalPlayers = 0;
         let rooms = [];
 
         this.games.forEach((game, room) => {
-            rooms.push({ room, started: game.started });
+            rooms.push({room, started: game.started});
             totalPlayers += game.getPlayers().length;
         });
-        return { totalPlayers, rooms };
+        return {totalPlayers, rooms};
     }
 
     hasGame(room: string): boolean {
@@ -70,6 +74,11 @@ export class GameService {
         return playerId && this.games.get(room).isPlayer(playerId);
     }
 
+    isConnected(room: string, playerId: string): boolean {
+        const game = this.getGame(room);
+        return game && game.isPlayer(playerId) && game.isPlayerConnected(playerId);
+    }
+
     getGameUpdate(room: string) {
         const game = this.getGame(room);
         if (game) {
@@ -88,17 +97,25 @@ export class GameService {
         }));
     }
 
+    /**
+     * Game Methods
+     */
+
+    /**
+     * If the Player was a registered Player, we query necessary data from DB and set it on the player. Rank only currently.
+     *
+     * @param room - The room key
+     * @param playerId - The players Id for this game
+     * @param [uid] - The clients UID
+     */
     async connect(room: string, playerId: string, uid?: string) {
+        this.logger.debug(`room[${room}][${playerId}] connect`);
+
         let rank = undefined;
         if (uid) {
             rank = await this.dbService.getPlayersRank(uid);
         }
         this.getGame(room).connect(playerId, uid, rank);
-    }
-
-    isConnected(room: string, playerId: string): boolean {
-        const game = this.getGame(room);
-        return game && game.isPlayer(playerId) && game.isPlayerConnected(playerId);
     }
 
     disconnect(room: string, playerId: string): void {
@@ -132,11 +149,7 @@ export class GameService {
 
     ready(room: string, playerId: string, ready: boolean): void {
         this.logger.debug(`room[${room}] ready up`);
-
-        const game = this.getGame(room);
-        if (game) {
-            game.ready(playerId, ready);
-        }
+        this.getGame(room).ready(playerId, ready);
     }
 
     rollDice(room: string, playerId: string) {
@@ -151,7 +164,6 @@ export class GameService {
 
     chooseNextPlayer(room: string, playerId: string, nextPlayerId: string) {
         this.logger.debug(`room[${room}]: choosing next player`);
-
         return this.getGame(room).chooseNextPlayer(playerId, nextPlayerId);
     }
 }

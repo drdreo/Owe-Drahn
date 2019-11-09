@@ -18,6 +18,13 @@ export interface FormattedGame {
 }
 
 
+export interface GameUpdate {
+    players: Player[];
+    currentValue: number;
+    started: boolean;
+    over: boolean;
+}
+
 export class Game {
 
     private players: Player[] = [];
@@ -65,22 +72,32 @@ export class Game {
         return this.players.filter(player => player.isPlayersTurn)[0];
     }
 
-    hasPlayers() {
-        return !!this.players.length;
+    private isEveryoneReady() {
+        return this.players.every(player => player.ready);
     }
 
     isPlayer(playerId: string): boolean {
         return this.players.some(player => player.id === playerId);
     }
 
+    hasPlayers() {
+        return this.players.length > 0;
+    }
+
     getPlayers(): Player[] {
         return this.players;
+    }
+
+    /**
+     * @returns the players with life left
+     */
+    getPlayersLeft(): Player[] {
+        return this.players.filter(player => player.life > 0);
     }
 
     getRegisteredPlayers(): Player[] {
         return this.players.filter(player => player.uid);
     }
-
 
     getFormattedPlayers(): FormattedPlayer[] {
         return this.players.map(player => player.getFormattedPlayer());
@@ -94,46 +111,66 @@ export class Game {
         return this.getPlayer(playerId).connected;
     }
 
-    getGameUpdate() {
-        return { players: this.players, currentValue: this.currentValue, started: this.started, over: this.over };
+    getGameUpdate(): GameUpdate {
+        return {players: this.players, currentValue: this.currentValue, started: this.started, over: this.over};
+    }
+
+    removePlayer(index: number) {
+        this.sendPlayerLeft(this.players[index].username);
+        this.players.splice(index, 1);
     }
 
     sendGameInit() {
-        this._command$.next({ eventName: 'gameInit', data: this.getGameUpdate() });
+        this._command$.next({eventName: 'gameInit', data: this.getGameUpdate()});
     }
 
     sendGameUpdate() {
-        this._command$.next({ eventName: 'gameUpdate', data: this.getGameUpdate() });
+        this._command$.next({eventName: 'gameUpdate', data: this.getGameUpdate()});
     }
 
     sendGameOver(winner: string) {
-        this._command$.next({ eventName: 'gameOver', data: winner });
+        this._command$.next({eventName: 'gameOver', data: winner});
     }
 
     sendGameError(error: GameError) {
-        this._command$.next({ eventName: 'gameError', data: error });
+        this._command$.next({eventName: 'gameError', data: error});
     }
 
     sendPlayerUpdate(updateUI: boolean = false) {
-        this._command$.next({ eventName: 'playerUpdate', data: { players: this.players, updateUI } });
+        this._command$.next({eventName: 'playerUpdate', data: {players: this.players, updateUI}});
     }
 
     sendPlayerLeft(username: string) {
-        this._command$.next({ eventName: 'playerLeft', data: username });
+        this._command$.next({eventName: 'playerLeft', data: username});
     }
 
+    /**
+     * When a Player "draht owe", he can choose who starts next.
+     * Only let player choose next if:
+     *  1. it's his turn
+     *  2. He is choosing. Is set after he "drahs owe"
+     *  3. Chose Player is still alive. (prevent choosing of already lost players)
+     * @param playerId - The player who chooses the next one.
+     * @param nextPlayerId - The chosen palyerId.
+     */
     chooseNextPlayer(playerId: string, nextPlayerId: string) {
         const currentPlayer = this.getCurrentPlayer();
         const nextPlayer = this.getPlayer(nextPlayerId);
         if (currentPlayer.id === playerId && currentPlayer.choosing && nextPlayer.life > 0) {
             currentPlayer.isPlayersTurn = false;
-            this.getPlayer(nextPlayerId).isPlayersTurn = true;
+            nextPlayer.isPlayersTurn = true;
             currentPlayer.choosing = false;
         }
 
         this.sendPlayerUpdate(true);
     }
 
+    /**
+     * The next-player algorithm.
+     * Always chooses the next player in the array order. If last, start at first.
+     *
+     * Determines if the game is over, when no players are left.
+     */
     setNextPlayer(): void {
         const currentPlayerIndex = this.players.findIndex(player => player.isPlayersTurn);
 
@@ -143,8 +180,8 @@ export class Game {
         } else {
             this.players[currentPlayerIndex].isPlayersTurn = false;
 
-            const playerLeft = this.players.filter(player => player.life > 0).length;
-            if (playerLeft > 1) {
+            const playersLeft = this.getPlayersLeft();
+            if (playersLeft.length > 1) {
                 let nextPlayerIndex;
                 let i = currentPlayerIndex;
                 do {
@@ -162,10 +199,9 @@ export class Game {
                 } while (this.players[nextPlayerIndex].life <= 0);
                 this.players[nextPlayerIndex].isPlayersTurn = true;
             } else {
-                const winner = this.players.find(player => player.life > 0);
+                const winner = playersLeft[0];
                 this.gameOver(winner.username);
             }
-
         }
 
         if (!this.over) {
@@ -197,14 +233,14 @@ export class Game {
             }
             total = this.currentValue;
 
-            this.rolls.push({ player: player.getFormattedPlayer(), dice, total });
+            this.rolls.push({player: player.getFormattedPlayer(), dice, total});
 
             if (this.currentValue > 15) {
                 player.life = 0;
                 this.currentValue = 0;
             }
 
-            this._command$.next({ eventName: 'rolledDice', data: { dice, player, total } });
+            this._command$.next({eventName: 'rolledDice', data: {dice, player, total}});
 
             if (player.choosing) {
                 player.choosing = false;
@@ -212,7 +248,7 @@ export class Game {
 
             this.setNextPlayer();
         } else {
-            this.sendGameError({ code: GameErrorCode.NOT_YOUR_TURN, message: 'Not your turn!' });
+            this.sendGameError({code: GameErrorCode.NOT_YOUR_TURN, message: 'Not your turn!'});
         }
     }
 
@@ -228,7 +264,7 @@ export class Game {
                 }
             }
         } else {
-            this.sendGameError({ code: GameErrorCode.NO_PLAYER, message: 'You are not part of this game!' });
+            this.sendGameError({code: GameErrorCode.NO_PLAYER, message: 'You are not part of this game!'});
         }
     }
 
@@ -237,14 +273,8 @@ export class Game {
         if (player) {
             this.getPlayer(playerId).connected = false;
         } else {
-            this.sendGameError({ code: GameErrorCode.NO_PLAYER, message: 'You are not part of this game!' });
+            this.sendGameError({code: GameErrorCode.NO_PLAYER, message: 'You are not part of this game!'});
         }
-    }
-
-    removePlayer(index: number) {
-        this.sendPlayerLeft(this.players[index].username);
-        this.players.splice(index, 1);
-
     }
 
     leave(playerId: string) {
@@ -277,7 +307,7 @@ export class Game {
             if (this.isEveryoneReady()) {
                 this.started = true;
                 this.startedAt = new Date();
-                this._command$.next({ eventName: 'gameStarted' });
+                this._command$.next({eventName: 'gameStarted'});
 
                 this.setNextPlayerRandom();
                 // reset everyones ready state for UI reasons
@@ -287,12 +317,8 @@ export class Game {
             this.sendPlayerUpdate(true);
 
         } else {
-            this.sendGameError({ code: GameErrorCode.NO_PLAYER, message: 'You are not part of this game!' });
+            this.sendGameError({code: GameErrorCode.NO_PLAYER, message: 'You are not part of this game!'});
         }
-    }
-
-    isEveryoneReady() {
-        return this.players.every(player => player.ready);
     }
 
     loseLife(playerId: string) {
@@ -302,9 +328,9 @@ export class Game {
             player.choosing = true;
             this.currentValue = 0;
             this.sendGameUpdate();
-            this._command$.next({ eventName: 'lostLife', data: { player } });
+            this._command$.next({eventName: 'lostLife', data: {player}});
         } else {
-            this.sendGameError({ code: GameErrorCode.NOT_ALLOWED, message: 'You arent allowed to owe drahn!' });
+            this.sendGameError({code: GameErrorCode.NOT_ALLOWED, message: 'You arent allowed to owe drahn!'});
         }
     }
 

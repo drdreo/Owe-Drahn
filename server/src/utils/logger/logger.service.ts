@@ -7,12 +7,6 @@ export class LoggerService extends Logger {
   private prefix?: string;
 
   log(message: string) {
-    let formattedMessage = message;
-
-    if (this.prefix) {
-      formattedMessage = `[${this.prefix}] ${message}`;
-    }
-
     super.verbose(message, this.prefix);
   }
 

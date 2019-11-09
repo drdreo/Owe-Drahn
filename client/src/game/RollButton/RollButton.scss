@@ -27,6 +27,7 @@ $animation-time: 1.25s;
   transition: transform 0.17s ease, background-color .17s ease;
 
   &.disabled {
+    cursor: default;
     background: gray;
     box-shadow: unset;
   }

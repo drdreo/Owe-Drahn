@@ -6,13 +6,12 @@ import { defaultStats, extractPlayerStats, mergeStats, PlayerStats } from '../ga
 import { Logger } from '../utils/logger/logger.decorator';
 import { LoggerService } from '../utils/logger/logger.service';
 
-import { User } from "./User";
+import { User } from './User';
 
 export interface FirestoreDate {
     _seconds: number;
     _nanoseconds: number;
 }
-
 
 @Injectable()
 export class DBService implements OnApplicationBootstrap {
@@ -20,7 +19,7 @@ export class DBService implements OnApplicationBootstrap {
     firestore: FirebaseFirestore.Firestore;
 
     constructor(@Logger('DBService') private logger: LoggerService, private environmentService: EnvironmentService) {
-        this.logger.log("DBService - Constructed!");
+        this.logger.log('DBService - Constructed!');
     }
 
     onApplicationBootstrap() {
@@ -28,23 +27,22 @@ export class DBService implements OnApplicationBootstrap {
         if (this.environmentService.env === Environment.production) {
             serviceAccount = JSON.parse(process.env.GCS_CREDENTIALS);
         } else {
-            // serviceAccount = require('../../../credentials/owe-drahn-b01e77bcc3a4.json');
-            serviceAccount = require('../../../credentials/owe-drahn-95b28ef424c4.json');
+            serviceAccount = require('../../../credentials/owe-drahn-b01e77bcc3a4.json');
+            // serviceAccount = require('../../../credentials/owe-drahn-95b28ef424c4.json');
         }
-        this.logger.log("Google service acount loaded");
+        this.logger.log('Google service account loaded');
 
         admin.initializeApp({
             credential: admin.credential.cert(serviceAccount),
         });
 
         this.firestore = admin.firestore();
-        this.logger.log("firestore initialized");
+        this.logger.log('firestore initialized');
     }
 
     storeGame(game: Game) {
         try {
-            this.firestore.collection('games')
-                .add(game.format());
+            this.firestore.collection('games').add(game.format());
 
             const registeredPlayers = game.getRegisteredPlayers();
             for (let player of registeredPlayers) {
@@ -56,7 +54,6 @@ export class DBService implements OnApplicationBootstrap {
                         this.logger.error('Update player stats - transaction failure: ', err);
                     });
             }
-
         } catch (e) {
             this.logger.error(e.message);
         }
@@ -77,7 +74,7 @@ export class DBService implements OnApplicationBootstrap {
                 let stats: PlayerStats = doc.data().stats || defaultStats;
                 stats = mergeStats(stats, newStats);
                 // Commit to Firestore
-                transaction.set(userRef, { stats }, { merge: true });
+                transaction.set(userRef, {stats}, {merge: true});
             });
         });
     }
