@@ -2,8 +2,7 @@ import { FormattedPlayer, Player } from './Player';
 import { Subject } from 'rxjs';
 import { Command } from './Command';
 import { GameError, GameErrorCode } from './GameError';
-import { DBService, FirestoreDate } from '../db.service';
-import { Container } from 'typedi';
+import { FirestoreDate } from '../db/db.service';
 
 export interface Rolls {
     player: FormattedPlayer;
@@ -18,7 +17,13 @@ export interface FormattedGame {
     finishedAt: Date | FirestoreDate;
 }
 
-const dbService = Container.get<DBService>(DBService);
+
+export interface GameUpdate {
+    players: Player[];
+    currentValue: number;
+    started: boolean;
+    over: boolean;
+}
 
 export class Game {
 
@@ -67,22 +72,32 @@ export class Game {
         return this.players.filter(player => player.isPlayersTurn)[0];
     }
 
-    hasPlayers() {
-        return !!this.players.length;
+    private isEveryoneReady() {
+        return this.players.every(player => player.ready);
     }
 
     isPlayer(playerId: string): boolean {
         return this.players.some(player => player.id === playerId);
     }
 
+    hasPlayers() {
+        return this.players.length > 0;
+    }
+
     getPlayers(): Player[] {
         return this.players;
+    }
+
+    /**
+     * @returns the players with life left
+     */
+    getPlayersLeft(): Player[] {
+        return this.players.filter(player => player.life > 0);
     }
 
     getRegisteredPlayers(): Player[] {
         return this.players.filter(player => player.uid);
     }
-
 
     getFormattedPlayers(): FormattedPlayer[] {
         return this.players.map(player => player.getFormattedPlayer());
@@ -96,8 +111,13 @@ export class Game {
         return this.getPlayer(playerId).connected;
     }
 
-    getGameUpdate() {
+    getGameUpdate(): GameUpdate {
         return {players: this.players, currentValue: this.currentValue, started: this.started, over: this.over};
+    }
+
+    removePlayer(index: number) {
+        this.sendPlayerLeft(this.players[index].username);
+        this.players.splice(index, 1);
     }
 
     sendGameInit() {
@@ -124,18 +144,33 @@ export class Game {
         this._command$.next({eventName: 'playerLeft', data: username});
     }
 
+    /**
+     * When a Player "draht owe", he can choose who starts next.
+     * Only let player choose next if:
+     *  1. it's his turn
+     *  2. He is choosing. Is set after he "drahs owe"
+     *  3. Chose Player is still alive. (prevent choosing of already lost players)
+     * @param playerId - The player who chooses the next one.
+     * @param nextPlayerId - The chosen palyerId.
+     */
     chooseNextPlayer(playerId: string, nextPlayerId: string) {
         const currentPlayer = this.getCurrentPlayer();
         const nextPlayer = this.getPlayer(nextPlayerId);
         if (currentPlayer.id === playerId && currentPlayer.choosing && nextPlayer.life > 0) {
             currentPlayer.isPlayersTurn = false;
-            this.getPlayer(nextPlayerId).isPlayersTurn = true;
+            nextPlayer.isPlayersTurn = true;
             currentPlayer.choosing = false;
         }
 
         this.sendPlayerUpdate(true);
     }
 
+    /**
+     * The next-player algorithm.
+     * Always chooses the next player in the array order. If last, start at first.
+     *
+     * Determines if the game is over, when no players are left.
+     */
     setNextPlayer(): void {
         const currentPlayerIndex = this.players.findIndex(player => player.isPlayersTurn);
 
@@ -145,8 +180,8 @@ export class Game {
         } else {
             this.players[currentPlayerIndex].isPlayersTurn = false;
 
-            const playerLeft = this.players.filter(player => player.life > 0).length;
-            if (playerLeft > 1) {
+            const playersLeft = this.getPlayersLeft();
+            if (playersLeft.length > 1) {
                 let nextPlayerIndex;
                 let i = currentPlayerIndex;
                 do {
@@ -164,10 +199,9 @@ export class Game {
                 } while (this.players[nextPlayerIndex].life <= 0);
                 this.players[nextPlayerIndex].isPlayersTurn = true;
             } else {
-                const winner = this.players.find(player => player.life > 0);
+                const winner = playersLeft[0];
                 this.gameOver(winner.username);
             }
-
         }
 
         if (!this.over) {
@@ -218,17 +252,15 @@ export class Game {
         }
     }
 
-    connect(playerId: string, uid?: string) {
+    connect(playerId: string, uid?: string, rank?: number) {
         const player = this.getPlayer(playerId);
         if (player) {
             player.connected = true;
             if (uid) {
                 console.log(`User[${uid}] connected to player[${playerId}]`);
                 player.uid = uid;
-                if (!player.rank) {
-                    dbService.getPlayersRank(uid).then(rank => {
-                        player.rank = rank;
-                    });
+                if (rank) {
+                    player.rank = rank;
                 }
             }
         } else {
@@ -243,12 +275,6 @@ export class Game {
         } else {
             this.sendGameError({code: GameErrorCode.NO_PLAYER, message: 'You are not part of this game!'});
         }
-    }
-
-    removePlayer(index: number) {
-        this.sendPlayerLeft(this.players[index].username);
-        this.players.splice(index, 1);
-
     }
 
     leave(playerId: string) {
@@ -295,10 +321,6 @@ export class Game {
         }
     }
 
-    isEveryoneReady() {
-        return this.players.every(player => player.ready);
-    }
-
     loseLife(playerId: string) {
         const player = this.getPlayer(playerId);
         if (this.isPlayersTurn(playerId) && player.life > 1 && !player.choosing) {
@@ -312,7 +334,7 @@ export class Game {
         }
     }
 
-    joinGame(playerId: string, username: string) {
+    join(playerId: string, username: string) {
         if (!this.started) {
             this.addPlayer(playerId, username);
         }

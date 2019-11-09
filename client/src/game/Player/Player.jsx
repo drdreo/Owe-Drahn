@@ -20,20 +20,23 @@ class Player extends Component {
         const rankIcon = this.getRankIcon(player.rank);
         return (
             <div onClick={this.props.onClick}
+                 style={this.props.style}
                  className={`player ${sessionStorage.getItem("playerId") === player.id ? "me" : ""} 
                 ${player.ready ? "ready" : ""} 
                 ${player.isPlayersTurn ? "turn" : ""}
-                ${player.life <= 0 ? "lost" : ""} 
+                ${player.life <= 0 ? "lost" : ""}               
                 ${choosing ? "choosing" : ""} 
                 ${player.rank > 0 ? "has-rank" : ""} 
                 `}>
-
                 {player.rank > 0 &&
                 <div className="player__rank" title={`Rank ${player.rank}`}>
                     <img src={rankIcon} alt={`Rank ${player.rank}`}/>
                 </div>
                 }
-                <div className="life">{player.life}</div>
+                <div className="life">
+                    <div className={`life__bar life-${player.life}`}></div>
+                    {player.life}
+                </div>
                 <div className="name" title={player.username.length > 20 ? player.username : ""}>
                     <span>{player.username}</span></div>
             </div>

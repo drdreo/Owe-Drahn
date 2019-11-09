@@ -162,7 +162,7 @@ class Game extends Component {
                 {controls}
 
                 <div className="players-list">
-                    {ui_players.map((player) =>
+                    {ui_players.map((player, index) =>
                         <Player player={player} choosing={isChoosing} key={player.id}
                                 onClick={() => this.chooseNextPlayer(player.id)}/>
                     )}
@@ -260,6 +260,23 @@ class Game extends Component {
         } else if (!player.isPlayersTurn) {
             this.sfx.yourTurn.played = false;
         }
+    }
+
+    getPlayerPosition(index, totalPlayer) {
+
+        let width = window.innerWidth || document.documentElement.clientWidth ||
+            document.body.clientWidth;
+        let height = window.innerHeight || document.documentElement.clientHeight ||
+            document.body.clientHeight;
+        width -= 200;
+        height -= 200;
+
+        let step = (2 * Math.PI) / totalPlayer;
+        let angle = step * index;
+        let x = Math.round(width / 2 * Math.sin(angle));
+        let y = Math.round(height / 2 * -Math.cos(angle));
+
+        return {transform: `translate(${x}px,${y}px)`};
     }
 }
 

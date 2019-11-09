@@ -1,4 +1,4 @@
-import { extractPlayerStats, mergeStats } from './utils';
+import { extractPlayerStats, mergeStats } from './game.utils';
 import { FormattedGame } from './Game';
 
 const games: FormattedGame[] = [

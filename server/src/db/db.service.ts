@@ -1,87 +1,61 @@
 import * as admin from 'firebase-admin';
-import { Service } from 'typedi';
-import { FormattedGame, Game } from './game/Game';
-import { Environment, EnvironmentService } from './environment.service';
-import { defaultStats, extractPlayerStats, mergeStats, PlayerStats } from './game/utils';
+import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
+import { FormattedGame, Game } from '../game/Game';
+import { Environment, EnvironmentService } from '../environment.service';
+import { defaultStats, extractPlayerStats, mergeStats, PlayerStats } from '../game/game.utils';
+import { Logger } from '../utils/logger/logger.decorator';
+import { LoggerService } from '../utils/logger/logger.service';
+
+import { User } from './User';
 
 export interface FirestoreDate {
     _seconds: number;
     _nanoseconds: number;
 }
 
-
-export interface User {
-    stats: PlayerStats;
-    username: string;
-    email: string;
-    uid: string;
-}
-
-@Service()
-export class DBService {
+@Injectable()
+export class DBService implements OnApplicationBootstrap {
 
     firestore: FirebaseFirestore.Firestore;
 
-    constructor(private environmentService: EnvironmentService) {
+    constructor(@Logger('DBService') private logger: LoggerService, private environmentService: EnvironmentService) {
+        this.logger.log('DBService - Constructed!');
+    }
+
+    onApplicationBootstrap() {
         let serviceAccount = '';
-        if (environmentService.env === Environment.production) {
+        if (this.environmentService.env === Environment.production) {
             serviceAccount = JSON.parse(process.env.GCS_CREDENTIALS);
         } else {
-            serviceAccount = require('./credentials/owe-drahn-b01e77bcc3a4.json');
+            serviceAccount = require('../../../credentials/owe-drahn-b01e77bcc3a4.json');
+            // serviceAccount = require('../../../credentials/owe-drahn-95b28ef424c4.json');
         }
-
-        console.log(serviceAccount);
+        this.logger.log('Google service account loaded');
 
         admin.initializeApp({
             credential: admin.credential.cert(serviceAccount),
         });
 
         this.firestore = admin.firestore();
-    }
-
-
-    async quickstart() {
-        // Obtain a document reference.
-        const document = this.firestore.doc('posts/intro-to-firestore');
-
-        // Enter new data into the document.
-        await document.set({
-            title: 'Welcome to Firestore',
-            body: 'Hello World',
-        });
-        console.log('Entered new data into the document');
-
-        // Update an existing document.
-        await document.update({
-            body: 'My first Firestore app',
-        });
-        console.log('Updated an existing document');
-
-        // Read the document.
-        let doc = await document.get();
-        console.log('Read the document', doc);
-
-
+        this.logger.log('firestore initialized');
     }
 
     storeGame(game: Game) {
         try {
-            this.firestore.collection('games')
-                .add(game.format());
+            this.firestore.collection('games').add(game.format());
 
             const registeredPlayers = game.getRegisteredPlayers();
             for (let player of registeredPlayers) {
                 this.updatePlayerStats(player.uid, game.format())
-                    .then(result => {
-                        // console.log('Successfully updated player stats!', result);
+                    .then(() => {
+                        this.logger.debug('Successfully updated player stats!');
                     })
                     .catch(err => {
-                        console.error('Update player stats - transaction failure: ', err);
+                        this.logger.error('Update player stats - transaction failure: ', err);
                     });
             }
-
         } catch (e) {
-            console.error(e.message);
+            this.logger.error(e.message);
         }
     }
 
@@ -106,9 +80,7 @@ export class DBService {
     }
 
     getAllGames(): Promise<FirebaseFirestore.QuerySnapshot> {
-        return this.firestore.collection('games')
-                   .get();
-
+        return this.firestore.collection('games').get();
     }
 
     getUserSnapshot(uid: string): Promise<FirebaseFirestore.DocumentSnapshot> {
@@ -119,12 +91,11 @@ export class DBService {
         const doc = await this.getUserSnapshot(uid);
 
         if (!doc.exists) {
-            console.error('No such user!');
+            this.logger.error('No such user!');
             return 0;
         } else {
             const user = doc.data() as User;
             return Math.floor(user.stats.totalGames / 10) + user.stats.totalGames;
         }
-
     }
 }
