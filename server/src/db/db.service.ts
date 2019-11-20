@@ -94,8 +94,12 @@ export class DBService implements OnApplicationBootstrap {
             this.logger.error('No such user!');
             return 0;
         } else {
-            const user = doc.data() as User;
-            return Math.floor(user.stats.totalGames / 10) + user.stats.totalGames;
+            const user = doc.data();
+            if (user.stats) {
+                return Math.floor(user.stats.totalGames / 10) + user.stats.totalGames;
+            } else {
+                return 0;
+            }
         }
     }
 }

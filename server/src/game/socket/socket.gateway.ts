@@ -5,7 +5,7 @@ import {
     WebSocketServer,
     OnGatewayConnection,
     OnGatewayDisconnect,
-    ConnectedSocket
+    ConnectedSocket,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { GameService } from '../game.service';
@@ -29,6 +29,7 @@ export interface SocketMessage {
     eventName: string;
     data: unknown;
 }
+
 @WebSocketGateway()
 export class SocketGateway implements OnModuleDestroy, OnGatewayConnection, OnGatewayDisconnect {
     @WebSocketServer()
@@ -60,11 +61,11 @@ export class SocketGateway implements OnModuleDestroy, OnGatewayConnection, OnGa
         this.logger.log(`Disconnected socket[${socket.id}]`);
 
         if (client) {
-            const { room, playerId } = client;
+            const {room, playerId} = client;
             this.removeClient(socket.id);
 
             if (playerId) {
-                this.socketService.disconnected(room, playerId)
+                this.socketService.disconnected(room, playerId);
             }
         }
     }
@@ -86,10 +87,10 @@ export class SocketGateway implements OnModuleDestroy, OnGatewayConnection, OnGa
 
     @SubscribeMessage('handshake')
     private playerHandshake(@ConnectedSocket() socket: Socket, @MessageBody() handshakeData: Handshake): void {
-        const { room, playerId, uid } = handshakeData;
+        const {room, playerId, uid} = handshakeData;
 
-        this.clients.set(socket.id, handshakeData)
-        this.logger.log(`New connection handshake from socket[${socket.id}] player[${playerId}] in room[${room}]`);
+        this.clients.set(socket.id, handshakeData);
+        this.logger.log(`New connection handshake from socket[${socket.id}] player[${playerId}] in room[${room}].${uid ? `LoggedIn[${uid}]` : ''}`);
 
         const gameUpdate = this.socketService.playerHandshake(room, playerId, uid);
         if (gameUpdate) {
@@ -107,7 +108,7 @@ export class SocketGateway implements OnModuleDestroy, OnGatewayConnection, OnGa
 
     @SubscribeMessage('leave')
     private leave(@ConnectedSocket() socket: Socket): void {
-        const { room, playerId } = this.getClient(socket);
+        const {room, playerId} = this.getClient(socket);
         const left = this.socketService.leave(room, playerId);
         if (left) {
             socket.leave(room);
@@ -116,24 +117,25 @@ export class SocketGateway implements OnModuleDestroy, OnGatewayConnection, OnGa
 
     @SubscribeMessage('ready')
     private ready(@ConnectedSocket() socket: Socket, @MessageBody() ready: boolean): void {
-        const { room, playerId } = this.getClient(socket);
+        const {room, playerId} = this.getClient(socket);
         this.socketService.ready(room, playerId, ready);
     }
 
     @SubscribeMessage('rollDice')
     private rollDice(@ConnectedSocket() socket: Socket): void {
-        const { room, playerId } = this.getClient(socket);
+        const {room, playerId} = this.getClient(socket);
         this.socketService.rollDice(room, playerId);
     }
 
     @SubscribeMessage('loseLife')
     private loseLife(@ConnectedSocket() socket: Socket): void {
-        const { room, playerId } = this.getClient(socket);
+        const {room, playerId} = this.getClient(socket);
         this.socketService.loseLife(room, playerId);
     }
+
     @SubscribeMessage('chooseNextPlayer')
     private chooseNextPlayer(@ConnectedSocket() socket: Socket, @MessageBody() nextPlayerId: string): void {
-        const { room, playerId } = this.getClient(socket);
+        const {room, playerId} = this.getClient(socket);
         this.socketService.chooseNextPlayer(room, playerId, nextPlayerId);
     }
 
