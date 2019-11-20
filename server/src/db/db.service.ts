@@ -6,8 +6,6 @@ import { defaultStats, extractPlayerStats, mergeStats, PlayerStats } from '../ga
 import { Logger } from '../utils/logger/logger.decorator';
 import { LoggerService } from '../utils/logger/logger.service';
 
-import { User } from './User';
-
 export interface FirestoreDate {
     _seconds: number;
     _nanoseconds: number;
@@ -27,7 +25,7 @@ export class DBService implements OnApplicationBootstrap {
         if (this.environmentService.env === Environment.production) {
             serviceAccount = JSON.parse(process.env.GCS_CREDENTIALS);
         } else {
-            serviceAccount = require('../../../credentials/owe-drahn-b01e77bcc3a4.json');
+            serviceAccount = require(this.environmentService.credentialsDir + '/owe-drahn-b01e77bcc3a4.json');
             // serviceAccount = require('../../../credentials/owe-drahn-95b28ef424c4.json');
         }
         this.logger.log('Google service account loaded');

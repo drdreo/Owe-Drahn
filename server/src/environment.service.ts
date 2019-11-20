@@ -13,6 +13,7 @@ export enum Environment {
 export class EnvironmentService {
 
     static frontendPath = path.join(__dirname, '../../client/build');
+    public readonly credentialsDir = this.env === 'production' ? path.join(__dirname, '../../../credentials') : path.join(__dirname, '../../../credentials');
 
     private readonly _env = process.env.NODE_ENV || Environment.development;
     private readonly _port = process.env.PORT || 4000;
