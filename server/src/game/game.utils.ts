@@ -23,6 +23,7 @@ export const defaultStats: PlayerStats = {
 };
 
 export function extractPlayerStats(uid: string, game: FormattedGame) {
+    console.log('extracting: ' + uid);
     const aggregation = {
         rolledDice: [0, 0, 0, 0, 0, 0],
         won: false,
@@ -34,12 +35,12 @@ export function extractPlayerStats(uid: string, game: FormattedGame) {
     };
 
     // aggregate all player rolls
-    const playerRolls = game.rolls.reduce((total, cur) => {
-        if (cur.player.uid === uid) {
-            total.push(cur);
-        }
-        return total;
-    }, []);
+    const playerRolls = game.rolls.filter(roll => roll.player.uid === uid);
+
+    // fail safe, if player didnt roll actually
+    if (playerRolls.length === 0) {
+        return aggregation;
+    }
 
     // calculate if player won
     aggregation.won = game.players.some(player => player.uid === uid && player.life > 0);
@@ -74,6 +75,7 @@ export function extractPlayerStats(uid: string, game: FormattedGame) {
         aggregation.maxLifeLoss++;
     }
 
+    // console.log(aggregation);
     return aggregation;
 }
 
@@ -102,8 +104,9 @@ export function extractPlayerRollsOfGames(uid: string, games: Game[]) {
 }
 
 
-export function mergeStats(oldStats, newStats){
+export function mergeStats(_oldStats, newStats) {
 
+    let oldStats = {..._oldStats};
     oldStats.perfectRoll += newStats.perfectRoll;
     oldStats.luckiestRoll += newStats.luckiestRoll;
     oldStats.worstRoll += newStats.worstRoll;
