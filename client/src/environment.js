@@ -17,8 +17,8 @@ if (prod) {
     console.log("%cIf you want to contribute check out the repo https://github.com/drdreo/Owe-Drahn ", consoleInformation);
 
 
-    console.log = function () {
-    };
+    // console.log = function () {
+    // };
 } else {
     console.log(process.env);
 
