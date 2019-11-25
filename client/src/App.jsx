@@ -8,6 +8,7 @@ import {history} from "./index";
 
 import Home from "./home/Home";
 import Game from "./game/Game";
+import User from "./user/User";
 
 import "./App.scss";
 
@@ -17,6 +18,7 @@ class App extends Component {
             <ConnectedRouter history={history}>
                 <Switch>
                     <Route path="/" exact component={Home}/>
+                    <Route path="/user/:uid" exact component={User}/>
                     <Route path="/game/:room" component={Game}/>
                 </Switch>
             </ConnectedRouter>
