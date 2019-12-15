@@ -44,7 +44,6 @@ class Player extends Component {
     }
 
     getRankIcon(rank) {
-        rank = 7;
         switch (true) {
             case 5 <= rank && rank < 10:
                 return rank5;
