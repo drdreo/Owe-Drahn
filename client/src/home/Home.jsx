@@ -26,16 +26,17 @@ class Home extends Component {
             overview: {
                 rooms: [],
                 totalPlayers: 0
-            }
+            },
+            formError: ""
         };
     }
 
     componentDidMount() {
         console.log("Home mounted");
-        sessionStorage.removeItem("playerId");
+        localStorage.removeItem("playerId");
         this.fetchOverview();
 
-        // const wasPlayer = !!sessionStorage.getItem("playerId");
+        // const wasPlayer = !!localStorage.getItem("playerId");
         // if (wasPlayer) {
         //     // Probably redundant since socket sends leave when it was in a game
         //     this.leaveGame();
@@ -58,6 +59,7 @@ class Home extends Component {
 
     render() {
         const {totalPlayers, rooms} = this.state.overview;
+        const {formError} = this.state;
         const authUser = this.props.auth.authUser;
 
         return (
@@ -97,21 +99,24 @@ class Home extends Component {
                            placeholder="Room"/>
                     <button className="button join" onClick={() => this.joinGame()}>Join</button>
                 </div>
+
+                <div className={`form__error ${!formError.length ? "is-invisible" : ""}`}>
+                    {formError}
+                </div>
+
             </div>
         );
     }
 
     updateRoom(room) {
         this.setState({
-            room
-        });
+                          room
+                      });
     }
 
     updateUsername(evt) {
         const username = evt.target.value;
-        this.setState({
-            username
-        });
+        this.setState({username});
 
         if (this.props.auth.authUser) {
             this.updateDBUsername(username);
@@ -135,38 +140,42 @@ class Home extends Component {
         const username = this.state.username;
 
         axios.get(`${API_URL}/join?room=${room}&username=${username}`, {withCredentials: true})
-            .then((response) => {
-                console.log(response);
-                if (response.data.error) {
-                    // TODO: show error
-                    console.log(response.data.error);
-                } else {
-                    sessionStorage.setItem("playerId", response.data.playerId);
-                    this.props.redirectToGame(room);
-                }
+             .then((response) => {
+                 console.log(response);
+                 if (response.data.error) {
+                     // TODO: show error
+                     const {error} = response.data;
+                     console.log(error);
+                     if (error.code === "GAME_STARTED") {
+                         this.setState({formError: error.message});
+                     }
+                 } else {
+                     localStorage.setItem("playerId", response.data.playerId);
+                     this.props.redirectToGame(room);
+                 }
 
-            });
+             });
     }
 
     fetchOverview() {
         axios.get(`${API_URL}/games/overview`, {withCredentials: true})
-            .then((response) => {
-                console.log(response);
-                if (response.data) {
-                    this.setState({overview: response.data});
-                }
+             .then((response) => {
+                 console.log(response);
+                 if (response.data) {
+                     this.setState({overview: response.data});
+                 }
 
-            });
+             });
     }
 
     leaveGame() {
-        const playerId = sessionStorage.getItem("playerId");
+        const playerId = localStorage.getItem("playerId");
 
         axios.post(`${API_URL}/leave`, {playerId}, {withCredentials: true})
-            .then((response) => {
-                console.log(response);
-                sessionStorage.removeItem("playerId");
-            });
+             .then((response) => {
+                 console.log(response);
+                 localStorage.removeItem("playerId");
+             });
     }
 }
 

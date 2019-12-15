@@ -179,7 +179,7 @@ class Game extends Component {
     }
 
     getPlayer() {
-        const currentPlayerId = sessionStorage.getItem("playerId");
+        const currentPlayerId = localStorage.getItem("playerId");
         return this.props.players.find(player => player.id === currentPlayerId);
     }
 

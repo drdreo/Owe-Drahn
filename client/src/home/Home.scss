@@ -56,6 +56,11 @@
       margin-bottom: 0;
     }
   }
+
+  &__error{
+    color: $danger-color;
+    min-height: 21px;
+  }
 }
 
 

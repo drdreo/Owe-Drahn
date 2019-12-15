@@ -52,7 +52,7 @@ const gameReducer = (state = initialState, action) => {
                 ui_players: state.players
             };
         case "PLAYER_LOST_LIFE":
-            const currentPlayerId = sessionStorage.getItem("playerId");
+            const currentPlayerId = localStorage.getItem("playerId");
             const playersTurn = state.players.some(player => player.id === currentPlayerId && player.isPlayersTurn);
             const message = playersTurn ? "Choose next Player" : "";
             return {...state, rolledDice: 0, ui_currentValue: 0, gameInfo: {message}};

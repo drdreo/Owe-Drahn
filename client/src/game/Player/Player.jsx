@@ -21,7 +21,7 @@ class Player extends Component {
         return (
             <div onClick={this.props.onClick}
                  style={this.props.style}
-                 className={`player ${sessionStorage.getItem("playerId") === player.id ? "me" : ""} 
+                 className={`player ${localStorage.getItem("playerId") === player.id ? "me" : ""} 
                 ${player.ready ? "ready" : ""} 
                 ${player.isPlayersTurn ? "turn" : ""}
                 ${player.life <= 0 ? "lost" : ""}               
@@ -44,6 +44,7 @@ class Player extends Component {
     }
 
     getRankIcon(rank) {
+        rank = 7;
         switch (true) {
             case 5 <= rank && rank < 10:
                 return rank5;

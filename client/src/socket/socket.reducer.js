@@ -17,7 +17,7 @@ const socketReducer = (state = {socket: io}, action) => {
             state.socket.emit("leave");
             return state;
         case CONNECTION_HANDSHAKE:
-            state.socket.emit("handshake", {playerId: sessionStorage.getItem("playerId"), room: action.payload.room, uid: action.payload.uid});
+            state.socket.emit("handshake", {playerId: localStorage.getItem("playerId"), room: action.payload.room, uid: action.payload.uid});
             return state;
         case PLAYER_READY:
             state.socket.emit("ready", action.payload);
