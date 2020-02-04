@@ -13,6 +13,7 @@ export class Player {
     choosing: boolean = false;
     points: number = 0;
     connected: boolean = false;
+    kicked: boolean = false; 
 
     uid: string | null; // only set if User is logged in
     rank: number = 0;

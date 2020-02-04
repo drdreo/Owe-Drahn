@@ -47,6 +47,7 @@ export class Game {
         this.started = false;
         this.over = false;
         this.currentValue = 0;
+        this.players = this.players.filter(player => !player.kicked);
         this.players.map((player) => {
             player.isPlayersTurn = false;
             player.life = 6;
@@ -63,6 +64,9 @@ export class Game {
     private getPlayer(playerId: string): Player {
         return this.players.find(player => player.id === playerId);
     }
+    private getPlayerIndex(playerId: string): number {
+        return this.players.findIndex(player => player.id === playerId);
+    }
 
     private isPlayersTurn(playerId: string) {
         return this.players.some(player => player.id === playerId && player.isPlayersTurn);
@@ -73,7 +77,7 @@ export class Game {
     }
 
     private isEveryoneReady() {
-        return this.players.every(player => player.ready);
+        return this.players.every(player => player.kicked || player.ready);
     }
 
     isPlayer(playerId: string): boolean {
@@ -89,10 +93,17 @@ export class Game {
     }
 
     /**
-     * @returns the players with life left
+     * @returns the players still connected with life left
      */
     getPlayersLeft(): Player[] {
-        return this.players.filter(player => player.life > 0);
+        return this.players.filter(player => !player.kicked && player.life > 0);
+    }
+
+    /**
+     * @returns the players still connected
+     */
+    getActivePlayers(): Player[] {
+        return this.players.filter(player => !player.kicked);
     }
 
     getRegisteredPlayers(): Player[] {
@@ -112,12 +123,12 @@ export class Game {
     }
 
     getGameUpdate(): GameUpdate {
-        return {players: this.players, currentValue: this.currentValue, started: this.started, over: this.over};
+        return {players: this.getActivePlayers(), currentValue: this.currentValue, started: this.started, over: this.over};
     }
 
     removePlayer(index: number) {
         this.sendPlayerLeft(this.players[index].username);
-        this.players.splice(index, 1);
+        this.players[index].kicked = true;
     }
 
     sendGameInit() {
@@ -137,7 +148,7 @@ export class Game {
     }
 
     sendPlayerUpdate(updateUI: boolean = false) {
-        this._command$.next({eventName: 'playerUpdate', data: {players: this.players, updateUI}});
+        this._command$.next({eventName: 'playerUpdate', data: {players: this.getActivePlayers(), updateUI}});
     }
 
     sendPlayerLeft(username: string) {
@@ -196,7 +207,7 @@ export class Game {
                         console.error('Failsafe shouldn\'t be triggered');
                         break;
                     }
-                } while (this.players[nextPlayerIndex].life <= 0);
+                } while (this.players[nextPlayerIndex].life <= 0 && this.players[nextPlayerIndex].kicked);
                 this.players[nextPlayerIndex].isPlayersTurn = true;
             } else {
                 const winner = playersLeft[0];
@@ -213,7 +224,7 @@ export class Game {
         let playerIndex;
         do {
             playerIndex = random(0, this.players.length - 1);
-        } while (this.players[playerIndex].life <= 0);
+        } while (this.players[playerIndex].life <= 0 && this.players[playerIndex].kicked);
 
         this.players[playerIndex].isPlayersTurn = true;
 
@@ -272,16 +283,18 @@ export class Game {
         const player = this.getPlayer(playerId);
         if (player) {
             this.getPlayer(playerId).connected = false;
+            this.sendPlayerUpdate(true);
         } else {
             this.sendGameError({code: GameErrorCode.NO_PLAYER, message: 'You are not part of this game!'});
         }
     }
 
     leave(playerId: string) {
-        const playerIndex = this.players.findIndex(player => player.id === playerId);
+        const playerIndex = this.getPlayerIndex(playerId);
+        const playersLeft = this.getPlayersLeft();
         if (playerIndex !== -1) {
-            if (this.players.length > 2) {
-                // set new player, then remove the leaver and send update
+            if (playersLeft.length > 2) {
+                // set new player if it was his turn, then remove the leaver and send update
                 if (this.players[playerIndex].isPlayersTurn) {
                     this.setNextPlayer();
                 }
@@ -291,8 +304,8 @@ export class Game {
                 // remove player, tell the last player about the leaver and send gameOver if he is last
                 this.removePlayer(playerIndex);
                 this.sendPlayerUpdate(true);
-                if (this.started && this.players.length > 0) {
-                    this.gameOver(this.players[0].username);
+                if (this.started && playersLeft.length > 0) {
+                    this.gameOver(playersLeft[0].username);
                 }
             }
         }

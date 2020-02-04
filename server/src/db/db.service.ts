@@ -25,8 +25,8 @@ export class DBService implements OnApplicationBootstrap {
         if (this.environmentService.env === Environment.production) {
             serviceAccount = JSON.parse(process.env.GCS_CREDENTIALS);
         } else {
-            serviceAccount = require(this.environmentService.credentialsDir + '/owe-drahn-b01e77bcc3a4.json');
-            // serviceAccount = require('../../../credentials/owe-drahn-95b28ef424c4.json');
+            //serviceAccount = require(this.environmentService.credentialsDir + '/owe-drahn-b01e77bcc3a4.json');
+             serviceAccount = require(this.environmentService.credentialsDir +'/owe-drahn-95b28ef424c4.json');
         }
         this.logger.log('Google service account loaded');
 

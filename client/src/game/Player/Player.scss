@@ -91,6 +91,14 @@
     }
   }
 
+  &.disconnected {
+    filter: grayscale(1);
+    
+    .disconnect-icon{
+      display:block;
+    }
+  }
+
   &.turn {
     transform: scale(1.2);
 
@@ -119,9 +127,15 @@
       color: #fff;
     }
   }
-
 }
 
+.disconnect-icon{
+  display:none;
+  position: absolute;
+  height: 90%;
+  opacity: 0.4;
+  top: 5%;
+}
 
 @keyframes highlight {
   0% {

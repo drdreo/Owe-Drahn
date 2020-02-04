@@ -11,6 +11,8 @@ import rank45 from "../../assets/images/ranks/rank45.png";
 import rank50 from "../../assets/images/ranks/rank50.png";
 import rank55 from "../../assets/images/ranks/rank55.png";
 
+import dcIcon from "../../assets/images/close.svg";
+
 import "./Player.scss";
 
 class Player extends Component {
@@ -23,6 +25,7 @@ class Player extends Component {
                  style={this.props.style}
                  className={`player ${localStorage.getItem("playerId") === player.id ? "me" : ""} 
                 ${player.ready ? "ready" : ""} 
+                ${!player.connected ? "disconnected" : ""} 
                 ${player.isPlayersTurn ? "turn" : ""}
                 ${player.life <= 0 ? "lost" : ""}               
                 ${choosing ? "choosing" : ""} 
@@ -38,7 +41,9 @@ class Player extends Component {
                     {player.life}
                 </div>
                 <div className="name" title={player.username.length > 20 ? player.username : ""}>
-                    <span>{player.username}</span></div>
+                    <span>{player.username}</span>
+                </div>
+                <img className="disconnect-icon" src={dcIcon} alt="Player disconnected"/>
             </div>
         );
     }
