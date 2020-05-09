@@ -16,7 +16,6 @@ import "./Player.scss";
 class Player extends Component {
     render() {
         const {player, choosing} = this.props;
-
         const rankIcon = this.getRankIcon(player.rank);
         return (
             <div onClick={this.props.onClick}

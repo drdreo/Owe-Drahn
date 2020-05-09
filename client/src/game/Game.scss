@@ -13,17 +13,22 @@ $rolled-dice-color: $primary-color;
 }
 
 .controls {
+  position: absolute;
+  bottom: 20px;
+
   button {
     margin: 0 1.2rem;
   }
 }
 
 .players-list {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  max-height: 25vh;
+  //display: flex;
+  //flex-wrap: wrap;
+  //align-items: center;
+  //justify-content: center;
+  //max-height: 25vh;
+  position: absolute;
+  top: calc(50%);
 
   &.circle-board {
     z-index: -1;
@@ -43,6 +48,9 @@ $rolled-dice-color: $primary-color;
 
 .statistics {
   display: flex;
+  top: 10vh;
+  position: absolute;
+  transform: translateY(-50%);
 }
 
 .current-value {

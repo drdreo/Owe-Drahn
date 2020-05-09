@@ -2,12 +2,12 @@
 
 .player {
   width: 100px;
-  display: flex;
-  position: relative;
-  flex-direction: column;
-
+  //display: flex;
+  //position: relative;
+  //flex-direction: column;
   margin: 1rem;
-
+  position: absolute;
+  left: -66px;
   transition: transform .5s ease;
   border-radius: 5px;
   overflow: hidden;

@@ -67,18 +67,18 @@ class Game extends Component {
                         console.log(data);
                         if (data.total > 15) {
                             this.props.feedMessage({
-                                type: "LOST",
-                                username: data.player.username,
-                                dice: data.dice,
-                                total: data.total
-                            });
+                                                       type: "LOST",
+                                                       username: data.player.username,
+                                                       dice: data.dice,
+                                                       total: data.total
+                                                   });
                         } else if (!this.props.over) {
                             this.props.feedMessage({
-                                type: "ROLLED_DICE",
-                                username: data.player.username,
-                                dice: data.dice,
-                                total: data.total
-                            });
+                                                       type: "ROLLED_DICE",
+                                                       username: data.player.username,
+                                                       dice: data.dice,
+                                                       total: data.total
+                                                   });
                         }
                     });
             });
@@ -163,8 +163,9 @@ class Game extends Component {
 
                 <div className="players-list">
                     {ui_players.map((player, index) =>
-                        <Player player={player} choosing={isChoosing} key={player.id}
-                                onClick={() => this.chooseNextPlayer(player.id)}/>
+                                        <Player player={player} choosing={isChoosing} key={player.id}
+                                                style={this.getPlayerPosition(index, players.length)}
+                                                onClick={() => this.chooseNextPlayer(player.id)}/>
                     )}
                 </div>
 
@@ -235,17 +236,17 @@ class Game extends Component {
 
         return new Promise((resolve) => {
             diceRoller({
-                element: this.diceRef.current,
-                numberOfDice: 1,
-                delay: 1250,
-                callback: () => {
-                    this.setState({animatingDice: false});
-                    this.props.animatedDice({dice, total});
-                    resolve();
-                },
-                values: [dice],
-                noSound: !this.props.settings.sound.enabled
-            });
+                           element: this.diceRef.current,
+                           numberOfDice: 1,
+                           delay: 1250,
+                           callback: () => {
+                               this.setState({animatingDice: false});
+                               this.props.animatedDice({dice, total});
+                               resolve();
+                           },
+                           values: [dice],
+                           noSound: !this.props.settings.sound.enabled
+                       });
         });
     }
 
@@ -263,20 +264,8 @@ class Game extends Component {
     }
 
     getPlayerPosition(index, totalPlayer) {
-
-        let width = window.innerWidth || document.documentElement.clientWidth ||
-            document.body.clientWidth;
-        let height = window.innerHeight || document.documentElement.clientHeight ||
-            document.body.clientHeight;
-        width -= 200;
-        height -= 200;
-
-        let step = (2 * Math.PI) / totalPlayer;
-        let angle = step * index;
-        let x = Math.round(width / 2 * Math.sin(angle));
-        let y = Math.round(height / 2 * -Math.cos(angle));
-
-        return {transform: `translate(${x}px,${y}px)`};
+        const degrees = (360 / totalPlayer) * index;
+        return {transform: ` rotate(${degrees}deg) translateY(-90px) rotate(-${degrees}deg)`};
     }
 }
 
