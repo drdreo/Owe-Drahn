@@ -24,7 +24,7 @@
     "@nestjs/common": "^6.7.2",
     "@nestjs/core": "^6.7.2",
     "@nestjs/platform-express": "^6.7.2",
-    "@nestjs/platform-socket.io": "^6.9.0",
+    "@nestjs/platform-socket.io": "^9.2.0",
     "@nestjs/serve-static": "^1.0.1",
     "@nestjs/websockets": "^6.9.0",
     "body-parser": "^1.19.0",
