@@ -14,13 +14,7 @@ async function bootstrap() {
     const app = await NestFactory.create(AppModule);
     app.enableCors({
         credentials: true,
-        origin: (origin: string, callback: Function) => {
-            if (whitelistDomains.indexOf(origin) !== -1 || !origin) {
-                callback(null, true);
-            } else {
-                callback(new Error(origin + ' - not allowed by CORS'));
-            }
-        },
+        origin: whitelistDomains
     });
 
     app.use(session({
