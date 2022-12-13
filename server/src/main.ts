@@ -18,7 +18,7 @@ async function bootstrap() {
         credentials: true,
         origin: (origin: string, callback: Function) => {
             console.log(origin);
-            if (allowlist.indexOf(origin) !== -1) {
+            if (allowlist.indexOf(origin) !== -1 || !origin) {
                 callback(null, { origin: true });
             } else {
                 callback(new Error('Not allowed by CORS'),  { origin: false });
