@@ -3,7 +3,7 @@ import { AppModule } from './app.module';
 import * as session from 'express-session';
 import { EnvironmentService } from './environment.service';
 
-const allowlistDomains = [
+const allowlist = [
     'http://localhost:3000',
     'http://localhost:4000',
     'http://owe-drahn.pages.dev/',
