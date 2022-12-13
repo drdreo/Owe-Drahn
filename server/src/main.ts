@@ -6,8 +6,7 @@ import { EnvironmentService } from './environment.service';
 const whitelistDomains = [
     'http://localhost:3000',
     'http://localhost:4000',
-    'https://owe-drahn.herokuapp.com/',
-    'http://owe-drahn.herokuapp.com/',
+    'https://owe-drahn.pages.dev/',
 ];
 
 async function bootstrap() {
