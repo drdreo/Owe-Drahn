@@ -15,6 +15,7 @@ async function bootstrap() {
     app.enableCors({
         credentials: true,
         origin: (origin: string, callback: Function) => {
+            console.log(origin);
             if (allowlist.indexOf(origin) !== -1 || !origin) {
                 callback(null, { origin: true });
             } else {
