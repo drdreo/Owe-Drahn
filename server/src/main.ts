@@ -7,7 +7,9 @@ const allowlist = [
     'http://localhost:3000',
     'http://localhost:4000',
     'http://owe-drahn.pages.dev',
-    'https://owe-drahn.pages.dev'
+    'https://owe-drahn.pages.dev',
+    'http://owe-drahn.drdreo.com',
+    'https://owe-drahn.drdreo.com'
 ];
 
 async function bootstrap() {
