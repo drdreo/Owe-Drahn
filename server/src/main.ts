@@ -6,7 +6,8 @@ import { EnvironmentService } from './environment.service';
 const whitelistDomains = [
     'http://localhost:3000',
     'http://localhost:4000',
-    'https://owe-drahn.pages.dev/',
+    'http://owe-drahn.pages.dev/',
+    'https://owe-drahn.pages.dev/'
 ];
 
 async function bootstrap() {
@@ -17,7 +18,7 @@ async function bootstrap() {
             if (whitelistDomains.indexOf(origin) !== -1 || !origin) {
                 callback(null, true);
             } else {
-                callback(new Error('Not allowed by CORS'));
+                callback(new Error(origin + ' - not allowed by CORS'));
             }
         },
     });
