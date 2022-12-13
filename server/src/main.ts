@@ -6,8 +6,8 @@ import { EnvironmentService } from './environment.service';
 const allowlist = [
     'http://localhost:3000',
     'http://localhost:4000',
-    'http://owe-drahn.pages.dev/',
-    'https://owe-drahn.pages.dev/'
+    'http://owe-drahn.pages.dev',
+    'https://owe-drahn.pages.dev'
 ];
 
 async function bootstrap() {
@@ -16,7 +16,7 @@ async function bootstrap() {
         credentials: true,
         origin: (origin: string, callback: Function) => {
             console.log(origin);
-            if (allowlist.indexOf(origin) !== -1 || !origin) {
+            if (allowlist.indexOf(origin) !== -1) {
                 callback(null, { origin: true });
             } else {
                 callback(new Error('Not allowed by CORS'),  { origin: false });
