@@ -21,21 +21,23 @@ async function bootstrap() {
             if (allowlist.indexOf(origin) !== -1 || !origin) {
                 callback(null, { origin: true });
             } else {
-                callback(new Error('Not allowed by CORS'),  { origin: false });
+                callback(new Error('Not allowed by CORS'), { origin: false });
             }
-        },
+        }
     });
 
-    app.use(session({
-        secret: 'secret',
-        resave: false,
-        saveUninitialized: true,
-        cookie: {
-            secure: true,
-            httpOnly: true,
-            maxAge: 1000 * 60 * 60 * 24,
-        },
-    }));
+    app.use(
+        session({
+            secret: 'secret',
+            resave: false,
+            saveUninitialized: true,
+            cookie: {
+                secure: true,
+                httpOnly: true,
+                maxAge: 1000 * 60 * 60 * 24
+            }
+        })
+    );
 
     const envService = app.get<EnvironmentService>(EnvironmentService);
     await app.listen(envService.port);

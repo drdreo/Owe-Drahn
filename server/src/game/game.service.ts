@@ -19,17 +19,18 @@ export interface GamesOverview {
 
 @Injectable()
 export class GameService {
-
     private games = new Map<string, Game>();
 
-    constructor(@Logger('GameService') private logger: LoggerService, private readonly dbService: DBService) {
+    constructor(
+        @Logger('GameService') private logger: LoggerService,
+        private readonly dbService: DBService
+    ) {
         this.logger.log('constructed!');
     }
 
     /**
      * Helpers
      */
-
 
     createGame(room: string): void {
         this.games.set(room, new Game());
@@ -44,10 +45,10 @@ export class GameService {
         let rooms = [];
 
         this.games.forEach((game, room) => {
-            rooms.push({room, started: game.started});
+            rooms.push({ room, started: game.started });
             totalPlayers += game.getPlayers().length;
         });
-        return {totalPlayers, rooms};
+        return { totalPlayers, rooms };
     }
 
     hasGame(room: string): boolean {
@@ -76,7 +77,9 @@ export class GameService {
 
     isConnected(room: string, playerId: string): boolean {
         const game = this.getGame(room);
-        return game && game.isPlayer(playerId) && game.isPlayerConnected(playerId);
+        return (
+            game && game.isPlayer(playerId) && game.isPlayerConnected(playerId)
+        );
     }
 
     getGameUpdate(room: string) {
@@ -90,11 +93,13 @@ export class GameService {
 
     getGameCommand(room: string): Observable<Command> {
         const game = this.getGame(room);
-        return game.command$.pipe(tap(cmd => {
-            if (cmd.eventName === 'gameOver') {
-                this.dbService.storeGame(game);
-            }
-        }));
+        return game.command$.pipe(
+            tap((cmd) => {
+                if (cmd.eventName === 'gameOver') {
+                    this.dbService.storeGame(game);
+                }
+            })
+        );
     }
 
     /**

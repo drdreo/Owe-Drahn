@@ -13,20 +13,20 @@ import { SocketGateway } from './game/socket/socket.gateway';
 import { SocketService } from './game/socket/socket.service';
 
 @Module({
-  imports: [
-    ServeStaticModule.forRoot({
-      rootPath: EnvironmentService.frontendPath
-    }),
-    LoggerModule.forRoot()
-  ],
-  controllers: [AppController, UserController, GameController],
-  providers: [
-    AppService,
-    EnvironmentService,
-    DBService,
-    SocketGateway,
-    SocketService,
-    GameService
-  ]
+    imports: [
+        ServeStaticModule.forRoot({
+            rootPath: EnvironmentService.frontendPath
+        }),
+        LoggerModule.forRoot()
+    ],
+    controllers: [AppController, UserController, GameController],
+    providers: [
+        AppService,
+        EnvironmentService,
+        DBService,
+        SocketGateway,
+        SocketService,
+        GameService
+    ]
 })
 export class AppModule {}

@@ -19,7 +19,7 @@ export const defaultStats: PlayerStats = {
     luckiestRoll: 0,
     worstRoll: 0,
     rolled21: 0,
-    maxLifeLoss: 0,
+    maxLifeLoss: 0
 };
 
 export function extractPlayerStats(uid: string, game: FormattedGame) {
@@ -31,11 +31,11 @@ export function extractPlayerStats(uid: string, game: FormattedGame) {
         luckiestRoll: 0,
         worstRoll: 0,
         rolled21: 0,
-        maxLifeLoss: 0,
+        maxLifeLoss: 0
     };
 
     // aggregate all player rolls
-    const playerRolls = game.rolls.filter(roll => roll.player.uid === uid);
+    const playerRolls = game.rolls.filter((roll) => roll.player.uid === uid);
 
     // fail safe, if player didnt roll actually
     if (playerRolls.length === 0) {
@@ -43,7 +43,9 @@ export function extractPlayerStats(uid: string, game: FormattedGame) {
     }
 
     // calculate if player won
-    aggregation.won = game.players.some(player => player.uid === uid && player.life > 0);
+    aggregation.won = game.players.some(
+        (player) => player.uid === uid && player.life > 0
+    );
 
     // extract statistics of rolled dice
     for (const roll of playerRolls) {
@@ -79,10 +81,9 @@ export function extractPlayerStats(uid: string, game: FormattedGame) {
     return aggregation;
 }
 
-
 export function extractPlayerGames(uid: string, games: FormattedGame[]) {
-    return games.filter(game =>
-        game.players.some(player => player.uid === uid),
+    return games.filter((game) =>
+        game.players.some((player) => player.uid === uid)
     );
 }
 
@@ -96,17 +97,14 @@ export function extractPlayerRollsOfGames(uid: string, games: Game[]) {
                     total.push(cur);
                 }
                 return total;
-            }, []),
+            }, [])
         );
-
     }
     return playerRolls;
 }
 
-
 export function mergeStats(_oldStats, newStats) {
-
-    let oldStats = {..._oldStats};
+    let oldStats = { ..._oldStats };
     oldStats.perfectRoll += newStats.perfectRoll;
     oldStats.luckiestRoll += newStats.luckiestRoll;
     oldStats.worstRoll += newStats.worstRoll;

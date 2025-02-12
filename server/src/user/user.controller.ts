@@ -6,8 +6,7 @@ import { DBService } from '../db/db.service';
 
 @Controller('api/users/:uid')
 export class UserController {
-
-    constructor(private readonly dbService: DBService) { }
+    constructor(private readonly dbService: DBService) {}
 
     @Get('/rank')
     async getPlayersRank(@Param('uid') uid: string) {
@@ -16,12 +15,13 @@ export class UserController {
 
     @Get()
     getOne(@Param('uid') uid: string) {
-        return new Promise(resolve => {
-            this.dbService.getAllGames().then(gamesSnapshot => {
-                const allGames: FormattedGame[] = gamesSnapshot.docs.map(doc => doc.data() as FormattedGame);
+        return new Promise((resolve) => {
+            this.dbService.getAllGames().then((gamesSnapshot) => {
+                const allGames: FormattedGame[] = gamesSnapshot.docs.map(
+                    (doc) => doc.data() as FormattedGame
+                );
                 resolve(extractPlayerGames(uid, allGames));
             });
         });
-
     }
 }

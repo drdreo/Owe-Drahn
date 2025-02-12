@@ -1,22 +1,28 @@
 import { Injectable, OnModuleDestroy } from '@nestjs/common';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+import { Logger } from '../../utils/logger/logger.decorator';
+import { LoggerService } from '../../utils/logger/logger.service';
+import { Command } from '../Command';
+import { GameUpdate } from '../Game';
 
 import { GameService } from '../game.service';
-import { Command } from '../Command';
-import { LoggerService } from '../../utils/logger/logger.service';
-import { Logger } from '../../utils/logger/logger.decorator';
-import { Subject } from 'rxjs';
-import { GameUpdate } from '../Game';
-import { takeUntil } from 'rxjs/operators';
 
 @Injectable()
 export class SocketService implements OnModuleDestroy {
-
-    private _messages$ = new Subject();
+    private _messages$ = new Subject<{
+        room: string;
+        eventName: string;
+        data: any;
+    }>();
     messages$ = this._messages$.asObservable();
 
-    private unsubscribe$ = new Subject();
+    private unsubscribe$ = new Subject<void>();
 
-    constructor(@Logger('SocketService') private logger: LoggerService, private readonly gameService: GameService) {
+    constructor(
+        @Logger('SocketService') private logger: LoggerService,
+        private readonly gameService: GameService
+    ) {
         this.logger.log('constructed!');
     }
 
@@ -27,7 +33,7 @@ export class SocketService implements OnModuleDestroy {
     }
 
     emitToRoom(room: string, eventName: string, data?: unknown) {
-        this._messages$.next({room, eventName, data});
+        this._messages$.next({ room, eventName, data });
     }
 
     /**
@@ -35,7 +41,8 @@ export class SocketService implements OnModuleDestroy {
      * @param room - The room key
      */
     subscribeToGame(room: string) {
-        this.gameService.getGameCommand(room)
+        this.gameService
+            .getGameCommand(room)
             .pipe(takeUntil(this.unsubscribe$))
             .subscribe((command: Command) => {
                 this.emitToRoom(room, command.eventName, command.data);
@@ -72,7 +79,11 @@ export class SocketService implements OnModuleDestroy {
      * @param [uid] - The clients UID
      * @returns GameUpdate data if the game was found, or undefined
      */
-    playerHandshake(room: string, playerId: string, uid?: string): GameUpdate | undefined {
+    playerHandshake(
+        room: string,
+        playerId: string,
+        uid?: string
+    ): GameUpdate | undefined {
         if (this.gameService.hasGame(room)) {
             if (this.gameService.isPlayerOfGame(room, playerId)) {
                 this.gameService.connect(room, playerId, uid);

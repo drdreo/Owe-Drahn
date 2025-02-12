@@ -5,10 +5,9 @@ import {
     WebSocketServer,
     OnGatewayConnection,
     OnGatewayDisconnect,
-    ConnectedSocket,
+    ConnectedSocket
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { GameService } from '../game.service';
 import { LoggerService } from '../../utils/logger/logger.service';
 import { Logger } from '../../utils/logger/logger.decorator';
 import { GameErrorCode } from '../GameError';
@@ -16,7 +15,6 @@ import { SocketService } from './socket.service';
 import { takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
 import { OnModuleDestroy } from '@nestjs/common';
-
 
 interface Handshake {
     playerId: string;
@@ -31,15 +29,20 @@ export interface SocketMessage {
 }
 
 @WebSocketGateway()
-export class SocketGateway implements OnModuleDestroy, OnGatewayConnection, OnGatewayDisconnect {
+export class SocketGateway
+    implements OnModuleDestroy, OnGatewayConnection, OnGatewayDisconnect
+{
     @WebSocketServer()
     server: Server;
 
     clients: Map<string, any> = new Map();
 
-    private unsubscribe$ = new Subject();
+    private unsubscribe$ = new Subject<void>();
 
-    constructor(@Logger('SocketGateway') private logger: LoggerService, private readonly socketService: SocketService) {
+    constructor(
+        @Logger('SocketGateway') private logger: LoggerService,
+        private readonly socketService: SocketService
+    ) {
         this.socketService.messages$
             .pipe(takeUntil(this.unsubscribe$))
             .subscribe((message: SocketMessage) => {
@@ -61,7 +64,7 @@ export class SocketGateway implements OnModuleDestroy, OnGatewayConnection, OnGa
         this.logger.log(`Disconnected socket[${socket.id}]`);
 
         if (client) {
-            const {room, playerId} = client;
+            const { room, playerId } = client;
             this.removeClient(socket.id);
 
             if (playerId) {
@@ -86,13 +89,22 @@ export class SocketGateway implements OnModuleDestroy, OnGatewayConnection, OnGa
     }
 
     @SubscribeMessage('handshake')
-    private playerHandshake(@ConnectedSocket() socket: Socket, @MessageBody() handshakeData: Handshake): void {
-        const {room, playerId, uid} = handshakeData;
+    private playerHandshake(
+        @ConnectedSocket() socket: Socket,
+        @MessageBody() handshakeData: Handshake
+    ): void {
+        const { room, playerId, uid } = handshakeData;
 
         this.clients.set(socket.id, handshakeData);
-        this.logger.log(`New connection handshake from socket[${socket.id}] player[${playerId}] in room[${room}].${uid ? `LoggedIn[${uid}]` : ''}`);
+        this.logger.log(
+            `New connection handshake from socket[${socket.id}] player[${playerId}] in room[${room}].${uid ? `LoggedIn[${uid}]` : ''}`
+        );
 
-        const gameUpdate = this.socketService.playerHandshake(room, playerId, uid);
+        const gameUpdate = this.socketService.playerHandshake(
+            room,
+            playerId,
+            uid
+        );
         if (gameUpdate) {
             socket.join(room);
 
@@ -101,14 +113,14 @@ export class SocketGateway implements OnModuleDestroy, OnGatewayConnection, OnGa
         } else {
             socket.emit('gameError', {
                 code: GameErrorCode.NO_GAME,
-                message: `Trying to join game[${room}], but does not exist!`,
+                message: `Trying to join game[${room}], but does not exist!`
             });
         }
     }
 
     @SubscribeMessage('leave')
     private leave(@ConnectedSocket() socket: Socket): void {
-        const {room, playerId} = this.getClient(socket);
+        const { room, playerId } = this.getClient(socket);
         const left = this.socketService.leave(room, playerId);
         if (left) {
             socket.leave(room);
@@ -116,31 +128,44 @@ export class SocketGateway implements OnModuleDestroy, OnGatewayConnection, OnGa
     }
 
     @SubscribeMessage('ready')
-    private ready(@ConnectedSocket() socket: Socket, @MessageBody() ready: boolean): void {
-        const {room, playerId} = this.getClient(socket);
+    private ready(
+        @ConnectedSocket() socket: Socket,
+        @MessageBody() ready: boolean
+    ): void {
+        const { room, playerId } = this.getClient(socket);
         this.socketService.ready(room, playerId, ready);
     }
 
     @SubscribeMessage('rollDice')
     private rollDice(@ConnectedSocket() socket: Socket): void {
-        const {room, playerId} = this.getClient(socket);
+        const { room, playerId } = this.getClient(socket);
         this.socketService.rollDice(room, playerId);
     }
 
     @SubscribeMessage('loseLife')
     private loseLife(@ConnectedSocket() socket: Socket): void {
-        const {room, playerId} = this.getClient(socket);
+        const { room, playerId } = this.getClient(socket);
         this.socketService.loseLife(room, playerId);
     }
 
     @SubscribeMessage('chooseNextPlayer')
-    private chooseNextPlayer(@ConnectedSocket() socket: Socket, @MessageBody() nextPlayerId: string): void {
-        const {room, playerId} = this.getClient(socket);
+    private chooseNextPlayer(
+        @ConnectedSocket() socket: Socket,
+        @MessageBody() nextPlayerId: string
+    ): void {
+        const { room, playerId } = this.getClient(socket);
         this.socketService.chooseNextPlayer(room, playerId, nextPlayerId);
     }
 
     removeListener(socket) {
-        const gameEvents = ['loseLife', 'rollDice', 'leave', 'disconnect', 'ready', 'chooseNextPlayer'];
+        const gameEvents = [
+            'loseLife',
+            'rollDice',
+            'leave',
+            'disconnect',
+            'ready',
+            'chooseNextPlayer'
+        ];
         for (let event of gameEvents) {
             socket.removeAllListeners(event);
         }

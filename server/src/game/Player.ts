@@ -6,7 +6,6 @@ export interface FormattedPlayer {
 }
 
 export class Player {
-
     isPlayersTurn: boolean = false;
     ready: boolean = false;
     life: number = 6;
@@ -17,9 +16,17 @@ export class Player {
     uid: string | null; // only set if User is logged in
     rank: number = 0;
 
-    constructor(readonly id: string, readonly username: string) { }
+    constructor(
+        readonly id: string,
+        readonly username: string
+    ) {}
 
     getFormattedPlayer(): FormattedPlayer {
-        return {life: this.life, points: this.points, uid: this.uid || null, username: this.username};
+        return {
+            life: this.life,
+            points: this.points,
+            uid: this.uid || null,
+            username: this.username
+        };
     }
 }

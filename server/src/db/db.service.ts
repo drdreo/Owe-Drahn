@@ -2,7 +2,12 @@ import * as admin from 'firebase-admin';
 import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { FormattedGame, Game } from '../game/Game';
 import { Environment, EnvironmentService } from '../environment.service';
-import { defaultStats, extractPlayerStats, mergeStats, PlayerStats } from '../game/game.utils';
+import {
+    defaultStats,
+    extractPlayerStats,
+    mergeStats,
+    PlayerStats
+} from '../game/game.utils';
 import { Logger } from '../utils/logger/logger.decorator';
 import { LoggerService } from '../utils/logger/logger.service';
 
@@ -13,10 +18,12 @@ export interface FirestoreDate {
 
 @Injectable()
 export class DBService implements OnApplicationBootstrap {
-
     firestore: FirebaseFirestore.Firestore;
 
-    constructor(@Logger('DBService') private logger: LoggerService, private environmentService: EnvironmentService) {
+    constructor(
+        @Logger('DBService') private logger: LoggerService,
+        private environmentService: EnvironmentService
+    ) {
         this.logger.log('DBService - Constructed!');
     }
 
@@ -25,13 +32,15 @@ export class DBService implements OnApplicationBootstrap {
         if (this.environmentService.env === Environment.production) {
             serviceAccount = JSON.parse(process.env.GCS_CREDENTIALS);
         } else {
-            serviceAccount = require(this.environmentService.credentialsDir + '/tmp.json');
+            serviceAccount = require(
+                this.environmentService.credentialsDir + '/tmp.json'
+            );
             // serviceAccount = require('../../../credentials/owe-drahn-95b28ef424c4.json');
         }
         this.logger.log('Google service account loaded');
 
         admin.initializeApp({
-            credential: admin.credential.cert(serviceAccount),
+            credential: admin.credential.cert(serviceAccount)
         });
 
         this.firestore = admin.firestore();
@@ -48,8 +57,11 @@ export class DBService implements OnApplicationBootstrap {
                     .then(() => {
                         this.logger.debug('Successfully updated player stats!');
                     })
-                    .catch(err => {
-                        this.logger.error('Update player stats - transaction failure: ', err);
+                    .catch((err) => {
+                        this.logger.error(
+                            'Update player stats - transaction failure: ',
+                            err
+                        );
                     });
             }
         } catch (e) {
@@ -63,8 +75,8 @@ export class DBService implements OnApplicationBootstrap {
         const newStats = extractPlayerStats(uid, game);
 
         // In a transaction, add the new rating and update the aggregate totals
-        return this.firestore.runTransaction(transaction => {
-            return transaction.get(userRef).then(doc => {
+        return this.firestore.runTransaction((transaction) => {
+            return transaction.get(userRef).then((doc) => {
                 if (!doc.exists) {
                     throw new Error('User does not exist!');
                 }
@@ -72,7 +84,7 @@ export class DBService implements OnApplicationBootstrap {
                 let stats: PlayerStats = doc.data().stats || defaultStats;
                 stats = mergeStats(stats, newStats);
                 // Commit to Firestore
-                transaction.set(userRef, {stats}, {merge: true});
+                transaction.set(userRef, { stats }, { merge: true });
             });
         });
     }
@@ -94,7 +106,10 @@ export class DBService implements OnApplicationBootstrap {
         } else {
             const user = doc.data();
             if (user.stats) {
-                return Math.floor(user.stats.totalGames / 10) + user.stats.totalGames;
+                return (
+                    Math.floor(user.stats.totalGames / 10) +
+                    user.stats.totalGames
+                );
             } else {
                 return 0;
             }
