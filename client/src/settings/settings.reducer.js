@@ -3,7 +3,7 @@ import { TOGGLE_FEED, TOGGLE_SOUND } from "./settings.actions";
 
 const storedSettings = JSON.parse(localStorage.getItem("settings"));
 
-let initialState = !!storedSettings ? storedSettings : {
+let initialState = storedSettings ?? {
     feed: {
         enabled: true
     },

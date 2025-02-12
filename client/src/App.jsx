@@ -1,28 +1,20 @@
 import React, {Component} from "react";
-import {Route, Switch} from "react-router-dom";
-import {ConnectedRouter} from "connected-react-router";
+import {Route, Routes} from "react-router-dom";
 
 import withAuthentication from "./auth/Session/withAuthentication";
-
-import {history} from "./index";
 
 import Home from "./home/Home";
 import Game from "./game/Game";
 
 import "./App.scss";
 
-class App extends Component {
-    render() {
-        return (
-            <ConnectedRouter history={history}>
-                <Switch>
-                    <Route path="/" exact component={Home}/>
-                    <Route path="/game/:room" component={Game}/>
-                </Switch>
-            </ConnectedRouter>
-        );
-    }
-
-}
+const App = () => {
+    return (
+        <Routes>
+            <Route path="/" element={<Home/>}/>
+            <Route path="/game/:room" element={<Game/>}/>
+        </Routes>
+    );
+};
 
 export default withAuthentication(App);

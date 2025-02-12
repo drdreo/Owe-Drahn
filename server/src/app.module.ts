@@ -15,11 +15,18 @@ import { SocketService } from './game/socket/socket.service';
 @Module({
   imports: [
     ServeStaticModule.forRoot({
-      rootPath: EnvironmentService.frontendPath,
+      rootPath: EnvironmentService.frontendPath
     }),
     LoggerModule.forRoot()
   ],
   controllers: [AppController, UserController, GameController],
-  providers: [AppService, EnvironmentService, DBService, SocketGateway, SocketService, GameService],
+  providers: [
+    AppService,
+    EnvironmentService,
+    DBService,
+    SocketGateway,
+    SocketService,
+    GameService
+  ]
 })
-export class AppModule { }
+export class AppModule {}

@@ -1,5 +1,4 @@
 import React, {Component} from "react";
-import {withRouter} from "react-router-dom";
 import axios from "axios";
 import {connect} from "react-redux";
 
@@ -8,9 +7,8 @@ import {withFirebase} from "../auth/Firebase";
 
 import "./Home.scss";
 import {gameReset} from "../game/game.actions";
-import {redirectToGame} from "../routing/routing.actions";
-import {SignInGoogle} from "../auth/SignIn/SignIn";
-import {debounce} from "../utils/helpers";
+import SignInGoogle from "../auth/SignIn/SignIn";
+import {debounce, withNavigation} from "../utils/helpers";
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -85,10 +83,10 @@ class Home extends Component {
                 <SignInGoogle className={`${authUser ? "is-hidden" : ""} sign-in-form`}/>
 
                 {authUser &&
-                <>
-                    <div>Hello {authUser.username}</div>
-                    <button className="link" onClick={() => this.props.firebase.doSignOut()}>Logout?</button>
-                </>
+                    <>
+                        <div>Hello {authUser.username}</div>
+                        <button className="link" onClick={() => this.props.firebase.doSignOut()}>Logout?</button>
+                    </>
                 }
                 <div className="form">
                     <input className="input username" value={this.state.username}
@@ -110,8 +108,8 @@ class Home extends Component {
 
     updateRoom(room) {
         this.setState({
-                          room
-                      });
+            room
+        });
     }
 
     updateUsername(evt) {
@@ -129,7 +127,7 @@ class Home extends Component {
 
     onRoomClick(room, started) {
         if (started) {
-            this.props.redirectToGame(room);
+            this.props.navigate(`/game/${room}`);
         } else {
             this.updateRoom(room);
         }
@@ -140,60 +138,59 @@ class Home extends Component {
         const username = this.state.username;
 
         axios.get(`${API_URL}/join?room=${room}&username=${username}`, {withCredentials: true})
-             .then((response) => {
-                 console.log(response);
-                 if (response.data.error) {
-                     // TODO: show error
-                     const {error} = response.data;
-                     console.log(error);
-                     if (error.code === "GAME_STARTED") {
-                         this.setState({formError: error.message});
-                     }
-                 } else {
-                     localStorage.setItem("playerId", response.data.playerId);
-                     this.props.redirectToGame(room);
-                 }
+            .then((response) => {
+                console.log(response);
+                if (response.data.error) {
+                    // TODO: show error
+                    const {error} = response.data;
+                    console.log(error);
+                    if (error.code === "GAME_STARTED") {
+                        this.setState({formError: error.message});
+                    }
+                } else {
+                    localStorage.setItem("playerId", response.data.playerId);
+                    this.props.navigate(`/game/${room}`);
+                }
 
-             });
+            });
     }
 
     fetchOverview() {
         axios.get(`${API_URL}/games/overview`, {withCredentials: true})
-             .then((response) => {
-                 console.log(response);
-                 if (response.data) {
-                     this.setState({overview: response.data});
-                 }
+            .then((response) => {
+                console.log(response);
+                if (response.data) {
+                    this.setState({overview: response.data});
+                }
 
-             });
+            });
     }
 
     leaveGame() {
         const playerId = localStorage.getItem("playerId");
 
         axios.post(`${API_URL}/leave`, {playerId}, {withCredentials: true})
-             .then((response) => {
-                 console.log(response);
-                 localStorage.removeItem("playerId");
-             });
+            .then((response) => {
+                console.log(response);
+                localStorage.removeItem("playerId");
+            });
     }
 }
 
 
-const mapStateToProps = (state) => {
-    return {auth: state.auth};
-};
-
+const mapStateToProps = (state) => ({
+    auth: state.auth
+});
 
 const mapDispatchToProps = dispatch => {
     return {
         resetGameState: () => dispatch(gameReset()),
-        redirectToGame: (room) => dispatch(redirectToGame(room))
     };
 };
 
 
 export default compose(
     withFirebase,
+    withNavigation,
     connect(mapStateToProps, mapDispatchToProps)
-)(withRouter(Home));
+)(Home);

@@ -21,11 +21,11 @@ export class DBService implements OnApplicationBootstrap {
     }
 
     onApplicationBootstrap() {
-        let serviceAccount = '';
+        let serviceAccount: string | admin.ServiceAccount;
         if (this.environmentService.env === Environment.production) {
             serviceAccount = JSON.parse(process.env.GCS_CREDENTIALS);
         } else {
-            serviceAccount = require(this.environmentService.credentialsDir + '/owe-drahn-b01e77bcc3a4.json');
+            serviceAccount = require(this.environmentService.credentialsDir + '/tmp.json');
             // serviceAccount = require('../../../credentials/owe-drahn-95b28ef424c4.json');
         }
         this.logger.log('Google service account loaded');
@@ -43,7 +43,7 @@ export class DBService implements OnApplicationBootstrap {
             this.firestore.collection('games').add(game.format());
 
             const registeredPlayers = game.getRegisteredPlayers();
-            for (let player of registeredPlayers) {
+            for (const player of registeredPlayers) {
                 this.updatePlayerStats(player.uid, game.format())
                     .then(() => {
                         this.logger.debug('Successfully updated player stats!');
@@ -66,7 +66,7 @@ export class DBService implements OnApplicationBootstrap {
         return this.firestore.runTransaction(transaction => {
             return transaction.get(userRef).then(doc => {
                 if (!doc.exists) {
-                    throw 'User does not exist!';
+                    throw new Error('User does not exist!');
                 }
 
                 let stats: PlayerStats = doc.data().stats || defaultStats;

@@ -1,46 +1,51 @@
 {
-  "name": "client",
-  "version": "0.1.0",
-  "private": true,
-  "dependencies": {
-    "@types/react": "^16.9.9",
-    "axios": "^0.21.1",
-    "connected-react-router": "^6.5.2",
-    "dice-roller-3d": "^1.0.4",
-    "firebase": "^7.2.0",
-    "history": "^4.10.1",
-    "howler": "^2.1.2",
-    "node-sass": "^4.12.0",
-    "react": "^16.9.0",
-    "react-dom": "^16.9.0",
-    "react-ga": "^2.6.0",
-    "react-redux": "^7.1.1",
-    "react-router-dom": "^5.0.1",
-    "react-scripts": "3.1.1",
-    "recompose": "^0.30.0",
-    "redux": "^4.0.4",
-    "socket.io-client": "^2.2.0",
-    "uifx": "^2.0.3"
-  },
-  "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
-  },
-  "eslintConfig": {
-    "extends": "react-app"
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  }
+    "name": "client",
+    "version": "0.1.0",
+    "private": true,
+    "scripts": {
+        "start": "react-scripts start",
+        "build": "react-scripts build",
+        "test": "react-scripts test",
+        "eject": "react-scripts eject"
+    },
+    "dependencies": {
+        "@reduxjs/toolkit": "^2.5.1",
+        "@types/react": "^19.0.8",
+        "axios": "^1.7.9",
+        "connected-react-router": "^6.9.3",
+        "dice-roller-3d": "^1.0.4",
+        "firebase": "^7.2.0",
+        "history": "^4.10.1",
+        "howler": "^2.1.2",
+        "react": "^19.0.0",
+        "react-dom": "^19.0.0",
+        "react-ga": "^3.3.1",
+        "react-redux": "^9.2.0",
+        "react-router-dom": "^7.1.5",
+        "react-scripts": "5.0.1",
+        "recompose": "^0.30.0",
+        "redux": "^5.0.1",
+        "rxjs": "^7.8.1",
+        "sass": "^1.84.0",
+        "socket.io-client": "^2.2.0",
+        "uifx": "^2.0.3"
+    },
+    "devDependencies": {
+        "@typescript-eslint/eslint-plugin": "^8.24.0",
+        "@typescript-eslint/parser": "^8.24.0",
+        "eslint": "^8.57.1",
+        "eslint-plugin-react": "^7.37.4"
+    },
+    "browserslist": {
+        "production": [
+            ">0.2%",
+            "not dead",
+            "not op_mini all"
+        ],
+        "development": [
+            "last 1 chrome version",
+            "last 1 firefox version",
+            "last 1 safari version"
+        ]
+    }
 }

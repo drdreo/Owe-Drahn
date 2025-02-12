@@ -18,7 +18,6 @@ export class EnvironmentService {
     private readonly _env = process.env.NODE_ENV || Environment.development;
     private readonly _port = process.env.PORT || 4000;
 
-    // private readonly _frontendPath = this.env === 'production' ? path.join(__dirname, '../client/build') : path.join(__dirname, './client/build');
 
     constructor(@Logger('EnvironmentService') private logger: LoggerService) {
         this.logger.log('EnvironmentService - Constructed!');

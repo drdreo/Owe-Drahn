@@ -3,7 +3,8 @@ import {connect} from "react-redux";
 
 import "./Settings.scss";
 import {toggleFeed, toggleSound} from "./settings.actions";
-import {redirectToHome} from "../routing/routing.actions";
+import {withNavigation} from "../utils/helpers";
+import {compose} from "recompose";
 
 const Speaker = ({disabled}) => (
     <svg id="Speaker" disabled={disabled} version="1.1" x="0px" y="0px" viewBox="-278 370 54 54">
@@ -96,7 +97,7 @@ class Settings extends Component {
                     <button className="menu__button" onClick={() => this.props.toggleFeed()}>
                         <Feed disabled={!feedEnabled}/>
                     </button>
-                    <button className="menu__button" onClick={() => this.props.redirectToHome()}>
+                    <button className="menu__button" onClick={() => this.props.navigate('/')}>
                         <Leave/>
                     </button>
                 </div>
@@ -116,8 +117,10 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = dispatch => {
     return {
         toggleSound: () => dispatch(toggleSound()),
-        toggleFeed: () => dispatch(toggleFeed()),
-        redirectToHome: () => dispatch(redirectToHome())
+        toggleFeed: () => dispatch(toggleFeed())
     };
 };
-export default connect(mapStateToProps, mapDispatchToProps)(Settings);
+export default compose(
+    withNavigation,
+    connect(mapStateToProps, mapDispatchToProps)
+)(Settings);

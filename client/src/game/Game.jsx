@@ -5,7 +5,6 @@ import {connect} from "react-redux";
 import {Subject} from "rxjs";
 import {takeUntil} from "rxjs/operators";
 
-
 import diceRoller from "dice-roller-3d";
 import {Howl, Howler} from "howler";
 import yourTurnAudio from "../assets/sounds/your_turn.mp3";
@@ -15,20 +14,15 @@ import LifeLoseBtn from "./LifeLoseBtn/LifeLoseBtn";
 import Feed from "./Feed/Feed";
 import Settings from "../settings/Settings";
 
-import {
-    chooseNextPlayer,
-    handshake,
-    loseLife,
-    ready,
-    rollDice
-} from "../socket/socket.actions";
+import {chooseNextPlayer, handshake, loseLife, ready, rollDice} from "../socket/socket.actions";
 import {animatedDice} from "./game.actions";
 import {feedMessage} from "./Feed/feed.actions";
 
 import "./Game.scss";
-import {redirectToHome} from "../routing/routing.actions";
 import RollButton from "./RollButton/RollButton";
 import GameInfo from "./GameInfo/GameInfo";
+import {compose} from "recompose";
+import {withNavigation, withRouter} from "../utils/helpers";
 
 
 const MIN_VAL_TO_OWE_DRAHN = 10;
@@ -54,7 +48,7 @@ class Game extends Component {
     }
 
     componentDidMount() {
-        const {room} = this.props.match.params;
+        const {room} = this.props.params;
         this.handshake(room);
 
         this.diceRef = React.createRef();
@@ -67,18 +61,18 @@ class Game extends Component {
                         console.log(data);
                         if (data.total > 15) {
                             this.props.feedMessage({
-                                                       type: "LOST",
-                                                       username: data.player.username,
-                                                       dice: data.dice,
-                                                       total: data.total
-                                                   });
+                                type: "LOST",
+                                username: data.player.username,
+                                dice: data.dice,
+                                total: data.total
+                            });
                         } else if (!this.props.over) {
                             this.props.feedMessage({
-                                                       type: "ROLLED_DICE",
-                                                       username: data.player.username,
-                                                       dice: data.dice,
-                                                       total: data.total
-                                                   });
+                                type: "ROLLED_DICE",
+                                username: data.player.username,
+                                dice: data.dice,
+                                total: data.total
+                            });
                         }
                     });
             });
@@ -98,7 +92,7 @@ class Game extends Component {
         switch (error.code) {
             case "NO_GAME":
                 setTimeout(() => {
-                    this.props.redirectToHome();
+                    this.props.navigate('/');
                 }, 2000);
                 break;
             case "NOT_ALLOWED":
@@ -163,9 +157,9 @@ class Game extends Component {
 
                 <div className="players-list">
                     {ui_players.map((player, index) =>
-                                        <Player player={player} choosing={isChoosing} key={player.id}
-                                                style={this.getPlayerPosition(index, players.length)}
-                                                onClick={() => this.chooseNextPlayer(player.id)}/>
+                        <Player player={player} choosing={isChoosing} key={player.id}
+                                style={this.getPlayerPosition(index, players.length)}
+                                onClick={() => this.chooseNextPlayer(player.id)}/>
                     )}
                 </div>
 
@@ -236,17 +230,17 @@ class Game extends Component {
 
         return new Promise((resolve) => {
             diceRoller({
-                           element: this.diceRef.current,
-                           numberOfDice: 1,
-                           delay: 1250,
-                           callback: () => {
-                               this.setState({animatingDice: false});
-                               this.props.animatedDice({dice, total});
-                               resolve();
-                           },
-                           values: [dice],
-                           noSound: !this.props.settings.sound.enabled
-                       });
+                element: this.diceRef.current,
+                numberOfDice: 1,
+                delay: 1250,
+                callback: () => {
+                    this.setState({animatingDice: false});
+                    this.props.animatedDice({dice, total});
+                    resolve();
+                },
+                values: [dice],
+                noSound: !this.props.settings.sound.enabled
+            });
         });
     }
 
@@ -282,7 +276,11 @@ const mapDispatchToProps = dispatch => {
         loseLife: () => dispatch(loseLife()),
         chooseNextPlayer: playerId => dispatch(chooseNextPlayer(playerId)),
         animatedDice: value => dispatch(animatedDice(value)),
-        redirectToHome: () => dispatch(redirectToHome())
     };
 };
-export default connect(mapStateToProps, mapDispatchToProps)(Game);
+
+export default compose(
+    withNavigation,
+    withRouter,
+    connect(mapStateToProps, mapDispatchToProps)
+)(Game);

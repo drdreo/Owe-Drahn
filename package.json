@@ -2,7 +2,7 @@
   "name": "owe-drahn",
   "version": "1.0.0",
   "engines": {
-    "node": "10.15.1"
+    "node": "22.5.1"
   },
   "description": "The monorepo of Owe Drahn",
   "dependencies": {},
