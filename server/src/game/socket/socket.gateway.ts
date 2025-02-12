@@ -8,6 +8,7 @@ import {
     ConnectedSocket
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import { allowlist } from "../../allow-list";
 import { LoggerService } from '../../utils/logger/logger.service';
 import { Logger } from '../../utils/logger/logger.decorator';
 import { GameErrorCode } from '../GameError';
@@ -30,8 +31,17 @@ export interface SocketMessage {
 
 @WebSocketGateway({
     cors: {
-        origin: 'https://owe-drahn.drdreo.com'
-    }
+        origin: (origin, callback) => {
+            console.log('Socket Origin:', origin);
+            if (!origin || allowlist.includes(origin)) {
+                callback(null, true);
+            } else {
+                callback(new Error('Not allowed by CORS'));
+            }
+        },
+        credentials: true
+    },
+    transports: ['websocket']
 })
 export class SocketGateway
     implements OnModuleDestroy, OnGatewayConnection, OnGatewayDisconnect

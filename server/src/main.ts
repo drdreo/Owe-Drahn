@@ -1,16 +1,8 @@
 import { NestFactory } from '@nestjs/core';
 import * as session from 'express-session';
+import { allowlist } from "./allow-list";
 import { AppModule } from './app.module';
 import { EnvironmentService } from './environment.service';
-
-const allowlist = [
-    'http://localhost:3000',
-    'http://localhost:4000',
-    'http://owe-drahn.pages.dev',
-    'https://owe-drahn.pages.dev',
-    'http://owe-drahn.drdreo.com',
-    'https://owe-drahn.drdreo.com'
-];
 
 console.log('ENV: ' + process.env.NODE_ENV);
 

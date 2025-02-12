@@ -9,7 +9,10 @@ import {
 
 const SERVER_URL = process.env.REACT_APP_DOMAIN;
 
-const io = socketIOClient(SERVER_URL);
+const io = socketIOClient(SERVER_URL, {
+    transports: ['websocket'],
+    withCredentials: true
+});
 
 const socketReducer = (state = {socket: io}, action) => {
     switch (action.type) {
