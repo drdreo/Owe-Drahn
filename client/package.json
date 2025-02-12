@@ -29,12 +29,7 @@
         "socket.io-client": "^4.8.1",
         "uifx": "^2.0.7"
     },
-    "devDependencies": {
-        "@typescript-eslint/eslint-plugin": "^8.24.0",
-        "@typescript-eslint/parser": "^8.24.0",
-        "eslint": "^8.57.1",
-        "eslint-plugin-react": "^7.37.4"
-    },
+    "devDependencies": {},
     "browserslist": {
         "production": [
             ">0.2%",
