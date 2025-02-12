@@ -21,8 +21,9 @@ const SignInGoogle = ({ firebase, className }) => {
 
         try {
             const socialAuthUser = await firebase.doSignInWithGoogle();
+            const additionalUserInfo = await firebase.getAdditionalUserInfo(socialAuthUser);
 
-            if (socialAuthUser.additionalUserInfo.isNewUser) {
+            if (additionalUserInfo.isNewUser) {
                 await firebase.user(socialAuthUser.user.uid).set({
                     username: socialAuthUser.user.displayName,
                     email: socialAuthUser.user.email,
@@ -33,6 +34,7 @@ const SignInGoogle = ({ firebase, className }) => {
 
             setError(null);
         } catch (error) {
+            console.error(error);
             if (error.code === ERROR_CODE_ACCOUNT_EXISTS) {
                 error.message = ERROR_MSG_ACCOUNT_EXISTS;
             }

@@ -1,53 +1,32 @@
-import React from 'react';
-import { connect } from 'react-redux';
-import { compose } from 'recompose';
+import React, {useEffect} from 'react';
+import {useDispatch} from 'react-redux';
+import {useFirebase} from '../Firebase';
 
-import { withFirebase } from '../Firebase';
+const withAuthentication = (Component) => {
+    return (props) => {
+        const dispatch = useDispatch();
+        const firebase = useFirebase();
 
-const withAuthentication = Component => {
-  class WithAuthentication extends React.Component {
-    constructor(props) {
-      super(props);
+        useEffect(() => {
+            const storedAuthUser = JSON.parse(localStorage.getItem('authUser'));
+            if (storedAuthUser) {
+                dispatch({type: 'AUTH_USER_SET', authUser: storedAuthUser});
+            }
 
-      this.props.onSetAuthUser(
-        JSON.parse(localStorage.getItem('authUser')),
-      );
-    }
+            firebase.onAuthUserListener(
+                (authUser) => {
+                    localStorage.setItem('authUser', JSON.stringify(authUser));
+                    dispatch({type: 'AUTH_USER_SET', authUser});
+                },
+                () => {
+                    localStorage.removeItem('authUser');
+                    dispatch({type: 'AUTH_USER_SET', authUser: null});
+                }
+            );
+        }, [dispatch, firebase]);
 
-    componentDidMount() {
-      this.listener = this.props.firebase.onAuthUserListener(
-        authUser => {
-          localStorage.setItem('authUser', JSON.stringify(authUser));
-          this.props.onSetAuthUser(authUser);
-        },
-        () => {
-          localStorage.removeItem('authUser');
-          this.props.onSetAuthUser(null);
-        },
-      );
-    }
-
-    componentWillUnmount() {
-      this.listener();
-    }
-
-    render() {
-      return <Component {...this.props} />;
-    }
-  }
-
-  const mapDispatchToProps = dispatch => ({
-    onSetAuthUser: authUser =>
-      dispatch({ type: 'AUTH_USER_SET', authUser }),
-  });
-
-  return compose(
-    withFirebase,
-    connect(
-      null,
-      mapDispatchToProps,
-    ),
-  )(WithAuthentication);
+        return <Component {...props} />;
+    };
 };
 
 export default withAuthentication;

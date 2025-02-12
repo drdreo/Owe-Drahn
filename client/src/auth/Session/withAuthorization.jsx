@@ -1,35 +1,37 @@
 import React, {useEffect} from 'react';
-import {connect} from 'react-redux';
-import {compose} from 'recompose';
+import {useSelector} from 'react-redux';
 import {useNavigate} from 'react-router-dom';
-import {withFirebase} from '../Firebase';
+import {useFirebase} from '../Firebase';
 
-const withAuthorization = condition => Component => {
-  const WithAuthorization = (props) => {
+const useAuthorization = (condition) => {
     const navigate = useNavigate();
+    const firebase = useFirebase(); // Use a custom hook for Firebase
+    const authUser = useSelector(state => state.auth.authUser); // Redux hook for state
 
     useEffect(() => {
-      props.firebase.onAuthUserListener(
-          authUser => {
-            if (!condition(authUser)) {
-              navigate('/');
-            }
-          },
-          () => navigate('/'),
-      );
-    }, [navigate, props.firebase]);
+        firebase.onAuthUserListener(
+            authUser => {
+                if (!condition(authUser)) {
+                    navigate('/');
+                }
+            },
+            () => navigate('/'),
+        );
+    }, [firebase, navigate, condition]);
 
-    return condition(props.authUser) ? <Component {...props} /> : null;
-  };
+    return condition(authUser); // Return true or false to render the component
+};
 
-  const mapStateToProps = state => ({
-    authUser: state.auth.authUser,
-  });
+const withAuthorization = (condition) => (Component) => {
+    return (props) => {
+        const isAuthorized = useAuthorization(condition);
 
-  return compose(
-      withFirebase,
-      connect(mapStateToProps),
-  )(WithAuthorization);
+        if (!isAuthorized) {
+            return null; // or a loading spinner, etc.
+        }
+
+        return <Component {...props} />;
+    };
 };
 
 export default withAuthorization;

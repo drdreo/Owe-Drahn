@@ -1,7 +1,7 @@
-import app from "firebase/app";
-import "firebase/auth";
-import "firebase/firestore";
-import "firebase/analytics";
+import {initializeApp} from "firebase/app";
+import {getAuth, GoogleAuthProvider, signInWithPopup, getAdditionalUserInfo} from "firebase/auth";
+import {collection, doc, getDoc, getFirestore, onSnapshot} from "firebase/firestore";
+import {getAnalytics} from "firebase/analytics";
 
 const config = {
     apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
@@ -16,57 +16,56 @@ const config = {
 
 class Firebase {
     constructor() {
-        app.initializeApp(config);
-        app.analytics();
+        const app = initializeApp(config);
 
         /* Firebase APIs */
-
-        this.auth = app.auth();
-        this.firestore = app.firestore();
+        getAnalytics(app);
+        this.auth = getAuth(app);
+        this.firestore = getFirestore(app);
 
         /* Social Sign In Method Provider */
-
-        this.googleProvider = new app.auth.GoogleAuthProvider();
+        this.googleProvider = new GoogleAuthProvider();
     }
 
     // *** Auth API ***
 
-    doSignInWithGoogle = () => this.auth.signInWithPopup(this.googleProvider);
+    doSignInWithGoogle() {
+        return signInWithPopup(this.auth, this.googleProvider);
+    }
+
+    getAdditionalUserInfo = (user) => getAdditionalUserInfo(user);
 
     doSignOut = () => this.auth.signOut();
 
     // *** Merge Auth and DB User API *** //
-
     onAuthUserListener = (next, fallback) => {
-        this.auth.onAuthStateChanged(authUser => {
+        this.auth.onAuthStateChanged(async (authUser) => {
             if (authUser) {
-                this.user(authUser.uid)
-                    .get()
-                    .then(doc => {
-                        let dbUser = undefined;
-                        if (doc.exists) {
-                            dbUser = doc.data();
+                const userRef = doc(this.firestore, "users", authUser.uid);
+                const userSnap = await getDoc(userRef);
 
-                            // default empty roles
-                            if (!dbUser.roles) {
-                                dbUser.roles = [];
-                            }
-                        } else {
-                            // doc.data() will be undefined in this case
-                            console.log(`No such user[${authUser.uid}] found!`);
-                        }
+                let dbUser = undefined;
+                if (userSnap.exists()) {
+                    dbUser = userSnap.data();
 
-                        // merge auth and db user
-                        authUser = {
-                            uid: authUser.uid,
-                            email: authUser.email,
-                            emailVerified: authUser.emailVerified,
-                            providerData: authUser.providerData,
-                            ...dbUser
-                        };
+                    // Default empty roles
+                    if (!dbUser.roles) {
+                        dbUser.roles = [];
+                    }
+                } else {
+                    console.log(`No such user[${authUser.uid}] found!`);
+                }
 
-                        next(authUser);
-                    });
+                // Merge auth and db user
+                const mergedUser = {
+                    uid: authUser.uid,
+                    email: authUser.email,
+                    emailVerified: authUser.emailVerified,
+                    providerData: authUser.providerData,
+                    ...dbUser
+                };
+
+                next(mergedUser);
             } else {
                 fallback();
             }
@@ -74,16 +73,16 @@ class Firebase {
     };
 
     onUserListener = (uid, cb) => {
-        this.user(uid).onSnapshot(doc => {
-            cb(doc.data());
+        const userRef = doc(this.firestore, "users", uid);
+        return onSnapshot(userRef, (docSnap) => {
+            cb(docSnap.exists() ? docSnap.data() : null);
         });
     };
 
     // *** User API ***
 
-    user = uid => this.firestore.collection("users").doc(uid);
-
-    users = () => this.firestore.collection("users");
+    user = (uid) => doc(this.firestore, "users", uid);
+    users = () => collection(this.firestore, "users");
 
     // *** Message API ***
 

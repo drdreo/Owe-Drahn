@@ -1,196 +1,161 @@
-import React, {Component} from "react";
+import React, {useEffect, useState} from "react";
 import axios from "axios";
-import {connect} from "react-redux";
-
-import {compose} from "recompose";
-import {withFirebase} from "../auth/Firebase";
-
+import {useDispatch, useSelector} from "react-redux";
+import {useNavigate} from "react-router-dom"; // Use this hook for navigation
+import {useFirebase} from "../auth/Firebase"; // Custom hook for Firebase context
 import "./Home.scss";
 import {gameReset} from "../game/game.actions";
 import SignInGoogle from "../auth/SignIn/SignIn";
-import {debounce, withNavigation} from "../utils/helpers";
+import {debounce} from "../utils/helpers";
 
 const API_URL = process.env.REACT_APP_API_URL;
 
-class Home extends Component {
-    constructor(props) {
-        super(props);
-        console.log("HOME constructed!");
+const Home = () => {
+    const [room, setRoom] = useState("");
+    const [username, setUsername] = useState("");
+    const [usernameSetFromDB, setUsernameSetFromDB] = useState(false);
+    const [overview, setOverview] = useState({rooms: [], totalPlayers: 0});
+    const [formError, setFormError] = useState("");
 
-        this.state = {
-            room: "",
-            username: "",
-            usernameSetFromDB: false,
-            overview: {
-                rooms: [],
-                totalPlayers: 0
-            },
-            formError: ""
-        };
-    }
+    const navigate = useNavigate();
+    const firebase = useFirebase();
+    const authUser = useSelector((state) => state.auth.authUser);
+    const dispatch = useDispatch();
 
-    componentDidMount() {
+    useEffect(() => {
         console.log("Home mounted");
         localStorage.removeItem("playerId");
-        this.fetchOverview();
+        fetchOverview();
+        dispatch(gameReset());
+    }, [dispatch]);
 
-        // const wasPlayer = !!localStorage.getItem("playerId");
-        // if (wasPlayer) {
-        //     // Probably redundant since socket sends leave when it was in a game
-        //     this.leaveGame();
-        // }
-        // TODO: check why this is not always called
-        this.props.resetGameState();
-
-
-    }
-
-    static getDerivedStateFromProps(props, state) {
-        if (props.auth && props.auth.authUser && props.auth.authUser.username !== state.username && !state.usernameSetFromDB) {
-            return {username: props.auth.authUser.username, usernameSetFromDB: true};
-        } else if (!props.auth.authUser) {
-            return {usernameSetFromDB: false};
+    useEffect(() => {
+        if (authUser && authUser.username !== username && !usernameSetFromDB) {
+            setUsername(authUser.username);
+            setUsernameSetFromDB(true);
+        } else if (!authUser) {
+            setUsernameSetFromDB(false);
         }
+    }, [authUser, usernameSetFromDB, username]);
 
-        return null;
-    }
+    const updateRoom = (room) => {
+        setRoom(room);
+    };
 
-    render() {
-        const {totalPlayers, rooms} = this.state.overview;
-        const {formError} = this.state;
-        const authUser = this.props.auth.authUser;
+    const updateUsername = (evt) => {
+        const newUsername = evt.target.value;
+        setUsername(newUsername);
 
-        return (
-            <div className="page-container">
-                <div className="overview">
-                    <div className="overview__total-players">Online: <span>{totalPlayers}</span></div>
-                    Rooms
-                    <div className="overview__rooms">
-
-                        {rooms.map(room => {
-                            return (
-                                <div key={room.room}
-                                     className={`overview__rooms__entry ${room.started ? "has-started" : ""}`}
-                                     onClick={() => this.onRoomClick(room.room, room.started)}>
-                                    {room.started ? <span className="live"></span> : ""} {room.room}
-                                </div>
-                            );
-                        })}
-
-                    </div>
-                </div>
-                <h4>Owe Drahn</h4>
-                <SignInGoogle className={`${authUser ? "is-hidden" : ""} sign-in-form`}/>
-
-                {authUser &&
-                    <>
-                        <div>Hello {authUser.username}</div>
-                        <button className="link" onClick={() => this.props.firebase.doSignOut()}>Logout?</button>
-                    </>
-                }
-                <div className="form">
-                    <input className="input username" value={this.state.username}
-                           onChange={evt => this.updateUsername(evt)}
-                           placeholder="Username"/>
-                    <input className="input room" value={this.state.room}
-                           onChange={evt => this.updateRoom(evt.target.value)}
-                           placeholder="Room"/>
-                    <button className="button join" onClick={() => this.joinGame()}>Join</button>
-                </div>
-
-                <div className={`form__error ${!formError.length ? "is-invisible" : ""}`}>
-                    {formError}
-                </div>
-
-            </div>
-        );
-    }
-
-    updateRoom(room) {
-        this.setState({
-            room
-        });
-    }
-
-    updateUsername(evt) {
-        const username = evt.target.value;
-        this.setState({username});
-
-        if (this.props.auth.authUser) {
-            this.updateDBUsername(username);
+        if (authUser) {
+            updateDBUsername(newUsername);
         }
-    }
+    };
 
-    updateDBUsername = debounce((username) => {
-        this.props.firebase.user(this.props.auth.authUser.uid).update({username});
+    const updateDBUsername = debounce((username) => {
+        firebase.user(authUser.uid).update({username});
     }, 200);
 
-    onRoomClick(room, started) {
+    const onRoomClick = (room, started) => {
         if (started) {
-            this.props.navigate(`/game/${room}`);
+            navigate(`/game/${room}`);
         } else {
-            this.updateRoom(room);
+            updateRoom(room);
         }
-    }
+    };
 
-    joinGame() {
-        const room = encodeURIComponent(this.state.room);
-        const username = this.state.username;
+    const joinGame = () => {
+        const roomEncoded = encodeURIComponent(room);
 
-        axios.get(`${API_URL}/join?room=${room}&username=${username}`, {withCredentials: true})
+        axios
+            .get(`${API_URL}/join?room=${roomEncoded}&username=${username}`, {
+                withCredentials: true,
+            })
             .then((response) => {
-                console.log(response);
                 if (response.data.error) {
-                    // TODO: show error
                     const {error} = response.data;
-                    console.log(error);
                     if (error.code === "GAME_STARTED") {
-                        this.setState({formError: error.message});
+                        setFormError(error.message);
                     }
                 } else {
                     localStorage.setItem("playerId", response.data.playerId);
-                    this.props.navigate(`/game/${room}`);
+                    navigate(`/game/${room}`);
                 }
+            }).catch(console.error);
+    };
 
-            });
-    }
-
-    fetchOverview() {
-        axios.get(`${API_URL}/games/overview`, {withCredentials: true})
+    const fetchOverview = () => {
+        axios
+            .get(`${API_URL}/games/overview`, {withCredentials: true})
             .then((response) => {
-                console.log(response);
                 if (response.data) {
-                    this.setState({overview: response.data});
+                    setOverview(response.data);
                 }
-
             });
-    }
+    };
 
-    leaveGame() {
+    const leaveGame = () => {
         const playerId = localStorage.getItem("playerId");
 
-        axios.post(`${API_URL}/leave`, {playerId}, {withCredentials: true})
+        axios
+            .post(`${API_URL}/leave`, {playerId}, {withCredentials: true})
             .then((response) => {
-                console.log(response);
                 localStorage.removeItem("playerId");
             });
-    }
-}
-
-
-const mapStateToProps = (state) => ({
-    auth: state.auth
-});
-
-const mapDispatchToProps = dispatch => {
-    return {
-        resetGameState: () => dispatch(gameReset()),
     };
+
+    return (
+        <div className="page-container">
+            <div className="overview">
+                <div className="overview__total-players">
+                    Online: <span>{overview.totalPlayers}</span>
+                </div>
+                Rooms
+                <div className="overview__rooms">
+                    {overview.rooms.map((room) => (
+                        <div
+                            key={room.room}
+                            className={`overview__rooms__entry ${room.started ? "has-started" : ""}`}
+                            onClick={() => onRoomClick(room.room, room.started)}
+                        >
+                            {room.started ? <span className="live"></span> : ""} {room.room}
+                        </div>
+                    ))}
+                </div>
+            </div>
+            <h4>Owe Drahn</h4>
+            <SignInGoogle className={`${authUser ? "is-hidden" : ""} sign-in-form`}/>
+
+            {authUser && (
+                <>
+                    <div>Hello {authUser.username}</div>
+                    <button className="link" onClick={() => firebase.doSignOut()}>
+                        Logout?
+                    </button>
+                </>
+            )}
+            <div className="form">
+                <input
+                    className="input username"
+                    value={username}
+                    onChange={updateUsername}
+                    placeholder="Username"
+                />
+                <input
+                    className="input room"
+                    value={room}
+                    onChange={(evt) => updateRoom(evt.target.value)}
+                    placeholder="Room"
+                />
+                <button className="button join" disabled={!room} onClick={joinGame}>
+                    Join
+                </button>
+            </div>
+
+            <div className={`form__error ${!formError.length ? "is-invisible" : ""}`}>
+                {formError}
+            </div>
+        </div>
+    );
 };
 
-
-export default compose(
-    withFirebase,
-    withNavigation,
-    connect(mapStateToProps, mapDispatchToProps)
-)(Home);
+export default Home;
