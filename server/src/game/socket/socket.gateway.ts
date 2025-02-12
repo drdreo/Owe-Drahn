@@ -28,7 +28,11 @@ export interface SocketMessage {
     data: unknown;
 }
 
-@WebSocketGateway()
+@WebSocketGateway({
+    cors: {
+        origin: 'https://owe-drahn.drdreo.com'
+    }
+})
 export class SocketGateway
     implements OnModuleDestroy, OnGatewayConnection, OnGatewayDisconnect
 {
