@@ -101,7 +101,6 @@ const Game = () => {
     }, []);
 
     useEffect(() => {
-        console.log('checking sound fx', player.isPlayersTurn);
 
         // Change global volume.
         // Howler.mute(!settings.sound.enabled);
@@ -123,7 +122,7 @@ const Game = () => {
     }, [player, animatingDice, settings.sound.enabled]);
 
     const handleGameError = (error) => {
-        console.log({error});
+        console.error(error);
         switch (error.code) {
             case "NO_GAME":
                 setTimeout(() => {
@@ -142,8 +141,6 @@ const Game = () => {
     // }
 
     const doHandshake = (room) => {
-
-        console.log(authUser)
         const uid = authUser ? authUser.uid : undefined;
         dispatch(handshake(room, uid));
     }
