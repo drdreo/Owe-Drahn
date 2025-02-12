@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
 import * as session from 'express-session';
+import { AppModule } from './app.module';
 import { EnvironmentService } from './environment.service';
 
 const allowlist = [
@@ -11,6 +11,8 @@ const allowlist = [
     'http://owe-drahn.drdreo.com',
     'https://owe-drahn.drdreo.com'
 ];
+
+console.log('ENV: ' + process.env.NODE_ENV);
 
 async function bootstrap() {
     const app = await NestFactory.create(AppModule);
