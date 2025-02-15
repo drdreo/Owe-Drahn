@@ -250,6 +250,7 @@ const Game = () => {
             <div className="players-list">
                 {ui_players.map((player, index) =>
                     <Player player={player}
+                            started={started}
                             choosing={isChoosing}
                             key={player.id}
                             style={getPlayerPosition(index, players.length)}
