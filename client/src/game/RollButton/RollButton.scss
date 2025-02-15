@@ -19,13 +19,13 @@ $animation-time: 1.25s;
     height: 40px;
     width: $btn-width;
 
-    border: 2px solid utils.$primary-color;
+    border: 1px solid utils.$primary-color;
     outline: none;
     border-radius: 20px;
     box-shadow: 0 7px 14px rgba(0, 0, 0, 0.25), 0 5px 5px rgba(0, 0, 0, 0.22);
     cursor: pointer;
 
-    transition: transform 0.17s ease, background-color .17s ease;
+    transition: transform 0.17s ease, all .26s ease;
 
     &:not(.disabled):hover {
         transform: translateY(-2px);
@@ -34,37 +34,49 @@ $animation-time: 1.25s;
     }
 
     &.disabled {
-        color: gray;
         background: transparent;
         cursor: default;
-        border: 1px solid gray;
+        border-color: gray;
         box-shadow: unset;
-    }
-
-    &.rolling {
-        animation: #{$animation-time} Button;
-        background-color: utils.$primary-color;
 
         .text {
-            animation: #{$animation-time} Text forwards;
+            color: gray;
         }
 
         .dice {
-            animation: #{$animation-time} Dice forwards;
+            path {
+                fill: gray;
+            }
+        }
+    }
+
+    &.rolling {
+        background-color: utils.$primary-color;
+        border-color: utils.$primary-color;
+        width: $btn-width-rolling;
+
+        .text {
+            display: none;
+        }
+
+        .dice {
+            path {
+                fill: #ffffff;
+            }
         }
     }
 
     .text {
         color: white;
-        position: absolute;
         user-select: none;
         -moz-user-select: none;
+        margin-left: 0.5rem;
+
     }
 
     .dice {
         width: 20px;
-        opacity: 0;
-        top: 9px;
+        display: inline-block;
 
         path {
             fill: #ffffff;
@@ -72,54 +84,3 @@ $animation-time: 1.25s;
     }
 }
 
-
-@keyframes Button {
-    0% {
-        width: $btn-width;
-    }
-    6% {
-        width: $btn-width-rolling;
-    }
-    94% {
-        width: $btn-width-rolling;
-    }
-    100% {
-        width: $btn-width;
-    }
-}
-
-@keyframes Text {
-    0% {
-        opacity: 1;
-        transform: scale(1);
-    }
-    6% {
-        opacity: 0;
-        transform: scale(0.5);
-    }
-
-    94% {
-        opacity: 0;
-        transform: scale(0.5);
-    }
-    100% {
-        opacity: 1;
-        transform: scale(1);
-    }
-}
-
-@keyframes Dice {
-    4% {
-        opacity: 0;
-    }
-    10% {
-        opacity: 1;
-    }
-
-    94% {
-        opacity: 1;
-    }
-    100% {
-        opacity: 0;
-    }
-}

@@ -23,8 +23,8 @@ const RollButton = (props) => {
             <div
                 className={`roll-button ${props.rolling ? "rolling" : ""} ${props.disabled ? "disabled" : ""}`}
                 onClick={props.onClick}>
-                <span className="text">Roll</span>
                 <Roll/>
+                <span className="text">Roll</span>
             </div>
         </div>
     );
