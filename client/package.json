@@ -4,9 +4,9 @@
     "private": true,
     "type": "module",
     "engines": {
-        "node": "22.14.0"
+        "node": "^22.8.0"
     },
-    "packageManager": "pnpm@10.4.0",
+    "packageManager": "pnpm@9",
     "scripts": {
         "dev": "vite",
         "build": "vite build",
