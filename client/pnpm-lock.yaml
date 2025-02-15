@@ -28,7 +28,7 @@ importers:
         version: 1.7.9
       connected-react-router:
         specifier: ^6.9.3
-        version: 6.9.3(history@5.3.0)(react-redux@9.2.0(@types/react@19.0.8)(react@19.0.0)(redux@5.0.1))(react-router@7.1.5(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react@19.0.0)(redux@5.0.1)
+        version: 6.9.3(history@4.10.1)(react-redux@9.2.0(@types/react@19.0.8)(react@19.0.0)(redux@5.0.1))(react-router@7.1.5(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react@19.0.0)(redux@5.0.1)
       dice-roller-3d:
         specifier: ^1.0.4
         version: 1.0.4
@@ -51,8 +51,8 @@ importers:
         specifier: ^15.14.0
         version: 15.15.0
       history:
-        specifier: ^5.3.0
-        version: 5.3.0
+        specifier: ^4.7.2
+        version: 4.10.1
       howler:
         specifier: ^2.2.4
         version: 2.2.4
@@ -1285,8 +1285,8 @@ packages:
     resolution: {integrity: sha512-0hJU9SCPvmMzIBdZFqNPXWa6dqh7WdH0cII9y+CyS8rG3nL48Bclra9HmKhVVUHyPWNH5Y7xDwAB7bfgSjkUMQ==}
     engines: {node: '>= 0.4'}
 
-  history@5.3.0:
-    resolution: {integrity: sha512-ZqaKwjjrAYUYfLG+htGaIIZ4nioX2L70ZUMIFysS3xvBsSG4x/n1V6TXV3N8ZYNuFGlDirFg32T7B6WOUPDYcQ==}
+  history@4.10.1:
+    resolution: {integrity: sha512-36nwAD620w12kuzPAsyINPWJqlNbij+hpK1k9XRloDtym8mxzGYl2c17LnV6IAGB2Dmg4tEa7G7DlawS0+qjew==}
 
   howler@2.2.4:
     resolution: {integrity: sha512-iARIBPgcQrwtEr+tALF+rapJ8qSc+Set2GJQl7xT1MQzWaVkFebdJhR3alVlSiUf5U7nAANKuj3aWpwerocD5w==}
@@ -1693,6 +1693,9 @@ packages:
     resolution: {integrity: sha512-pb/MYmXstAkysRFx8piNI1tGFNQIFA3vkE3Gq4EuA1dF6gHp/+vgZqsCGJapvy8N3Q+4o7FwvquPJcnZ7RYy4g==}
     engines: {node: '>=4'}
 
+  resolve-pathname@3.0.0:
+    resolution: {integrity: sha512-C7rARubxI8bXFNB/hqcp/4iUeIXJhJZvFPFPiSPRnhU5UPxzMFIl+2E6yY6c4k9giDJAhtV+enfA+G89N6Csng==}
+
   resolve@2.0.0-next.5:
     resolution: {integrity: sha512-U7WjGVG9sH8tvjW5SmGbQuui75FiyjAX72HX15DwBBwF9dNiQZRQAg9nnPhYy+TUnE0+VcrttuvNI8oSxZcocA==}
     hasBin: true
@@ -1843,6 +1846,12 @@ packages:
     resolution: {integrity: sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==}
     engines: {node: '>= 0.4'}
 
+  tiny-invariant@1.3.3:
+    resolution: {integrity: sha512-+FbBPE1o9QAYvviau/qC5SE3caw21q3xkvWKBtja5vgqOWIHHJ3ioaq1VPfn/Szqctz2bU/oYeKd9/z5BL+PVg==}
+
+  tiny-warning@1.0.3:
+    resolution: {integrity: sha512-lBN9zLN/oAf68o3zNXYrdCt1kP8WsiGW8Oo2ka41b2IM5JL/S1CTyX1rW0mb/zSuJun0ZUrDxx4sqvYS2FWzPA==}
+
   to-regex-range@5.0.1:
     resolution: {integrity: sha512-65P7iz6X5yEr1cwcgvQxbbIw7Uk3gOy5dIdtZ4rDveLqhrdJP+Li/Hx6tyK0NEb+2GCyneCMJiGqrADCSNk8sQ==}
     engines: {node: '>=8.0'}
@@ -1890,6 +1899,9 @@ packages:
     resolution: {integrity: sha512-9WXSPC5fMv61vaupRkCKCxsPxBocVnwakBEkMIHHpkTTg6icbJtg6jzgtLDm4bl3cSHAca52rYWih0k4K3PfHw==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+
+  value-equal@1.0.1:
+    resolution: {integrity: sha512-NOJ6JZCAWr0zlxZt+xqCHNTEKOsrks2HQd4MqhP1qy4z1SkbEP467eNx6TgDKXMvUOb+OENfJCZwM+16n7fRfw==}
 
   vite@6.1.0:
     resolution: {integrity: sha512-RjjMipCKVoR4hVfPY6GQTgveinjNuyLw+qruksLDvA5ktI1150VmcMBKmQaEWJhg/j6Uaf6dNCNA0AfdzUb/hQ==}
@@ -2855,9 +2867,9 @@ snapshots:
 
   concat-map@0.0.1: {}
 
-  connected-react-router@6.9.3(history@5.3.0)(react-redux@9.2.0(@types/react@19.0.8)(react@19.0.0)(redux@5.0.1))(react-router@7.1.5(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react@19.0.0)(redux@5.0.1):
+  connected-react-router@6.9.3(history@4.10.1)(react-redux@9.2.0(@types/react@19.0.8)(react@19.0.0)(redux@5.0.1))(react-router@7.1.5(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react@19.0.0)(redux@5.0.1):
     dependencies:
-      history: 5.3.0
+      history: 4.10.1
       lodash.isequalwith: 4.4.0
       prop-types: 15.8.1
       react: 19.0.0
@@ -3328,9 +3340,14 @@ snapshots:
     dependencies:
       function-bind: 1.1.2
 
-  history@5.3.0:
+  history@4.10.1:
     dependencies:
       '@babel/runtime': 7.26.7
+      loose-envify: 1.4.0
+      resolve-pathname: 3.0.0
+      tiny-invariant: 1.3.3
+      tiny-warning: 1.0.3
+      value-equal: 1.0.1
 
   howler@2.2.4: {}
 
@@ -3741,6 +3758,8 @@ snapshots:
 
   resolve-from@4.0.0: {}
 
+  resolve-pathname@3.0.0: {}
+
   resolve@2.0.0-next.5:
     dependencies:
       is-core-module: 2.16.1
@@ -3954,6 +3973,10 @@ snapshots:
 
   supports-preserve-symlinks-flag@1.0.0: {}
 
+  tiny-invariant@1.3.3: {}
+
+  tiny-warning@1.0.3: {}
+
   to-regex-range@5.0.1:
     dependencies:
       is-number: 7.0.0
@@ -4018,6 +4041,8 @@ snapshots:
   use-sync-external-store@1.4.0(react@19.0.0):
     dependencies:
       react: 19.0.0
+
+  value-equal@1.0.1: {}
 
   vite@6.1.0(@types/node@22.13.1)(sass@1.85.0):
     dependencies:
