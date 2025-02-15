@@ -204,6 +204,7 @@ const Game = () => {
         return {
             transform: `
             translateX(-50%)
+            translateY(-50%)
             rotate(${degrees}deg) 
             translateY(-${radius}px) 
             rotate(-${degrees}deg)

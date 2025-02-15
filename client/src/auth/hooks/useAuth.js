@@ -1,4 +1,3 @@
-// hooks/useAuth.js
 import {useDispatch} from "react-redux";
 import {useEffect} from "react";
 import {useFirebase} from "../Firebase/index.js";
