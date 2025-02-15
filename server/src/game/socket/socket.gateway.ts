@@ -134,7 +134,12 @@ export class SocketGateway
 
     @SubscribeMessage('leave')
     private leave(@ConnectedSocket() socket: Socket): void {
-        const { room, playerId } = this.getClient(socket);
+        const client = this.getClient(socket);
+        if (!client) {
+            this.logger.warn(`Client not found for socket[${socket.id}]`);
+            return;
+        }
+        const { room, playerId } = client;
         const left = this.socketService.leave(room, playerId);
         if (left) {
             socket.leave(room);
@@ -180,7 +185,7 @@ export class SocketGateway
             'ready',
             'chooseNextPlayer'
         ];
-        for (let event of gameEvents) {
+        for (const event of gameEvents) {
             socket.removeAllListeners(event);
         }
     }

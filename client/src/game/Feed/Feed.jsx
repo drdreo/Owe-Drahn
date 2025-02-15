@@ -1,4 +1,4 @@
-import React, {Component} from "react";
+import {Component, createRef} from "react";
 import {connect} from "react-redux";
 
 import FeedMessage from "./FeedMessage/FeedMessage";
@@ -8,7 +8,7 @@ class Feed extends Component {
 
     constructor(props) {
         super(props);
-        this.feedRef = React.createRef();
+        this.feedRef = createRef();
     }
 
     render() {

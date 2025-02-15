@@ -1,4 +1,3 @@
-import React from "react";
 // import {Shield, Crown, Skull} from 'lucide-react';
 import rank5 from "../../assets/images/ranks/rank5.png";
 import rank10 from "../../assets/images/ranks/rank10.png";

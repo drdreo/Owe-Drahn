@@ -1,6 +1,4 @@
-/*eslint no-fallthrough: ["warn", { "commentPattern": "break omitted" }]*/
-
-import React, {useEffect, useRef, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {Subject} from "rxjs";
 import {takeUntil} from "rxjs/operators";
@@ -13,6 +11,7 @@ import Player from "./Player/Player";
 import LifeLoseBtn from "./LifeLoseBtn/LifeLoseBtn";
 import Feed from "./Feed/Feed";
 import Settings from "../settings/Settings";
+import RolledDice from "./RolledDice/RolledDice.jsx";
 
 import {chooseNextPlayer, handshake, loseLife, ready, rollDice} from "../socket/socket.actions";
 import {animatedDice} from "./game.actions";
@@ -33,7 +32,6 @@ const Game = () => {
     const authUser = useSelector(state => state.auth.authUser); // Redux hook for state
     const settings = useSelector(state => state.settings);
     const players = useSelector(state => state.game.players);
-    const rolledDice = useSelector(state => state.game.rolledDice);
     const currentValue = useSelector(state => state.game.currentValue);
     const ui_currentValue = useSelector(state => state.game.ui_currentValue);
     const ui_players = useSelector(state => state.game.ui_players);
@@ -98,7 +96,7 @@ const Game = () => {
             unsubscribe$.next();
             unsubscribe$.complete();
         };
-    }, []);
+    }, [animateDice, dispatch, doHandshake, gameError$, handleGameError, over, rolledDice$, room, unsubscribe$]);
 
     useEffect(() => {
 
@@ -203,9 +201,18 @@ const Game = () => {
         });
     }
 
-    const getPlayerPosition = (index, totalPlayer) => {
-        const degrees = (360 / totalPlayer) * index;
-        return {transform: ` rotate(${degrees}deg) translateY(-90px) rotate(-${degrees}deg)`};
+    const getPlayerPosition = (index, totalPlayers) => {
+        const vw = Math.min(window.innerWidth, window.innerHeight);
+        const radius = vw < 800 ? vw * 0.35 : 250; // 30% of viewport on mobile, fixed on desktop
+        const degrees = (360 / totalPlayers) * index;
+        return {
+            transform: `
+            translateX(-50%)
+            rotate(${degrees}deg) 
+            translateY(-${radius}px) 
+            rotate(-${degrees}deg)
+            `
+        };
     }
 
     // maybe is spectator
@@ -227,7 +234,6 @@ const Game = () => {
                 const isWaiting = !player.isPlayersTurn || animatingDice;
 
                 controlButton = (<div style={{display: "flex"}} className={`${isWaiting ? "waiting" : ""}`}>
-                    {/*<button disabled={isWaiting} className="button" onClick={() => handleRollDice()}>Roll</button>*/}
                     <RollButton rolling={isRolling} disabled={isWaiting} onClick={handleRollDice}/>
                     <LifeLoseBtn animating={animatingHeart}
                                  disabled={isWaiting || player.life <= 1 || ui_currentValue < MIN_VAL_TO_OWE_DRAHN}
@@ -238,14 +244,9 @@ const Game = () => {
         }
     }
 
-    const totalModifier = ui_currentValue > 15 ? "danger" : ui_currentValue >= 10 ? "warning" : "";
-
     return (
         <div className="page-container">
-            <div className="statistics">
-                <div className={`rolled-dice number-${rolledDice}`}>{rolledDice}</div>
-                <div className={`current-value ${totalModifier}`}>{ui_currentValue}</div>
-            </div>
+            <RolledDice/>
 
             {controls}
 

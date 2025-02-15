@@ -94,16 +94,6 @@ const Home = () => {
             });
     };
 
-    const leaveGame = () => {
-        const playerId = localStorage.getItem("playerId");
-
-        axios
-            .post(`${API_URL}/leave`, {playerId}, {withCredentials: true})
-            .then((response) => {
-                localStorage.removeItem("playerId");
-            });
-    };
-
     return (
         <div className="page-container">
             <div className="overview">
@@ -134,7 +124,10 @@ const Home = () => {
                     </button>
                 </>
             )}
-            <div className="form">
+            <form className="form" onSubmit={(e) => {
+                e.preventDefault();
+                joinGame();
+            }}>
                 <input
                     className="input username"
                     value={username}
@@ -147,10 +140,10 @@ const Home = () => {
                     onChange={(evt) => updateRoom(evt.target.value)}
                     placeholder="Room"
                 />
-                <button className="button join" disabled={!room} onClick={joinGame}>
+                <button className="button join" disabled={!room} type="submit">
                     Join
                 </button>
-            </div>
+            </form>
 
             <div className={`form__error ${!formError.length ? "is-invisible" : ""}`}>
                 {formError}

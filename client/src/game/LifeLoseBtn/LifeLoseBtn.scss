@@ -3,73 +3,74 @@
     background-color: transparent;
     padding: 0;
 
-    &:hover{
-      background-color: transparent;
+        &:hover {
+            background-color: transparent;
+        }
+
+        &:focus {
+            background-color: transparent;
+        }
+
+        &[disabled] {
+            background-color: transparent;
+
+            &:hover {
+                background-color: transparent;
+            }
+        }
     }
 
-    &:focus{
-      background-color: transparent;
+    .icon {
+        display: block;
+        height: auto;
+        width: 2rem;
     }
-
-    &[disabled] {
-      background-color: transparent;
-
-      &:hover {
-        background-color: transparent;
-      }
-    }
-  }
-
-  .icon {
-    display: block;
-    height: auto;
-    width: 2rem;
-  }
 }
 
 #heart {
-  fill: none;
-  stroke: #D75A4A;
+    fill: none;
+    stroke: #D75A4A;
 
-  &[disabled] {
-    stroke: gray;
+    &[disabled] {
+        stroke: gray;
+
+        #minus {
+            fill: gray;
+        }
+
+        &:hover {
+            fill: none;
+
+            #minus {
+                fill: gray;
+            }
+        }
+    }
 
     #minus {
-      fill: gray;
+        fill: #D75A4A;
+        stroke: none;
     }
 
     &:hover {
-      fill: none;
+        fill: #D75A4A;
 
-      #minus {
-        fill: gray;
-      }
+        #minus {
+            fill: white;
+        }
     }
-  }
-
-  #minus {
-    fill: #D75A4A;
-    stroke: none;
-  }
-
-  &:hover {
-    fill: #D75A4A;
-
-    #minus {
-      fill: white;
-    }
-  }
 }
 
 #heart.animating {
-  will-change: transform;
-  animation: heart .5s cubic-bezier(0.17, 0.89, 0.32, 1.49);
+    will-change: transform;
+    animation: heart .5s cubic-bezier(0.17, 0.89, 0.32, 1.49);
 }
+
 @keyframes heart {
-  0%,
-  25% {
-    transform: scale(2);
-    fill: gray;
-    stroke: gray;
-  }
+    0%,
+    25% {
+        transform: scale(2);
+        fill: gray;
+        stroke: gray;
+    }
 }

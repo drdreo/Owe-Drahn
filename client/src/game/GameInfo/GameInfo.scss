@@ -1,14 +1,17 @@
 @use "../../utils";
 
 .info {
-  position: absolute;
-  top: 25%;
-  color: utils.$green;
-  opacity: 1;
+    position: absolute;
+    // Center both vertically and horizontally
+    top: calc(50% + 3rem);
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: utils.$green;
+    opacity: 1;
 
-  transition: opacity 2s ease-in;
+    transition: opacity 2s ease-in;
 
-  &.hidden {
-    opacity: 0;
-  }
+    &.hidden {
+        opacity: 0;
+    }
 }

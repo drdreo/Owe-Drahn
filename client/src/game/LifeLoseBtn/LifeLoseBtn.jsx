@@ -1,5 +1,3 @@
-import React, {Component} from "react";
-
 import "./LifeLoseBtn.scss";
 
 const Heart = ({animating, disabled}) => (
@@ -13,14 +11,12 @@ const Heart = ({animating, disabled}) => (
 );
 
 
-class LifeLoseBtn extends Component {
-    render() {
-        return (
-            <button disabled={this.props.disabled} onClick={this.props.onClick} className="button lose-life">
-                <Heart animating={this.props.animating} disabled={this.props.disabled}/>
-            </button>
-        );
-    }
+const LifeLoseBtn = ({disabled, animating, onClick}) => {
+    return (
+        <button disabled={disabled} onClick={onClick} className="button lose-life">
+            <Heart animating={animating} disabled={disabled}/>
+        </button>
+    );
 }
 
 export default LifeLoseBtn;
