@@ -16,46 +16,61 @@ export default (store) => {
 
     socket.on("connect", () => console.log("Socket connected!"));
     socket.on("disconnect", () => console.log("Socket disconnected!"));
+}
 
+export const initializeGameSocketListeners = (socket, dispatch) => {
     socket.on("gameInit", response => {
-        store.dispatch(gameInit(response));
+        dispatch(gameInit(response));
     });
 
     socket.on("gameStarted", response => {
-        store.dispatch(gameStarted(response));
+        dispatch(gameStarted(response));
     });
 
     socket.on("gameUpdate", response => {
-        store.dispatch(gameUpdate(response));
+        dispatch(gameUpdate(response));
     });
 
     socket.on("gameOver", response => {
-        store.dispatch(gameOver(response));
+        dispatch(gameOver(response));
     });
 
     socket.on("gameError", data => {
-        store.dispatch(gameError(data));
+        dispatch(gameError(data));
     });
 
     socket.on("playerUpdate", data => {
-        store.dispatch(playerUpdate(data));
+        dispatch(playerUpdate(data));
     });
 
     socket.on("playerLeft", data => {
-        store.dispatch(playerLeft(data));
+        dispatch(playerLeft(data));
     });
 
     socket.on("rolledDice", data => {
-        store.dispatch(rolledDice(data));
+        dispatch(rolledDice(data));
     });
 
     socket.on("lostLife", (data) => {
-        store.dispatch(lostLife());
-        store.dispatch(feedMessage({type: "LOST_LIFE", username: data.player.username}));
+        dispatch(lostLife());
+        dispatch(feedMessage({type: "LOST_LIFE", username: data.player.username}));
     });
 
     socket.on("lost", (data) => {
-        // store.dispatch(playerLost(data.player.id));
-        // store.dispatch(feedMessage({type: "LOST", username: data.player.username, dice: data.dice, total: data.total}));
+        // dispatch(playerLost(data.player.id));
+        // dispatch(feedMessage({type: "LOST", username: data.player.username, dice: data.dice, total: data.total}));
     });
-}
+
+    return () => {
+        socket.off("gameInit");
+        socket.off("gameStarted");
+        socket.off("gameUpdate");
+        socket.off("gameOver");
+        socket.off("gameError");
+        socket.off("playerUpdate");
+        socket.off("playerLeft");
+        socket.off("rolledDice");
+        socket.off("lostLife");
+        socket.off("lost");
+    };
+};

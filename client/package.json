@@ -33,7 +33,6 @@
         "react-redux": "^9.2.0",
         "react-router-dom": "^7.1.5",
         "redux": "^5.0.1",
-        "rxjs": "^7.8.1",
         "socket.io-client": "^4.8.1",
         "uifx": "^2.0.7",
         "vite": "^6.1.0"

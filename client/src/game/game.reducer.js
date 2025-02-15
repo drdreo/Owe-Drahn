@@ -1,15 +1,13 @@
-import {Subject} from "rxjs";
-
 const initialState = {
-    rolledDice: undefined,
-    rolledDice$: new Subject(undefined),
-    currentValue: 0, // actual value from the server
-    ui_currentValue: 0, // value to display delayed
+    diceRoll: undefined,        // Latest server dice roll data
+    rolledDice: undefined,      // Dice values for UI
+    currentValue: 0,            // Server value
+    ui_currentValue: 0,         // UI value
     players: [],
     ui_players: [],
     started: false,
     over: false,
-    gameError$: new Subject(undefined),
+    error: undefined,
     gameInfo: {message: ""}
 };
 
@@ -34,16 +32,22 @@ const gameReducer = (state = initialState, action) => {
         case "GAME_OVER":
             return {...state, over: true, started: false};
         case "GAME_ERROR":
-            state.gameError$.next(action.payload);
-            return state;
+            return {
+                ...state,
+                error: action.payload  // Store the error in Redux state
+            };
         case "PLAYER_UPDATE":
             if (action.payload.updateUI) {
                 return {...state, players: action.payload.players, ui_players: action.payload.players};
             }
             return {...state, players: action.payload.players};
         case "ROLLED_DICE":
-            state.rolledDice$.next(action.payload);
-            return {...state, currentValue: action.payload.total, gameInfo: {message: ""}};
+            return {
+                ...state,
+                diceRoll: action.payload,
+                currentValue: action.payload.total,
+                gameInfo: {message: ""}
+            };
         case "ANIMATED_DICE":
             return {
                 ...state,

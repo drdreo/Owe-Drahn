@@ -1,7 +1,5 @@
 import {useEffect, useRef, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
-import {Subject} from "rxjs";
-import {takeUntil} from "rxjs/operators";
 
 import diceRoller from "dice-roller-3d";
 import {Howl} from "howler";
@@ -13,7 +11,7 @@ import Feed from "./Feed/Feed";
 import Settings from "../settings/Settings";
 import RolledDice from "./RolledDice/RolledDice.jsx";
 
-import {chooseNextPlayer, handshake, loseLife, ready, rollDice} from "../socket/socket.actions";
+import {chooseNextPlayer, loseLife, ready, rollDice} from "../socket/socket.actions";
 import {animatedDice} from "./game.actions";
 import {feedMessage} from "./Feed/feed.actions";
 
@@ -21,6 +19,7 @@ import "./Game.scss";
 import RollButton from "./RollButton/RollButton";
 import GameInfo from "./GameInfo/GameInfo";
 import {useNavigate, useParams} from "react-router-dom";
+import {useGameConnection} from "./useGameConnection.js";
 
 
 const MIN_VAL_TO_OWE_DRAHN = 10;
@@ -29,20 +28,23 @@ const Game = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const {room} = useParams();
-    const authUser = useSelector(state => state.auth.authUser); // Redux hook for state
+    useGameConnection(room);
+
     const settings = useSelector(state => state.settings);
-    const players = useSelector(state => state.game.players);
-    const currentValue = useSelector(state => state.game.currentValue);
-    const ui_currentValue = useSelector(state => state.game.ui_currentValue);
-    const ui_players = useSelector(state => state.game.ui_players);
-    const started = useSelector(state => state.game.started);
-    const over = useSelector(state => state.game.over);
-    const rolledDice$ = useSelector(state => state.game.rolledDice$);
-    const gameError$ = useSelector(state => state.game.gameError$);
+    const {
+        diceRoll,
+        currentValue,
+        ui_currentValue,
+        ui_players,
+        players,
+        started,
+        over,
+        error
+    } = useSelector(state => state.game);
+
     const [animatingDice, setAnimatingDice] = useState(false);
     const [animatingHeart, setAnimatingHeart] = useState(false);
     const [isRolling, setIsRolling] = useState(false);
-    const unsubscribe$ = new Subject();
     const diceRef = useRef(null);
     const sfx = {
         yourTurn: {
@@ -59,47 +61,38 @@ const Game = () => {
     const isChoosing = player && player.isPlayersTurn && player.choosing;
 
     useEffect(() => {
-        doHandshake(room);
+        if (!diceRoll || animatingDice) return;
 
-        rolledDice$
-            .pipe(takeUntil(unsubscribe$))
-            .subscribe((data) => {
-                animateDice(data.dice, data.total)
-                    .then(() => {
-                        console.log(data);
-                        let msg;
-                        if (data.total > 15) {
-                            msg = {
-                                type: "LOST",
-                                username: data.player.username,
-                                dice: data.dice,
-                                total: data.total
-                            };
-                        } else if (!over) {
-                            msg = {
-                                type: "ROLLED_DICE",
-                                username: data.player.username,
-                                dice: data.dice,
-                                total: data.total
-                            };
-                        }
+        setAnimatingDice(true);
+        animateDice(diceRoll.dice, diceRoll.total)
+            .then(() => {
+                setAnimatingDice(false);
+                dispatch(animatedDice({
+                    dice: diceRoll.dice,
+                    total: diceRoll.total
+                }));
+                let msg;
+                if (diceRoll.total > 15) {
+                    msg = {
+                        type: "LOST",
+                        username: diceRoll.player.username,
+                        dice: diceRoll.dice,
+                        total: diceRoll.total
+                    };
+                } else if (!over) {
+                    msg = {
+                        type: "ROLLED_DICE",
+                        username: diceRoll.player.username,
+                        dice: diceRoll.dice,
+                        total: diceRoll.total
+                    };
+                }
 
-                        dispatch(feedMessage(msg));
-                    });
+                dispatch(feedMessage(msg));
             });
-
-        gameError$
-            .pipe(takeUntil(unsubscribe$))
-            .subscribe((error) => handleGameError(error));
-
-        return () => {
-            unsubscribe$.next();
-            unsubscribe$.complete();
-        };
-    }, [animateDice, dispatch, doHandshake, gameError$, handleGameError, over, rolledDice$, room, unsubscribe$]);
+    }, [diceRoll]);
 
     useEffect(() => {
-
         // Change global volume.
         // Howler.mute(!settings.sound.enabled);
 
@@ -107,7 +100,7 @@ const Game = () => {
 
         if (!animatingDice) {
             // If it's the player's turn and the sound hasn't played yet, play it
-            if (player.isPlayersTurn && !sfx.yourTurn.played) {
+            if (player.isPlayersTurn && !player.choosing && !sfx.yourTurn.played) {
                 sfx.yourTurn.played = true;
                 sfx.yourTurn.audio.play();
             }
@@ -119,29 +112,32 @@ const Game = () => {
         }
     }, [player, animatingDice, settings.sound.enabled]);
 
-    const handleGameError = (error) => {
+
+    useEffect(() => {
+        if (!error) {
+            return;
+        }
         console.error(error);
         switch (error.code) {
-            case "NO_GAME":
-                setTimeout(() => {
+            case "NO_GAME": {
+                const timer = setTimeout(() => {
                     navigate('/');
                 }, 2000);
-                break;
+                return () => clearTimeout(timer);
+            }
+
             case "NOT_ALLOWED":
             case "NOT_YOUR_TURN":
+                console.warn(error.message);
+                break;
             default:
-                console.warn(`gameError sent:[${error.message}] but isn't handled!`);
+                console.warn(`gameError: ${error.message} isn't handled!`);
         }
-    }
+    }, [error, navigate]);
 
     // getCurrentPlayer() {
     //     return players.find(player => player.isPlayersTurn);
     // }
-
-    const doHandshake = (room) => {
-        const uid = authUser ? authUser.uid : undefined;
-        dispatch(handshake(room, uid));
-    }
 
     const handleReady = () => {
         const isReady = !getPlayer().ready;
