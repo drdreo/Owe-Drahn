@@ -43,6 +43,8 @@ const Player = ({player, choosing, onClick, style}) => {
         }
     };
 
+    const rankIcon = getRankIcon(player.rank);
+
     return (
         <div onClick={onClick}
              style={style}
@@ -54,7 +56,7 @@ const Player = ({player, choosing, onClick, style}) => {
             ${player.rank > 0 ? "has-rank" : ""}`}>
             {player.rank > 0 &&
                 <div className="player__rank" title={`Rank ${player.rank}`}>
-                    <img src={getRankIcon(player.rank)} alt={`Rank ${player.rank}`}/>
+                    <img src={rankIcon} alt={`Rank ${player.rank}`}/>
                 </div>
             }
             <div className="life">

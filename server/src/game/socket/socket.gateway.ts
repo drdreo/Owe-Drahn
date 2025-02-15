@@ -103,10 +103,10 @@ export class SocketGateway
     }
 
     @SubscribeMessage('handshake')
-    private playerHandshake(
+    private async playerHandshake(
         @ConnectedSocket() socket: Socket,
         @MessageBody() handshakeData: Handshake
-    ): void {
+    ): Promise<void> {
         const { room, playerId, uid } = handshakeData;
 
         this.clients.set(socket.id, handshakeData);
@@ -114,7 +114,7 @@ export class SocketGateway
             `New connection handshake from socket[${socket.id}] player[${playerId}] in room[${room}].${uid ? `LoggedIn[${uid}]` : ''}`
         );
 
-        const gameUpdate = this.socketService.playerHandshake(
+        const gameUpdate = await this.socketService.playerHandshake(
             room,
             playerId,
             uid
