@@ -1,148 +1,148 @@
-@import "../../utils";
+@use "sass:color";
+@use "sass:list";
+
+@use "../../utils";
 
 .player {
-  width: 100px;
-  //display: flex;
-  //position: relative;
-  //flex-direction: column;
-  margin: 1rem;
-  position: absolute;
-  left: -66px;
-  transition: transform .5s ease;
-  border-radius: 5px;
-  overflow: hidden;
-
-  &.has-rank {
-    .name, .life {
-      padding-left: 2rem;
-    }
-  }
-
-  .name {
-    display: flex;
-    justify-content: center;
-    background-color: #fff3;
-    color: #fff;
-
-    span {
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-  }
-
-  .life {
-    display: flex;
-    justify-content: center;
-    position: relative;
-    color: #fff;
-
-    &__bar {
-      width: 100%;
-      height: 100%;
-      position: absolute;
-      left: 0;
-      z-index: -1;
-
-      $bar-colors: $danger-color, $orange-dark, $warning-color, $warning-color, $success-color, $success-color;
-      @for $i from 1 through length($bar-colors) {
-        $level-color: nth($bar-colors, $i);
-
-        &.life-#{$i} {
-          background-color: $level-color;
-          width: calc(100% * #{$i} / 6);
-        }
-      }
-
-      &.life-0 {
-        background-color: #c5c5c5ad;
-        width: 100%;
-      }
-    }
-  }
-
-  &__rank {
+    width: 100px;
+    margin: 1rem;
     position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    left: 5px;
-    width: 2rem;
+    left: -66px;
+    transition: transform .5s ease;
+    border-radius: 5px;
+    overflow: hidden;
 
-    img {
-      width: 100%;
+    &.has-rank {
+        .name, .life {
+            padding-left: 2rem;
+        }
     }
-  }
 
-  &.me {
-    border-left: 1px solid;
-    border-right: 2px solid;
-    border-bottom: 2px solid;
-    border-color: saturate($primary-color, 25%);
+    .name {
+        display: flex;
+        justify-content: center;
+        background-color: #fff3;
+        color: #fff;
+
+        span {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    }
+
+    .life {
+        display: flex;
+        justify-content: center;
+        position: relative;
+        color: #fff;
+
+        &__bar {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            left: 0;
+            z-index: -1;
+
+            $bar-colors: utils.$danger-color, utils.$orange-dark, utils.$warning-color, utils.$warning-color, utils.$success-color, utils.$success-color;
+            @for $i from 1 through list.length($bar-colors) {
+                $level-color: list.nth($bar-colors, $i);
+
+                &.life-#{$i} {
+                    background-color: $level-color;
+                    width: calc(100% * #{$i} / 6);
+                }
+            }
+
+            &.life-0 {
+                background-color: #c5c5c5ad;
+                width: 100%;
+            }
+        }
+    }
+
+    &__rank {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        left: 5px;
+        width: 2rem;
+
+        img {
+            width: 100%;
+        }
+    }
+
+    &.me {
+        border-left: 1px solid;
+        border-right: 2px solid;
+        border-bottom: 2px solid;
+        border-color: color.adjust(white, $saturation: 25%);
+
+        &.turn {
+            animation: border 2s ease-in-out infinite;
+        }
+    }
+
+    &.ready {
+        .name {
+            background-color: utils.$success-color;
+            color: #fff;
+        }
+    }
 
     &.turn {
-      animation: border 2s ease-in-out infinite;
+        transform: scale(1.2);
+
+        .name {
+            background-color: utils.$primary-color;
+            color: #fff;
+        }
     }
-  }
 
-  &.ready {
-    .name {
-      background-color: $success-color;
-      color: #fff;
+    &.choosing {
+        cursor: pointer;
+
+        animation: highlight 1s infinite;
+
+        &:hover {
+            animation: none;
+            transform: translateY(-10px);
+        }
     }
-  }
 
-  &.turn {
-    transform: scale(1.2);
+    &.lost {
+        text-decoration: line-through;
 
-    .name {
-      background-color: $primary-color;
-      color: #fff;
+        .name {
+            background-color: #c5c5c5ad;
+            color: #fff;
+        }
     }
-  }
-
-  &.choosing {
-    cursor: pointer;
-
-    animation: highlight 1s infinite;
-
-    &:hover {
-      animation: none;
-      transform: translateY(-10px);
-    }
-  }
-
-  &.lost {
-    text-decoration: line-through;
-
-    .name {
-      background-color: #c5c5c5ad;
-      color: #fff;
-    }
-  }
 
 }
 
 
 @keyframes highlight {
-  0% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.5;
-  }
-  100% {
-    opacity: 1;
-  }
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+    100% {
+        opacity: 1;
+    }
 }
 
 @keyframes border {
-  0% {
-    border-color: saturate($primary-color, 25%);
-  }
-  50% {
-    border-color: transparent;
-  }
-  100% {
-    border-color: saturate($primary-color, 25%);
-  }
+    0% {
+        border-color: color.adjust(white, $saturation: 25%);
+    }
+    50% {
+        border-color: transparent;
+    }
+    100% {
+        border-color: color.adjust(white, $saturation: 25%);
+    }
 }

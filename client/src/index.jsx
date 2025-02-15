@@ -1,7 +1,6 @@
 import {prod} from "./environment";
 
-import React from "react";
-import { createRoot } from 'react-dom/client';
+import {createRoot} from 'react-dom/client';
 import {Provider} from "react-redux";
 import {createBrowserHistory} from "history";
 import {applyMiddleware, createStore} from '@reduxjs/toolkit';
@@ -9,7 +8,7 @@ import {applyMiddleware, createStore} from '@reduxjs/toolkit';
 import Firebase, {FirebaseContext} from './auth/Firebase';
 
 import "./index.css";
-import App from "./App";
+import App from "./App.jsx";
 
 import * as serviceWorker from "./serviceWorker";
 import connectSocket from "./socket/socket";

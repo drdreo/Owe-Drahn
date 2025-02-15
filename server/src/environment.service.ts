@@ -11,10 +11,7 @@ export enum Environment {
 
 @Injectable()
 export class EnvironmentService {
-    static frontendPath =
-        process.env.NODE_ENV === 'production'
-            ? path.join(__dirname, '../../../client/build')
-            : path.join(__dirname, '../../client/build');
+    static frontendPath = path.resolve(__dirname, '../../../client/dist');
     public readonly credentialsDir =
         this.env === 'production'
             ? path.join(__dirname, '../../../credentials')

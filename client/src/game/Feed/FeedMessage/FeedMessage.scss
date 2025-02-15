@@ -1,17 +1,17 @@
-@import "../../../utils";
+@use "../../../utils";
 
 .message {
   &__rolled {
     &__dice {
-      color: $primary-color;
+      color: utils.$primary-color;
     }
   }
 
   &__lost {
-    color: $danger-color;
+    color: utils.$danger-color;
   }
 
   &__over {
-    color: $warning-color;
+    color: utils.$warning-color;
   }
 }

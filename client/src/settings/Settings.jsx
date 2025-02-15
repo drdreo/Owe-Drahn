@@ -96,20 +96,5 @@ const Settings = (props) => {
     );
 
 }
-//
-// const mapStateToProps = (state) => {
-//     return state.settings;
-// };
-//
-// const mapDispatchToProps = dispatch => {
-//     return {
-//         toggleSound: () => dispatch(toggleSound()),
-//         toggleFeed: () => dispatch(toggleFeed())
-//     };
-// };
 
 export default Settings;
-// export default compose(
-//     withNavigation,
-//     connect(mapStateToProps, mapDispatchToProps))
-// (Settings);

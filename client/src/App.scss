@@ -1,102 +1,101 @@
-@import "./utils";
+@use "sass:color";
+@use "./utils.scss";
 
 .page-container {
-  display: flex;
-  position: relative;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  width: 100vw;
-  height: 100vh;
+    display: flex;
+    position: relative;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100vw;
+    height: 100vh;
 
-  color: white;
+    color: white;
 
-  &.game {
-    justify-content: normal;
-  }
+    &.game {
+        justify-content: normal;
+    }
 }
 
 
 .button {
-  padding: .75rem;
-  box-sizing: border-box;
+    padding: .75rem;
+    box-sizing: border-box;
 
-  outline: none;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
+    outline: none;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
 
-  font-size: 1rem;
-  color: white;
-  background-color: $button-background-color;
-  transition: background-color .17s ease, color .17s ease;
+    font-size: 1rem;
+    color: white;
+    background-color: utils.$button-background-color;
+    transition: background-color .17s ease, color .17s ease;
 
-  &:hover, &:focus {
-    background-color: transparentize($button-background-color, 0.1); //#677bc4
-  }
+    &:hover, &:focus {
+        background-color: color.adjust(utils.$button-background-color, $alpha: -0.1); //#677bc4
+    }
 
 
-  &[disabled] {
-    background-color: gray;
-    cursor: initial;
+    &[disabled] {
+        background-color: gray;
+        cursor: initial;
+
+        &:hover {
+            background-color: gray;
+        }
+    }
+
+    &.light {
+        color: #080808;
+        background-color: utils.$gray;
+
+        &:hover, &:focus {
+            background-color: color.adjust(utils.$gray, $alpha: -0.1);
+        }
+    }
+
+    &.success {
+        color: white;
+        background-color: utils.$success-color;
+
+        &:hover, &:focus {
+            background-color: color.adjust(utils.$success-color, $alpha: -0.1);
+        }
+    }
+
+    &.danger {
+        color: #080808;
+        background-color: utils.$danger-color;
+
+        &:hover, &:focus {
+            background-color: color.adjust(utils.$danger-color, $alpha: -0.1);
+        }
+    }
+}
+
+
+button {
+    &.link {
+        background-color: #0000;
+        border: none;
+    }
+}
+
+.link {
+    text-decoration: underline;
+    cursor: pointer;
+    color: utils.$primary-color;
 
     &:hover {
-      background-color: gray;
+        color: color.adjust(utils.$primary-color, $lightness: -10%);
     }
-  }
-
-  &.light {
-    color: #080808;
-    background-color: $gray;
-
-    &:hover, &:focus {
-      background-color: transparentize($gray, 0.1);
-    }
-  }
-
-  &.success {
-    color: white;
-    background-color: $success-color;
-
-    &:hover, &:focus {
-      background-color: transparentize($success-color, 0.1);
-    }
-  }
-
-  &.danger {
-    color: #080808;
-    background-color: $danger-color;
-
-    &:hover, &:focus {
-      background-color: transparentize($danger-color, 0.1);
-    }
-  }
-}
-
-
-
-button{
-  &.link{
-    background-color: #0000;
-    border: none;
-  }
-}
-.link {
-  text-decoration: underline;
-  cursor: pointer;
-  color: $primary-color;
-
-  &:hover {
-    color: darken($primary-color, 10);
-  }
-
-
 }
 
 .is-hidden {
-  display: none;
+    display: none;
 }
 
 .is-invisible {
-  visibility: hidden;
+    visibility: hidden;
 }

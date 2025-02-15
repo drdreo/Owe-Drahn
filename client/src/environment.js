@@ -1,4 +1,4 @@
-export const prod = process.env.NODE_ENV === "production";
+export const prod = import.meta.env.PROD; // instead of process.env.NODE_ENV === "production"
 export const debug = !prod;
 
 if (prod) {
@@ -20,6 +20,5 @@ if (prod) {
     // console.log = function () {
     // };
 } else {
-    console.log(process.env);
-
+    console.log(import.meta.env);
 }

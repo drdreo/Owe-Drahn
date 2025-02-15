@@ -1,14 +1,15 @@
-import React, {useEffect, useState} from "react";
+import {useEffect, useState} from "react";
 import axios from "axios";
 import {useDispatch, useSelector} from "react-redux";
 import {useNavigate} from "react-router-dom"; // Use this hook for navigation
 import {useFirebase} from "../auth/Firebase"; // Custom hook for Firebase context
-import "./Home.scss";
 import {gameReset} from "../game/game.actions";
 import SignInGoogle from "../auth/SignIn/SignIn";
 import {debounce} from "../utils/helpers";
 
-const API_URL = process.env.REACT_APP_API_URL;
+const API_URL = import.meta.env.VITE_API_URL;
+
+import "./Home.scss";
 
 const Home = () => {
     const [room, setRoom] = useState("");

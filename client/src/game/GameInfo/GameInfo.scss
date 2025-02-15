@@ -1,9 +1,9 @@
-@import "../../utils";
+@use "../../utils";
 
 .info {
   position: absolute;
   top: 25%;
-  color: $green;
+  color: utils.$green;
   opacity: 1;
 
   transition: opacity 2s ease-in;

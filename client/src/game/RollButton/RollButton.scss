@@ -1,116 +1,116 @@
-@import "../../utils";
+@use "../../utils";
 
 $btn-width: 100px;
 $btn-width-rolling: 40px;
 $animation-time: 1.25s;
 
 .roll-button-container {
-  min-width: $btn-width;
-  display: flex;
-  justify-content: center;
+    min-width: $btn-width;
+    display: flex;
+    justify-content: center;
 }
 
 .roll-button {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: relative;
-  height: 40px;
-  width: $btn-width;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    height: 40px;
+    width: $btn-width;
 
-  background: $primary-color;
-  outline: none;
-  border-radius: 20px;
-  box-shadow: 0 7px 14px rgba(0, 0, 0, 0.25), 0 5px 5px rgba(0, 0, 0, 0.22);
-  cursor: pointer;
+    background: utils.$primary-color;
+    outline: none;
+    border-radius: 20px;
+    box-shadow: 0 7px 14px rgba(0, 0, 0, 0.25), 0 5px 5px rgba(0, 0, 0, 0.22);
+    cursor: pointer;
 
-  transition: transform 0.17s ease, background-color .17s ease;
+    transition: transform 0.17s ease, background-color .17s ease;
 
-  &.disabled {
-    cursor: default;
-    background: gray;
-    box-shadow: unset;
-  }
+    &.disabled {
+        cursor: default;
+        background: gray;
+        box-shadow: unset;
+    }
 
-  &.rolling {
-    animation: #{$animation-time} Button;
-    background-color: $primary-color;
+    &.rolling {
+        animation: #{$animation-time} Button;
+        background-color: utils.$primary-color;
+
+        .text {
+            animation: #{$animation-time} Text forwards;
+        }
+
+        .dice {
+            animation: #{$animation-time} Dice forwards;
+        }
+    }
 
     .text {
-      animation: #{$animation-time} Text forwards;
+        color: white;
+        position: absolute;
+        user-select: none;
+        -moz-user-select: none;
     }
 
     .dice {
-      animation: #{$animation-time} Dice forwards;
+        width: 20px;
+        opacity: 0;
+        top: 9px;
+
+        path {
+            fill: #ffffff;
+        }
     }
-  }
-
-  .text {
-    color: white;
-    position: absolute;
-    user-select: none;
-    -moz-user-select: none;
-  }
-
-  .dice {
-    width: 20px;
-    opacity: 0;
-    top: 9px;
-
-    path {
-      fill: #ffffff;
-    }
-  }
 }
 
 
 @keyframes Button {
-  0% {
-    width: $btn-width;
-  }
-  6% {
-    width: $btn-width-rolling;
-  }
-  94% {
-    width: $btn-width-rolling;
-  }
-  100% {
-    width: $btn-width;
-  }
+    0% {
+        width: $btn-width;
+    }
+    6% {
+        width: $btn-width-rolling;
+    }
+    94% {
+        width: $btn-width-rolling;
+    }
+    100% {
+        width: $btn-width;
+    }
 }
 
 @keyframes Text {
-  0% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  6% {
-    opacity: 0;
-    transform: scale(0.5);
-  }
+    0% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    6% {
+        opacity: 0;
+        transform: scale(0.5);
+    }
 
-  94% {
-    opacity: 0;
-    transform: scale(0.5);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
+    94% {
+        opacity: 0;
+        transform: scale(0.5);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
 }
 
 @keyframes Dice {
-  4% {
-    opacity: 0;
-  }
-  10% {
-    opacity: 1;
-  }
+    4% {
+        opacity: 0;
+    }
+    10% {
+        opacity: 1;
+    }
 
-  94% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
-  }
+    94% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
 }

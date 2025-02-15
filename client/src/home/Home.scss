@@ -1,125 +1,124 @@
-@import "../utils";
-
-
+@use "sass:color";
+@use "../utils";
 
 .input {
-  background-color: $input-background-color;
-  outline: none;
-  border: none;
-  padding: 0.75rem;
-  font-size: 1rem;
-  border-radius: 5px;
-  color: #fff;
-  width: 100%;
-  box-sizing: border-box;
+    background-color: utils.$input-background-color;
+    outline: none;
+    border: none;
+    padding: 0.75rem;
+    font-size: 1rem;
+    border-radius: 5px;
+    color: #fff;
+    width: 100%;
+    box-sizing: border-box;
 
-  &:hover {
-    background-color: transparentize($input-background-color, 0.1);
-  }
-
-  @include respond-to(tablet) {
-    &.username {
-      border-bottom-right-radius: 0;
-      border-top-right-radius: 0;
-      border-right: 1px dashed #757575;
+    &:hover {
+        background-color: color.adjust(utils.$input-background-color, $alpha: -0.1);
     }
 
-    &.room {
-      border-bottom-left-radius: 0;
-      border-top-left-radius: 0;
+    @include utils.respond-to(tablet) {
+        &.username {
+            border-bottom-right-radius: 0;
+            border-top-right-radius: 0;
+            border-right: 1px dashed #757575;
+        }
+
+        &.room {
+            border-bottom-left-radius: 0;
+            border-top-left-radius: 0;
+        }
     }
-  }
 }
 
 
 .button {
-  &.join {
-    width: 100%;
+    &.join {
+        width: 100%;
 
-    @include respond-to(tablet) {
-      width: initial;
-      margin-left: 1rem;
+        @include utils.respond-to(tablet) {
+            width: initial;
+            margin-left: 1rem;
+        }
     }
-  }
 }
 
 .form {
-  padding: 1rem;
+    padding: 1rem;
 
-  .input {
-    margin-bottom: 1rem;
-  }
-
-  @include respond-to(tablet) {
-    display: flex;
     .input {
-      margin-bottom: 0;
+        margin-bottom: 1rem;
     }
-  }
 
-  &__error{
-    color: $danger-color;
-    min-height: 21px;
-  }
+    @include utils.respond-to(tablet) {
+        display: flex;
+        .input {
+            margin-bottom: 0;
+        }
+    }
+
+    &__error {
+        color: utils.$danger-color;
+        min-height: 21px;
+    }
 }
 
 
 .overview {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  padding: 5px;
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    padding: 5px;
 
-  border-radius: 5px;
-  background-color: #373a49;
-  color: #aaa;
-  font-size: 12px;
+    border-radius: 5px;
+    background-color: #373a49;
+    color: #aaa;
+    font-size: 12px;
 
-  &__total-players {
-    padding-bottom: 5px;
+    &__total-players {
+        padding-bottom: 5px;
 
-    span {
-      color: #fff;
-    }
-  }
-
-  &__rooms {
-    max-height: 70px;
-    overflow-y: auto;
-
-    &__entry {
-      display: flex;
-      align-items: center;
-      padding: 5px 0 0 15px;
-
-      color: white;
-      cursor: pointer;
-
-      &.has-started {
-        color: inherit;
-        padding-left: 0;
-
-        &:hover {
-          color: white;
+        span {
+            color: #fff;
         }
-      }
     }
 
+    &__rooms {
+        max-height: 70px;
+        overflow-y: auto;
 
-  }
+        &__entry {
+            display: flex;
+            align-items: center;
+            padding: 5px 0 0 15px;
+
+            color: white;
+            cursor: pointer;
+
+            &.has-started {
+                color: inherit;
+                padding-left: 0;
+
+                &:hover {
+                    color: white;
+                }
+            }
+        }
+
+
+    }
 }
 
 .live {
-  background-color: red;
-  width: 5px;
-  height: 5px;
-  border-radius: 20px;
-  display: flex;
-  margin: 0 5px;
+    background-color: red;
+    width: 5px;
+    height: 5px;
+    border-radius: 20px;
+    display: flex;
+    margin: 0 5px;
 }
 
-.sign-in-form{
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+.sign-in-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }

@@ -1,78 +1,73 @@
-@import "../utils";
+@use "../utils";
 
-$rolled-dice-color: $primary-color;
+$rolled-dice-color: utils.$primary-color;
 
 .settings {
-  position: absolute;
-  top: 0.5rem;
-  left: 0.5rem;
+    position: absolute;
+    top: 0.5rem;
+    left: 0.5rem;
 
-  .button {
-    margin: 0 1rem;
-  }
+    .button {
+        margin: 0 1rem;
+    }
 }
 
 .controls {
-  position: absolute;
-  bottom: 20px;
+    position: absolute;
+    bottom: 20px;
 
-  button {
-    margin: 0 1.2rem;
-  }
+    button {
+        margin: 0 1.2rem;
+    }
 }
 
 .players-list {
-  //display: flex;
-  //flex-wrap: wrap;
-  //align-items: center;
-  //justify-content: center;
-  //max-height: 25vh;
-  position: absolute;
-  top: calc(50%);
-
-  &.circle-board {
-    z-index: -1;
     position: absolute;
-    height: 100%;
-    width: 100%;
-  }
+    top: calc(50%);
+
+    &.circle-board {
+        z-index: -1;
+        position: absolute;
+        height: 100%;
+        width: 100%;
+    }
 
 }
 
 .dice {
-  position: absolute;
-  top: 20%;
-  left: 50%;
-  transform: translateX(-50%);
+    position: absolute;
+    top: 20%;
+    left: 50%;
+    transform: translateX(-50%);
 }
 
 .statistics {
-  display: flex;
-  top: 20vh;
-  position: absolute;
-  transform: translateY(-50%);
+    display: flex;
+    top: 20vh;
+    position: absolute;
+    transform: translateY(-50%);
 }
 
 .current-value {
-  font-size: 5rem;
-  color: white;
+    font-size: 5rem;
+    color: white;
 
-  &.warning {
-    color: $warning-color;
-  }
+    &.warning {
+        color: utils.$warning-color;
+    }
 
-  &.danger {
-    color: $danger-color;
-  }
+    &.danger {
+        color: utils.$danger-color;
+    }
 }
 
 .rolled-dice {
-  font-size: 2.5rem;
-  color: $rolled-dice-color;
-  display: flex;
-  align-items: center;
+    font-size: 2.5rem;
+    color: $rolled-dice-color;
+    display: flex;
+    align-items: center;
 
-  &.number-3 {
-    color: $gray;
-  }
+    &.number-3 {
+        color: utils.$gray;
+    }
 }

@@ -8,7 +8,7 @@ import {
     ConnectedSocket
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { allowlist } from "../../allow-list";
+import { allowlist } from '../../allow-list';
 import { LoggerService } from '../../utils/logger/logger.service';
 import { Logger } from '../../utils/logger/logger.decorator';
 import { GameErrorCode } from '../GameError';
@@ -49,7 +49,7 @@ export class SocketGateway
     @WebSocketServer()
     server: Server;
 
-    clients: Map<string, any> = new Map();
+    clients: Map<string, Handshake> = new Map();
 
     private unsubscribe$ = new Subject<void>();
 
@@ -87,7 +87,7 @@ export class SocketGateway
         }
     }
 
-    private getClient(socket) {
+    private getClient(socket: Socket) {
         return this.clients.get(socket.id);
     }
 

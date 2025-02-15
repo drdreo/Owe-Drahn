@@ -7,7 +7,7 @@ import {
     PLAYER_ROLL_DICE
 } from "./socket.actions";
 
-const SERVER_URL = process.env.REACT_APP_DOMAIN;
+const SERVER_URL = import.meta.env.VITE_DOMAIN;
 
 const io = socketIOClient(SERVER_URL, {
     transports: ['websocket'],

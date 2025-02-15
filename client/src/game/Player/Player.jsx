@@ -1,4 +1,5 @@
-import React, {Component} from "react";
+import React from "react";
+// import {Shield, Crown, Skull} from 'lucide-react';
 import rank5 from "../../assets/images/ranks/rank5.png";
 import rank10 from "../../assets/images/ranks/rank10.png";
 import rank15 from "../../assets/images/ranks/rank15.png";
@@ -13,36 +14,8 @@ import rank55 from "../../assets/images/ranks/rank55.png";
 
 import "./Player.scss";
 
-class Player extends Component {
-    render() {
-        const {player, choosing} = this.props;
-        const rankIcon = this.getRankIcon(player.rank);
-        return (
-            <div onClick={this.props.onClick}
-                 style={this.props.style}
-                 className={`player ${localStorage.getItem("playerId") === player.id ? "me" : ""} 
-                ${player.ready ? "ready" : ""} 
-                ${player.isPlayersTurn ? "turn" : ""}
-                ${player.life <= 0 ? "lost" : ""}               
-                ${choosing ? "choosing" : ""} 
-                ${player.rank > 0 ? "has-rank" : ""} 
-                `}>
-                {player.rank > 0 &&
-                <div className="player__rank" title={`Rank ${player.rank}`}>
-                    <img src={rankIcon} alt={`Rank ${player.rank}`}/>
-                </div>
-                }
-                <div className="life">
-                    <div className={`life__bar life-${player.life}`}></div>
-                    {player.life}
-                </div>
-                <div className="name" title={player.username.length > 20 ? player.username : ""}>
-                    <span>{player.username}</span></div>
-            </div>
-        );
-    }
-
-    getRankIcon(rank) {
+const Player = ({player, choosing, onClick, style}) => {
+    const getRankIcon = (rank) => {
         switch (true) {
             case 5 <= rank && rank < 10:
                 return rank5;
@@ -64,12 +37,36 @@ class Player extends Component {
                 return rank45;
             case 50 <= rank && rank < 55:
                 return rank50;
-            case 55 <= rank :
+            case 55 <= rank:
                 return rank55;
             default:
                 return "";
         }
-    }
-}
+    };
+
+    return (
+        <div onClick={onClick}
+             style={style}
+             className={`player ${localStorage.getItem("playerId") === player.id ? "me" : ""} 
+            ${player.ready ? "ready" : ""} 
+            ${player.isPlayersTurn ? "turn" : ""}
+            ${player.life <= 0 ? "lost" : ""}               
+            ${choosing ? "choosing" : ""} 
+            ${player.rank > 0 ? "has-rank" : ""}`}>
+            {player.rank > 0 &&
+                <div className="player__rank" title={`Rank ${player.rank}`}>
+                    <img src={getRankIcon(player.rank)} alt={`Rank ${player.rank}`}/>
+                </div>
+            }
+            <div className="life">
+                <div className={`life__bar life-${player.life}`}></div>
+                {player.life}
+            </div>
+            <div className="name" title={player.username.length > 20 ? player.username : ""}>
+                <span>{player.username}</span>
+            </div>
+        </div>
+    );
+};
 
 export default Player;
