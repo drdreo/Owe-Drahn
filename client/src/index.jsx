@@ -5,7 +5,7 @@ import {Provider} from "react-redux";
 import {createBrowserHistory} from "history";
 import {applyMiddleware, createStore} from '@reduxjs/toolkit';
 
-import Firebase, {FirebaseContext} from './auth/Firebase';
+import {FirebaseProvider} from './auth/Firebase';
 
 import "./index.css";
 import App from "./App.jsx";
@@ -46,9 +46,9 @@ const root = createRoot(document.getElementById('root'));
 root.render(
     <Provider store={store}>
         <BrowserRouter>
-            <FirebaseContext.Provider value={new Firebase()}>
+            <FirebaseProvider>
                 <App/>
-            </FirebaseContext.Provider>
+            </FirebaseProvider>
         </BrowserRouter>
     </Provider>
 );

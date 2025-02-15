@@ -1,5 +1,4 @@
-import React from "react";
-// import {Shield, Crown, Skull} from 'lucide-react';
+import {Dice1, Dice2, Dice3, Dice4, Dice5, Dice6, Skull} from 'lucide-react';
 import rank5 from "../../assets/images/ranks/rank5.png";
 import rank10 from "../../assets/images/ranks/rank10.png";
 import rank15 from "../../assets/images/ranks/rank15.png";
@@ -14,7 +13,7 @@ import rank55 from "../../assets/images/ranks/rank55.png";
 
 import "./Player.scss";
 
-const Player = ({player, choosing, onClick, style}) => {
+const Player = ({player, started, choosing, onClick, style}) => {
     const getRankIcon = (rank) => {
         switch (true) {
             case 5 <= rank && rank < 10:
@@ -44,10 +43,14 @@ const Player = ({player, choosing, onClick, style}) => {
         }
     };
 
+    const rankIcon = getRankIcon(player.rank);
+    const healthIcon = player.life <= 0 ? <Skull/> : player.life === 1 ? <Dice1/> : player.life === 2 ? <Dice2/> : player.life === 3 ? <Dice3/> : player.life === 4 ? <Dice4/> : player.life === 5 ? <Dice5/> : <Dice6/>;
+
     return (
         <div onClick={onClick}
              style={style}
              className={`player ${localStorage.getItem("playerId") === player.id ? "me" : ""} 
+            ${started ? "started" : ""} 
             ${player.ready ? "ready" : ""} 
             ${player.isPlayersTurn ? "turn" : ""}
             ${player.life <= 0 ? "lost" : ""}               
@@ -55,12 +58,11 @@ const Player = ({player, choosing, onClick, style}) => {
             ${player.rank > 0 ? "has-rank" : ""}`}>
             {player.rank > 0 &&
                 <div className="player__rank" title={`Rank ${player.rank}`}>
-                    <img src={getRankIcon(player.rank)} alt={`Rank ${player.rank}`}/>
+                    <img src={rankIcon} alt={`Rank ${player.rank}`}/>
                 </div>
             }
-            <div className="life">
-                <div className={`life__bar life-${player.life}`}></div>
-                {player.life}
+            <div className={`life life-${player.life}`}>
+                {healthIcon}
             </div>
             <div className="name" title={player.username.length > 20 ? player.username : ""}>
                 <span>{player.username}</span>

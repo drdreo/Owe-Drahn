@@ -1,14 +1,14 @@
-import React, {Component} from "react";
 import {Route, Routes} from "react-router-dom";
-
-import withAuthentication from "./auth/Session/withAuthentication";
 
 import Home from "./home/Home";
 import Game from "./game/Game";
 
 import "./App.scss";
+import {useAuth} from "./auth/hooks/useAuth.js";
 
 const App = () => {
+    useAuth();
+
     return (
         <Routes>
             <Route path="/" element={<Home/>}/>
@@ -17,4 +17,4 @@ const App = () => {
     );
 };
 
-export default withAuthentication(App);
+export default App;

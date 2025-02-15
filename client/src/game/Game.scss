@@ -23,7 +23,10 @@ $rolled-dice-color: utils.$primary-color;
 
 .players-list {
     position: absolute;
-    top: calc(50%);
+    // Center both vertically and horizontally
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 
     &.circle-board {
         z-index: -1;
@@ -32,24 +35,26 @@ $rolled-dice-color: utils.$primary-color;
         width: 100%;
     }
 
-}
+    // Optional: Add a subtle grid or guide circle
+    &::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 300px; // 2 * your translateY value
+        height: 300px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 50%;
+        pointer-events: none;
+    }
 
-.dice {
-    position: absolute;
-    top: 20%;
-    left: 50%;
-    transform: translateX(-50%);
-}
 
-.statistics {
-    display: flex;
-    top: 20vh;
-    position: absolute;
-    transform: translateY(-50%);
 }
 
 .current-value {
     font-size: 5rem;
+    font-weight: bold;
     color: white;
 
     &.warning {

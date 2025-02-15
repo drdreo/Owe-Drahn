@@ -1,0 +1,14 @@
+.statistics {
+    display: flex;
+    position: absolute;
+    // Center both vertically and horizontally
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+
+    .rolled-dice {
+        position: absolute;
+        left: -1.5rem;
+    }
+}

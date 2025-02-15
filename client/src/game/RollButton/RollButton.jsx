@@ -1,5 +1,3 @@
-import React, {Component} from "react";
-
 import "./RollButton.scss";
 
 const Roll = () => (
@@ -19,19 +17,17 @@ const Roll = () => (
 );
 
 
-class RollButton extends Component {
-    render() {
-        return (
-            <div className="roll-button-container">
-                <div
-                    className={`roll-button ${this.props.rolling ? "rolling" : ""} ${this.props.disabled ? "disabled" : ""}`}
-                    onClick={this.props.onClick}>
-                    <span className="text">Roll</span>
-                    <Roll/>
-                </div>
+const RollButton = (props) => {
+    return (
+        <div className="roll-button-container">
+            <div
+                className={`roll-button ${props.rolling ? "rolling" : ""} ${props.disabled ? "disabled" : ""}`}
+                onClick={props.onClick}>
+                <Roll/>
+                <span className="text">Roll</span>
             </div>
-        );
-    }
+        </div>
+    );
 }
 
 export default RollButton;

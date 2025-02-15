@@ -1,9 +1,5 @@
-/*eslint no-fallthrough: ["warn", { "commentPattern": "break omitted" }]*/
-
-import React, {useEffect, useRef, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
-import {Subject} from "rxjs";
-import {takeUntil} from "rxjs/operators";
 
 import diceRoller from "dice-roller-3d";
 import {Howl} from "howler";
@@ -13,8 +9,9 @@ import Player from "./Player/Player";
 import LifeLoseBtn from "./LifeLoseBtn/LifeLoseBtn";
 import Feed from "./Feed/Feed";
 import Settings from "../settings/Settings";
+import RolledDice from "./RolledDice/RolledDice.jsx";
 
-import {chooseNextPlayer, handshake, loseLife, ready, rollDice} from "../socket/socket.actions";
+import {chooseNextPlayer, loseLife, ready, rollDice} from "../socket/socket.actions";
 import {animatedDice} from "./game.actions";
 import {feedMessage} from "./Feed/feed.actions";
 
@@ -22,6 +19,7 @@ import "./Game.scss";
 import RollButton from "./RollButton/RollButton";
 import GameInfo from "./GameInfo/GameInfo";
 import {useNavigate, useParams} from "react-router-dom";
+import {useGameConnection} from "./useGameConnection.js";
 
 
 const MIN_VAL_TO_OWE_DRAHN = 10;
@@ -30,21 +28,23 @@ const Game = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const {room} = useParams();
-    const authUser = useSelector(state => state.auth.authUser); // Redux hook for state
+    useGameConnection(room);
+
     const settings = useSelector(state => state.settings);
-    const players = useSelector(state => state.game.players);
-    const rolledDice = useSelector(state => state.game.rolledDice);
-    const currentValue = useSelector(state => state.game.currentValue);
-    const ui_currentValue = useSelector(state => state.game.ui_currentValue);
-    const ui_players = useSelector(state => state.game.ui_players);
-    const started = useSelector(state => state.game.started);
-    const over = useSelector(state => state.game.over);
-    const rolledDice$ = useSelector(state => state.game.rolledDice$);
-    const gameError$ = useSelector(state => state.game.gameError$);
+    const {
+        diceRoll,
+        currentValue,
+        ui_currentValue,
+        ui_players,
+        players,
+        started,
+        over,
+        error
+    } = useSelector(state => state.game);
+
     const [animatingDice, setAnimatingDice] = useState(false);
     const [animatingHeart, setAnimatingHeart] = useState(false);
     const [isRolling, setIsRolling] = useState(false);
-    const unsubscribe$ = new Subject();
     const diceRef = useRef(null);
     const sfx = {
         yourTurn: {
@@ -61,47 +61,38 @@ const Game = () => {
     const isChoosing = player && player.isPlayersTurn && player.choosing;
 
     useEffect(() => {
-        doHandshake(room);
+        if (!diceRoll || animatingDice) return;
 
-        rolledDice$
-            .pipe(takeUntil(unsubscribe$))
-            .subscribe((data) => {
-                animateDice(data.dice, data.total)
-                    .then(() => {
-                        console.log(data);
-                        let msg;
-                        if (data.total > 15) {
-                            msg = {
-                                type: "LOST",
-                                username: data.player.username,
-                                dice: data.dice,
-                                total: data.total
-                            };
-                        } else if (!over) {
-                            msg = {
-                                type: "ROLLED_DICE",
-                                username: data.player.username,
-                                dice: data.dice,
-                                total: data.total
-                            };
-                        }
+        setAnimatingDice(true);
+        animateDice(diceRoll.dice, diceRoll.total)
+            .then(() => {
+                setAnimatingDice(false);
+                dispatch(animatedDice({
+                    dice: diceRoll.dice,
+                    total: diceRoll.total
+                }));
+                let msg;
+                if (diceRoll.total > 15) {
+                    msg = {
+                        type: "LOST",
+                        username: diceRoll.player.username,
+                        dice: diceRoll.dice,
+                        total: diceRoll.total
+                    };
+                } else if (!over) {
+                    msg = {
+                        type: "ROLLED_DICE",
+                        username: diceRoll.player.username,
+                        dice: diceRoll.dice,
+                        total: diceRoll.total
+                    };
+                }
 
-                        dispatch(feedMessage(msg));
-                    });
+                dispatch(feedMessage(msg));
             });
-
-        gameError$
-            .pipe(takeUntil(unsubscribe$))
-            .subscribe((error) => handleGameError(error));
-
-        return () => {
-            unsubscribe$.next();
-            unsubscribe$.complete();
-        };
-    }, []);
+    }, [diceRoll]);
 
     useEffect(() => {
-
         // Change global volume.
         // Howler.mute(!settings.sound.enabled);
 
@@ -109,7 +100,7 @@ const Game = () => {
 
         if (!animatingDice) {
             // If it's the player's turn and the sound hasn't played yet, play it
-            if (player.isPlayersTurn && !sfx.yourTurn.played) {
+            if (player.isPlayersTurn && !player.choosing && !sfx.yourTurn.played) {
                 sfx.yourTurn.played = true;
                 sfx.yourTurn.audio.play();
             }
@@ -121,29 +112,32 @@ const Game = () => {
         }
     }, [player, animatingDice, settings.sound.enabled]);
 
-    const handleGameError = (error) => {
+
+    useEffect(() => {
+        if (!error) {
+            return;
+        }
         console.error(error);
         switch (error.code) {
-            case "NO_GAME":
-                setTimeout(() => {
+            case "NO_GAME": {
+                const timer = setTimeout(() => {
                     navigate('/');
                 }, 2000);
-                break;
+                return () => clearTimeout(timer);
+            }
+
             case "NOT_ALLOWED":
             case "NOT_YOUR_TURN":
+                console.warn(error.message);
+                break;
             default:
-                console.warn(`gameError sent:[${error.message}] but isn't handled!`);
+                console.warn(`gameError: ${error.message} isn't handled!`);
         }
-    }
+    }, [error, navigate]);
 
     // getCurrentPlayer() {
     //     return players.find(player => player.isPlayersTurn);
     // }
-
-    const doHandshake = (room) => {
-        const uid = authUser ? authUser.uid : undefined;
-        dispatch(handshake(room, uid));
-    }
 
     const handleReady = () => {
         const isReady = !getPlayer().ready;
@@ -203,9 +197,19 @@ const Game = () => {
         });
     }
 
-    const getPlayerPosition = (index, totalPlayer) => {
-        const degrees = (360 / totalPlayer) * index;
-        return {transform: ` rotate(${degrees}deg) translateY(-90px) rotate(-${degrees}deg)`};
+    const getPlayerPosition = (index, totalPlayers) => {
+        const vw = Math.min(window.innerWidth, window.innerHeight);
+        const radius = vw < 800 ? vw * 0.35 : 250; // 30% of viewport on mobile, fixed on desktop
+        const degrees = (360 / totalPlayers) * index;
+        return {
+            transform: `
+            translateX(-50%)
+            translateY(-50%)
+            rotate(${degrees}deg) 
+            translateY(-${radius}px) 
+            rotate(-${degrees}deg)
+            `
+        };
     }
 
     // maybe is spectator
@@ -227,7 +231,6 @@ const Game = () => {
                 const isWaiting = !player.isPlayersTurn || animatingDice;
 
                 controlButton = (<div style={{display: "flex"}} className={`${isWaiting ? "waiting" : ""}`}>
-                    {/*<button disabled={isWaiting} className="button" onClick={() => handleRollDice()}>Roll</button>*/}
                     <RollButton rolling={isRolling} disabled={isWaiting} onClick={handleRollDice}/>
                     <LifeLoseBtn animating={animatingHeart}
                                  disabled={isWaiting || player.life <= 1 || ui_currentValue < MIN_VAL_TO_OWE_DRAHN}
@@ -238,20 +241,16 @@ const Game = () => {
         }
     }
 
-    const totalModifier = ui_currentValue > 15 ? "danger" : ui_currentValue >= 10 ? "warning" : "";
-
     return (
         <div className="page-container">
-            <div className="statistics">
-                <div className={`rolled-dice number-${rolledDice}`}>{rolledDice}</div>
-                <div className={`current-value ${totalModifier}`}>{ui_currentValue}</div>
-            </div>
+            <RolledDice/>
 
             {controls}
 
             <div className="players-list">
                 {ui_players.map((player, index) =>
                     <Player player={player}
+                            started={started}
                             choosing={isChoosing}
                             key={player.id}
                             style={getPlayerPosition(index, players.length)}

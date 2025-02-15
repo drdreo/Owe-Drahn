@@ -1,6 +1,6 @@
-import React, {useState} from "react";
+import {useState} from "react";
 
-import {withFirebase} from "../Firebase";
+import {useFirebase} from "../Firebase";
 
 const ERROR_CODE_ACCOUNT_EXISTS =
     "auth/account-exists-with-different-credential";
@@ -13,8 +13,9 @@ const ERROR_MSG_ACCOUNT_EXISTS = `
 `;
 
 
-const SignInGoogle = ({ firebase, className }) => {
+const SignInGoogle = ({className}) => {
     const [error, setError] = useState(null);
+    const firebase = useFirebase();
 
     const onSubmit = async (event) => {
         event.preventDefault();
@@ -50,5 +51,4 @@ const SignInGoogle = ({ firebase, className }) => {
     );
 };
 
-
-export default withFirebase(SignInGoogle);
+export default SignInGoogle;

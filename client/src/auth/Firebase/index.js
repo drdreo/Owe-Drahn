@@ -1,8 +1,9 @@
 import FirebaseContext from './context.jsx';
 import Firebase from './Firebase';
-import {withFirebase, useFirebase} from './hooks.jsx';
+import {useFirebase} from './hooks.jsx';
+import {FirebaseProvider} from './provider.jsx';
 
 
-export {FirebaseContext, withFirebase, useFirebase};
+export {FirebaseContext, useFirebase, FirebaseProvider};
 
 export default Firebase;

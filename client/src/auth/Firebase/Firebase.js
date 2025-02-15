@@ -39,7 +39,7 @@ class Firebase {
     doSignOut = () => this.auth.signOut();
 
     // *** Merge Auth and DB User API *** //
-    onAuthUserListener = (next, fallback) => {
+    onAuthUserListener = (cb, fallback) => {
         this.auth.onAuthStateChanged(async (authUser) => {
             if (authUser) {
                 const userRef = doc(this.firestore, "users", authUser.uid);
@@ -66,7 +66,7 @@ class Firebase {
                     ...dbUser
                 };
 
-                next(mergedUser);
+                cb(mergedUser);
             } else {
                 fallback();
             }

@@ -103,10 +103,10 @@ export class SocketGateway
     }
 
     @SubscribeMessage('handshake')
-    private playerHandshake(
+    private async playerHandshake(
         @ConnectedSocket() socket: Socket,
         @MessageBody() handshakeData: Handshake
-    ): void {
+    ): Promise<void> {
         const { room, playerId, uid } = handshakeData;
 
         this.clients.set(socket.id, handshakeData);
@@ -114,7 +114,7 @@ export class SocketGateway
             `New connection handshake from socket[${socket.id}] player[${playerId}] in room[${room}].${uid ? `LoggedIn[${uid}]` : ''}`
         );
 
-        const gameUpdate = this.socketService.playerHandshake(
+        const gameUpdate = await this.socketService.playerHandshake(
             room,
             playerId,
             uid
@@ -134,7 +134,12 @@ export class SocketGateway
 
     @SubscribeMessage('leave')
     private leave(@ConnectedSocket() socket: Socket): void {
-        const { room, playerId } = this.getClient(socket);
+        const client = this.getClient(socket);
+        if (!client) {
+            this.logger.warn(`Client not found for socket[${socket.id}]`);
+            return;
+        }
+        const { room, playerId } = client;
         const left = this.socketService.leave(room, playerId);
         if (left) {
             socket.leave(room);
@@ -180,7 +185,7 @@ export class SocketGateway
             'ready',
             'chooseNextPlayer'
         ];
-        for (let event of gameEvents) {
+        for (const event of gameEvents) {
             socket.removeAllListeners(event);
         }
     }

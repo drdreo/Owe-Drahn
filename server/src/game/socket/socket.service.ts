@@ -79,14 +79,14 @@ export class SocketService implements OnModuleDestroy {
      * @param [uid] - The clients UID
      * @returns GameUpdate data if the game was found, or undefined
      */
-    playerHandshake(
+    async playerHandshake(
         room: string,
         playerId: string,
         uid?: string
-    ): GameUpdate | undefined {
+    ): Promise<GameUpdate | undefined> {
         if (this.gameService.hasGame(room)) {
             if (this.gameService.isPlayerOfGame(room, playerId)) {
-                this.gameService.connect(room, playerId, uid);
+                await this.gameService.connect(room, playerId, uid);
             }
             return this.gameService.getGameUpdate(room);
         }
