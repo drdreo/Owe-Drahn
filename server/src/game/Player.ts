@@ -1,3 +1,5 @@
+import {PlayerStats} from "./game.utils";
+
 export type FormattedPlayer = {
     life: number;
     points: number;
@@ -5,18 +7,6 @@ export type FormattedPlayer = {
     username: string;
     rank: number;
 }
-
-export type PlayerStats = {
-    maxLifeLoss: number;
-    id: string;
-    rolledDice: number[];
-    perfectRoll: number;
-    worstRoll: number;
-    luckiestRoll: number;
-    totalGames: number;
-    rolled21: number;
-    wins: number;
-};
 
 export class Player {
     isPlayersTurn: boolean = false;

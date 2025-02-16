@@ -1,8 +1,9 @@
-import {FormattedPlayer, Player, PlayerStats} from './Player';
+import {FormattedPlayer, Player} from './Player';
 import { Subject } from 'rxjs';
 import { Command } from './Command';
 import { GameError, GameErrorCode } from './GameError';
 import { FirestoreDate } from '../db/db.service';
+import {PlayerStats} from "./game.utils";
 
 export interface Rolls {
     player: FormattedPlayer;
@@ -244,14 +245,11 @@ export class Game {
         const player = this.getPlayer(playerId);
         if (this.isPlayersTurn(playerId)) {
             const dice = random(1, 6);
-            let total;
-
             // Rule of 3, doesn't count
             if (dice != 3) {
                 this.currentValue += dice;
             }
-            total = this.currentValue;
-
+            const total = this.currentValue;
             this.rolls.push({
                 player: player.getFormattedPlayer(),
                 dice,

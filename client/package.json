@@ -35,6 +35,7 @@
         "react-dom": "^19.0.0",
         "react-redux": "^9.2.0",
         "react-router-dom": "^7.1.5",
+        "react-tooltip": "^5.28.0",
         "redux": "^5.0.1",
         "socket.io-client": "^4.8.1",
         "uifx": "^2.0.7",
