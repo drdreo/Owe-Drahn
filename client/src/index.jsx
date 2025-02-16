@@ -1,9 +1,9 @@
-import {prod} from "./environment";
-
 import {createRoot} from 'react-dom/client';
 import {Provider} from "react-redux";
 import {createBrowserHistory} from "history";
-import {applyMiddleware, createStore} from '@reduxjs/toolkit';
+import {applyMiddleware} from '@reduxjs/toolkit';
+import { legacy_createStore as createStore} from 'redux'
+import {BrowserRouter} from "react-router-dom";
 
 import {FirebaseProvider} from './auth/Firebase';
 
@@ -12,30 +12,18 @@ import App from "./App.jsx";
 
 import * as serviceWorker from "./serviceWorker";
 import connectSocket from "./socket/socket";
-
-import {allReducers} from "./reducers";
+import {createRootReducer} from "./reducers";
 import {settingsMiddleware} from "./settings/settings.middleware";
-import analyticsMiddleware from "./analytics/analytics.middleware";
-
-import {initGa} from "./analytics/ga";
 import {feedMiddleware} from "./game/Feed/feed.middleware";
-import {BrowserRouter} from "react-router-dom";
 
 export const history = createBrowserHistory();
 
-
-if (prod) {
-    initGa(history);
-}
-
-
 const store = createStore(
-    allReducers(history),
+    createRootReducer(history),
     {}, (
         applyMiddleware(
             settingsMiddleware,
-            feedMiddleware,
-            analyticsMiddleware
+            feedMiddleware
         )
     ));
 
