@@ -91,6 +91,10 @@ const Home = () => {
                 if (response.data) {
                     setOverview(response.data);
                 }
+            })
+            .catch((error) => {
+                console.error("Error fetching overview:", error);
+                setFormError("Failed to connect to game server. Please try again later.");
             });
     };
 

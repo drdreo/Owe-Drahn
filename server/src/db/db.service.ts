@@ -1,5 +1,5 @@
 import * as admin from 'firebase-admin';
-import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
+import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
 import { FormattedGame, Game } from '../game/Game';
 import { Environment, EnvironmentService } from '../environment.service';
 import {
@@ -8,8 +8,7 @@ import {
     mergeStats,
     PlayerStats
 } from '../game/game.utils';
-import { Logger } from '../utils/logger/logger.decorator';
-import { LoggerService } from '../utils/logger/logger.service';
+import * as fs from 'node:fs';
 
 export interface FirestoreDate {
     _seconds: number;
@@ -19,11 +18,9 @@ export interface FirestoreDate {
 @Injectable()
 export class DBService implements OnApplicationBootstrap {
     firestore: FirebaseFirestore.Firestore;
+    private logger = new Logger(DBService.name);
 
-    constructor(
-        @Logger('DBService') private logger: LoggerService,
-        private environmentService: EnvironmentService
-    ) {
+    constructor(private environmentService: EnvironmentService) {
         this.logger.log('DBService - Constructed!');
     }
 
@@ -32,10 +29,12 @@ export class DBService implements OnApplicationBootstrap {
         if (this.environmentService.env === Environment.production) {
             serviceAccount = JSON.parse(process.env.GCS_CREDENTIALS);
         } else {
-            serviceAccount = require(
-                this.environmentService.credentialsDir + '/tmp.json'
+            serviceAccount = JSON.parse(
+                fs.readFileSync(
+                    this.environmentService.credentialsDir + '/tmp.json',
+                    'utf-8'
+                )
             );
-            // serviceAccount = require('../../../credentials/owe-drahn-95b28ef424c4.json');
         }
         this.logger.log('Google service account loaded');
 
@@ -97,22 +96,14 @@ export class DBService implements OnApplicationBootstrap {
         return this.firestore.collection('users').doc(uid).get();
     }
 
-    async getPlayersRank(uid: string): Promise<number> {
+    async getPlayersStatistics(uid: string): Promise<PlayerStats | undefined> {
         const doc = await this.getUserSnapshot(uid);
-
         if (!doc.exists) {
             this.logger.error('No such user!');
-            return 0;
-        } else {
-            const user = doc.data();
-            if (user.stats) {
-                return (
-                    Math.floor(user.stats.totalGames / 10) +
-                    user.stats.totalGames
-                );
-            } else {
-                return 0;
-            }
+            return;
         }
+
+        const user = doc.data();
+        return user.stats;
     }
 }

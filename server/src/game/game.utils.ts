@@ -1,15 +1,19 @@
 import { FormattedGame, Game } from './Game';
 
 export interface PlayerStats {
-    rolledDice: number[];
+    rolledDice: number[]; // amount of times rolled 1-6
     wins: number;
     totalGames: number;
     perfectRoll: number; // rolling from 9 to 15
     luckiestRoll: number; // rolling 3 at 15
-    worstRoll: number; // Rolling a 6 at 10
+    worstRoll: number; // rolling a 6 at 10
     rolled21: number; // rolling 6 at 15
     maxLifeLoss: number; // losing with 6 life left
 }
+
+export type PlayerStatAggregation = Omit<PlayerStats, 'wins' | 'totalGames'> & {
+    won: boolean;
+};
 
 export const defaultStats: PlayerStats = {
     rolledDice: [0, 0, 0, 0, 0, 0],
@@ -22,9 +26,12 @@ export const defaultStats: PlayerStats = {
     maxLifeLoss: 0
 };
 
-export function extractPlayerStats(uid: string, game: FormattedGame) {
+export function extractPlayerStats(
+    uid: string,
+    game: FormattedGame
+): PlayerStatAggregation {
     console.log('extracting: ' + uid);
-    const aggregation = {
+    const aggregation: PlayerStatAggregation = {
         rolledDice: [0, 0, 0, 0, 0, 0],
         won: false,
         perfectRoll: 0,
@@ -89,7 +96,7 @@ export function extractPlayerGames(uid: string, games: FormattedGame[]) {
 
 export function extractPlayerRollsOfGames(uid: string, games: Game[]) {
     const playerRolls = [];
-    for (let game of games) {
+    for (const game of games) {
         // aggregate all own rolls
         playerRolls.push(
             ...game.getRolls().reduce((total, cur) => {
@@ -103,18 +110,21 @@ export function extractPlayerRollsOfGames(uid: string, games: Game[]) {
     return playerRolls;
 }
 
-export function mergeStats(_oldStats, newStats) {
-    let oldStats = { ..._oldStats };
-    oldStats.perfectRoll += newStats.perfectRoll;
-    oldStats.luckiestRoll += newStats.luckiestRoll;
-    oldStats.worstRoll += newStats.worstRoll;
-    oldStats.rolled21 += newStats.rolled21;
-    oldStats.maxLifeLoss += newStats.maxLifeLoss;
-    oldStats.wins = newStats.won ? oldStats.wins + 1 : oldStats.wins;
-    oldStats.totalGames++;
+export function mergeStats(
+    oldStats: PlayerStats,
+    newStats: PlayerStatAggregation
+): PlayerStats {
+    const stats = { ...oldStats };
+    stats.perfectRoll += newStats.perfectRoll;
+    stats.luckiestRoll += newStats.luckiestRoll;
+    stats.worstRoll += newStats.worstRoll;
+    stats.rolled21 += newStats.rolled21;
+    stats.maxLifeLoss += newStats.maxLifeLoss;
+    stats.wins = newStats.won ? oldStats.wins + 1 : oldStats.wins;
+    stats.totalGames++;
     for (let i = 0; i < 6; i++) {
-        oldStats.rolledDice[i] += newStats.rolledDice[i];
+        stats.rolledDice[i] += newStats.rolledDice[i];
     }
 
-    return oldStats;
+    return stats;
 }

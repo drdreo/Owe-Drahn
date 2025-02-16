@@ -1,4 +1,4 @@
-import { FormattedPlayer, Player } from './Player';
+import {FormattedPlayer, Player, PlayerStats} from './Player';
 import { Subject } from 'rxjs';
 import { Command } from './Command';
 import { GameError, GameErrorCode } from './GameError';
@@ -281,15 +281,15 @@ export class Game {
         }
     }
 
-    connect(playerId: string, uid?: string, rank?: number) {
+    setStatsOnPlayer(playerId: string, uid?: string, stats?: PlayerStats) {
         const player = this.getPlayer(playerId);
         if (player) {
             player.connected = true;
             if (uid) {
                 console.log(`User[${uid}] connected to player[${playerId}]`);
                 player.uid = uid;
-                if (rank) {
-                    player.rank = rank;
+                if (stats) {
+                    player.stats = stats;
                 }
             }
         } else {

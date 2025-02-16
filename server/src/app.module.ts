@@ -7,7 +7,6 @@ import { UserController } from './user/user.controller';
 import { DBService } from './db/db.service';
 import { EnvironmentService } from './environment.service';
 import { GameService } from './game/game.service';
-import { LoggerModule } from './utils/logger/logger.module';
 import { SocketGateway } from './game/socket/socket.gateway';
 import { SocketService } from './game/socket/socket.service';
 
@@ -17,8 +16,7 @@ console.log(EnvironmentService.frontendPath);
     imports: [
         ServeStaticModule.forRoot({
             rootPath: EnvironmentService.frontendPath
-        }),
-        LoggerModule.forRoot()
+        })
     ],
     controllers: [AppController, UserController, GameController],
     providers: [

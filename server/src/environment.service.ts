@@ -1,7 +1,5 @@
-import { Injectable } from '@nestjs/common';
+import {Injectable, Logger} from '@nestjs/common';
 import * as path from 'path';
-import { LoggerService } from './utils/logger/logger.service';
-import { Logger } from './utils/logger/logger.decorator';
 
 export enum Environment {
     development = 'development',
@@ -20,7 +18,9 @@ export class EnvironmentService {
     private readonly _env = process.env.NODE_ENV || Environment.development;
     private readonly _port = process.env.PORT || 4000;
 
-    constructor(@Logger('EnvironmentService') private logger: LoggerService) {
+    private logger = new Logger(EnvironmentService.name);
+
+    constructor() {
         this.logger.log('EnvironmentService - Constructed!');
     }
 

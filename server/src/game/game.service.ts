@@ -1,11 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import {Injectable, Logger} from '@nestjs/common';
 import { Game } from './Game';
 import { Observable } from 'rxjs';
 import { Command } from './Command';
 import { DBService } from '../db/db.service';
 import { tap } from 'rxjs/operators';
-import { LoggerService } from '../utils/logger/logger.service';
-import { Logger } from '../utils/logger/logger.decorator';
 
 interface Room {
     room: string;
@@ -20,18 +18,15 @@ export interface GamesOverview {
 @Injectable()
 export class GameService {
     private games = new Map<string, Game>();
+    private logger = new Logger(GameService.name);
 
-    constructor(
-        @Logger('GameService') private logger: LoggerService,
-        private readonly dbService: DBService
-    ) {
+    constructor(private readonly dbService: DBService) {
         this.logger.log('constructed!');
     }
 
     /**
      * Helpers
      */
-
     createGame(room: string): void {
         this.games.set(room, new Game());
     }
@@ -42,7 +37,7 @@ export class GameService {
 
     getGamesOverview(): GamesOverview {
         let totalPlayers = 0;
-        let rooms = [];
+        const rooms = [];
 
         this.games.forEach((game, room) => {
             rooms.push({ room, started: game.started });
@@ -60,15 +55,15 @@ export class GameService {
     }
 
     removeIfPlayer(playerId: string): boolean {
-        let playersRoom;
-        for (let [room, game] of this.games) {
+        let playersRoom = false;
+        for (const [room, game] of this.games) {
             if (game.isPlayer(playerId)) {
-                playersRoom = room;
+                playersRoom = !!room;
                 this.leave(room, playerId);
                 break;
             }
         }
-        return !!playersRoom;
+        return playersRoom;
     }
 
     isPlayerOfGame(room: string, playerId: string): boolean {
@@ -107,7 +102,7 @@ export class GameService {
      */
 
     /**
-     * If the Player was a registered Player, we query necessary data from DB and set it on the player. Rank only currently.
+     * If the Player was a registered Player, we query necessary data from DB and set it on the player.
      *
      * @param room - The room key
      * @param playerId - The players Id for this game
@@ -116,11 +111,11 @@ export class GameService {
     async connect(room: string, playerId: string, uid?: string) {
         this.logger.debug(`room[${room}][${playerId}] connect`);
 
-        let rank = undefined;
+        let stats = undefined;
         if (uid) {
-            rank = await this.dbService.getPlayersRank(uid);
+            stats = await this.dbService.getPlayersStatistics(uid);
         }
-        this.getGame(room).connect(playerId, uid, rank);
+        this.getGame(room).setStatsOnPlayer(playerId, uid, stats);
     }
 
     disconnect(room: string, playerId: string): void {

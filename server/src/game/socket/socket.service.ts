@@ -1,8 +1,6 @@
-import { Injectable, OnModuleDestroy } from '@nestjs/common';
+import { Injectable, Logger, OnModuleDestroy } from '@nestjs/common';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { Logger } from '../../utils/logger/logger.decorator';
-import { LoggerService } from '../../utils/logger/logger.service';
 import { Command } from '../Command';
 import { GameUpdate } from '../Game';
 
@@ -18,11 +16,9 @@ export class SocketService implements OnModuleDestroy {
     messages$ = this._messages$.asObservable();
 
     private unsubscribe$ = new Subject<void>();
+    private logger = new Logger(SocketService.name);
 
-    constructor(
-        @Logger('SocketService') private logger: LoggerService,
-        private readonly gameService: GameService
-    ) {
+    constructor(private readonly gameService: GameService) {
         this.logger.log('constructed!');
     }
 

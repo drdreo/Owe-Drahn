@@ -9,13 +9,11 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { allowlist } from '../../allow-list';
-import { LoggerService } from '../../utils/logger/logger.service';
-import { Logger } from '../../utils/logger/logger.decorator';
 import { GameErrorCode } from '../GameError';
 import { SocketService } from './socket.service';
 import { takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
-import { OnModuleDestroy } from '@nestjs/common';
+import {Logger, OnModuleDestroy} from '@nestjs/common';
 
 interface Handshake {
     playerId: string;
@@ -51,10 +49,11 @@ export class SocketGateway
 
     clients: Map<string, Handshake> = new Map();
 
+    private logger = new Logger(SocketGateway.name);
+
     private unsubscribe$ = new Subject<void>();
 
     constructor(
-        @Logger('SocketGateway') private logger: LoggerService,
         private readonly socketService: SocketService
     ) {
         this.socketService.messages$
