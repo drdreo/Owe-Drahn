@@ -7,6 +7,7 @@
     "scripts": {
         "prebuild": "rimraf dist",
         "build": "nest build",
+        "build:prod": "nest build && pnpm sentry:sourcemaps",
         "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
         "start": "nest start",
         "start:dev": "nest start --watch",
@@ -17,7 +18,8 @@
         "test:watch": "jest --watch",
         "test:cov": "jest --coverage",
         "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-        "test:e2e": "jest --config ./test/jest-e2e.json"
+        "test:e2e": "jest --config ./test/jest-e2e.json",
+        "sentry:sourcemaps": "sentry-cli sourcemaps inject --org drdreo --project owe-drahn-server ./dist && sentry-cli sourcemaps upload --org drdreo --project owe-drahn-server ./dist"
     },
     "dependencies": {
         "@nestjs/cli": "^11.0.2",
@@ -27,6 +29,7 @@
         "@nestjs/platform-socket.io": "^11.0.9",
         "@nestjs/serve-static": "^5.0.2",
         "@nestjs/websockets": "^11.0.9",
+        "@sentry/cli": "^2.42.2",
         "@sentry/nestjs": "^9.3.0",
         "@sentry/profiling-node": "^9.3.0",
         "body-parser": "^1.20.3",
@@ -43,7 +46,8 @@
         "ts-loader": "^9.5.2",
         "ts-node": "^10.9.2",
         "tsconfig-paths": "^4.2.0",
-        "typescript": "^5.7.3"
+        "typescript": "^5.7.3",
+        "uuid": "^11.1.0"
     },
     "devDependencies": {
         "@eslint/js": "^9.20.0",

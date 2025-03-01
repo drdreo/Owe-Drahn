@@ -1,5 +1,5 @@
 // IMPORTANT: Make sure to import `instrument.ts` at the top of your file.
-import "./instrument.ts";
+import "./instrument";
 // --------------
 import { NestFactory } from '@nestjs/core';
 import * as session from 'express-session';
@@ -13,7 +13,7 @@ async function bootstrap() {
     const app = await NestFactory.create(AppModule);
     app.enableCors({
         credentials: true,
-        origin: (origin: string, callback: Function) => {
+        origin: (origin: string, callback: (...args: object[]) => void) => {
             console.log(origin);
             if (allowlist.indexOf(origin) !== -1 || !origin) {
                 callback(null, { origin: true });
