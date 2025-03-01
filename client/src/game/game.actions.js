@@ -1,3 +1,5 @@
+export const ROLLED_DICE = "ROLLED_DICE";
+
 export const gameReset = () => {
     return {
         type: "GAME_RESET"
@@ -61,6 +63,14 @@ export const lostLife = () => {
 export const playerLost = (data) => {
     return {
         type: "PLAYER_LOST",
+        payload: data
+    };
+};
+
+
+export const rolledDice = (data) => {
+    return {
+        type: ROLLED_DICE,
         payload: data
     };
 };

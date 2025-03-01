@@ -59,6 +59,9 @@ export class GameController {
             this.gameService.joinGame(room, playerId, username);
         }
 
+        if (!error) {
+            this.socketService.sendGameOverview();
+        }
         return { error, playerId };
     }
 

@@ -10,7 +10,7 @@
   "scripts": {
     "start": "cd server && npm run start:prod",
     "dev:client": "cd client && npm run start",
-    "dev:server": "cd server && npm run start:dev",
+    "dev:server": "cd server && npm run dev",
     "build": "npm run build:client && npm run build:server",
     "build:client": "cd client && npm run build",
     "build:server": "cd server && npm run build",

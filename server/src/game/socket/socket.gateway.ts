@@ -13,7 +13,7 @@ import { GameErrorCode } from '../GameError';
 import { SocketService } from './socket.service';
 import { takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
-import {Logger, OnModuleDestroy} from '@nestjs/common';
+import { Logger, OnModuleDestroy } from '@nestjs/common';
 
 interface Handshake {
     playerId: string;
@@ -22,9 +22,9 @@ interface Handshake {
 }
 
 export interface SocketMessage {
-    room: string;
     eventName: string;
-    data: unknown;
+    data?: unknown;
+    room?: string;
 }
 
 @WebSocketGateway({
@@ -53,13 +53,16 @@ export class SocketGateway
 
     private unsubscribe$ = new Subject<void>();
 
-    constructor(
-        private readonly socketService: SocketService
-    ) {
+    constructor(private readonly socketService: SocketService) {
         this.socketService.messages$
             .pipe(takeUntil(this.unsubscribe$))
             .subscribe((message: SocketMessage) => {
-                this.emitToRoom(message.room, message.eventName, message.data);
+                const { room, eventName, data } = message;
+                if (room) {
+                    this.emitToRoom(room, eventName, data);
+                } else {
+                    this.server.emit(eventName, data);
+                }
             });
     }
 
@@ -96,7 +99,7 @@ export class SocketGateway
 
     // send too all clients in room
     private emitToRoom(room: string, eventName: string, data?: unknown) {
-        this.logger.debug(`emitting to room[${room}] ${eventName}`);
+        this.logger.verbose(`emitting to room[${room}] ${eventName}`);
 
         this.server.in(room).emit(eventName, data);
     }
@@ -135,7 +138,6 @@ export class SocketGateway
     private leave(@ConnectedSocket() socket: Socket): void {
         const client = this.getClient(socket);
         if (!client) {
-            this.logger.warn(`Client not found for socket[${socket.id}]`);
             return;
         }
         const { room, playerId } = client;
@@ -175,17 +177,17 @@ export class SocketGateway
         this.socketService.chooseNextPlayer(room, playerId, nextPlayerId);
     }
 
-    removeListener(socket) {
-        const gameEvents = [
-            'loseLife',
-            'rollDice',
-            'leave',
-            'disconnect',
-            'ready',
-            'chooseNextPlayer'
-        ];
-        for (const event of gameEvents) {
-            socket.removeAllListeners(event);
-        }
-    }
+    // removeListener(socket) {
+    //     const gameEvents = [
+    //         'loseLife',
+    //         'rollDice',
+    //         'leave',
+    //         'disconnect',
+    //         'ready',
+    //         'chooseNextPlayer'
+    //     ];
+    //     for (const event of gameEvents) {
+    //         socket.removeAllListeners(event);
+    //     }
+    // }
 }

@@ -1,21 +1,26 @@
-import {rolledDice} from "./socket.actions";
+import {feedMessage} from "../game/Feed/feed.actions";
 import {
     gameError,
     gameInit,
     gameOver,
     gameStarted,
     gameUpdate,
-    playerUpdate,
     lostLife,
-    playerLeft
+    playerLeft,
+    playerUpdate,
+    rolledDice
 } from "../game/game.actions";
-import {feedMessage} from "../game/Feed/feed.actions";
+import {gameOverview} from "../home/home.actions.js";
 
 export default (store) => {
     const {socket} = store.getState().socket;
 
     socket.on("connect", () => console.log("Socket connected!"));
     socket.on("disconnect", () => console.log("Socket disconnected!"));
+
+    socket.on("gameOverview", (data) => {
+        store.dispatch(gameOverview(data));
+    });
 }
 
 export const initializeGameSocketListeners = (socket, dispatch) => {

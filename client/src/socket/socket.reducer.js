@@ -14,7 +14,8 @@ const io = socketIOClient(SERVER_URL, {
     withCredentials: true
 });
 
-const socketReducer = (state = {socket: io}, action) => {
+const initialState = {socket: io};
+const socketReducer = (state = initialState, action) => {
     switch (action.type) {
         case "GAME_RESET":
             state.socket.emit("leave");

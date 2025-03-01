@@ -1,4 +1,4 @@
-import {applyMiddleware} from '@reduxjs/toolkit';
+import {applyMiddleware, compose} from '@reduxjs/toolkit';
 import * as Sentry from "@sentry/react";
 import {createBrowserHistory} from "history";
 import {createRoot} from 'react-dom/client';
@@ -23,14 +23,22 @@ Sentry.init({
 
 export const history = createBrowserHistory();
 
+const composeEnhancers =
+    typeof window === 'object' &&
+    window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ ?
+        window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({}) : compose;
+
+const enhancer = composeEnhancers(
+    applyMiddleware(
+        settingsMiddleware,
+        feedMiddleware
+    )
+);
+
 const store = createStore(
     createRootReducer(history),
-    {}, (
-        applyMiddleware(
-            settingsMiddleware,
-            feedMiddleware
-        )
-    ));
+    enhancer
+);
 
 // connect the socket to the store.
 connectSocket(store);

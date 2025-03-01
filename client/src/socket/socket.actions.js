@@ -1,7 +1,6 @@
 export const CONNECTION_HANDSHAKE = "CONNECTION_HANDSHAKE";
 export const PLAYER_READY = "PLAYER_READY";
 export const PLAYER_ROLL_DICE = "PLAYER_ROLL_DICE";
-export const ROLLED_DICE = "ROLLED_DICE";
 export const PLAYER_LOSE_LIFE = "PLAYER_LOSE_LIFE";
 export const PLAYER_CHOOSE_NEXT = "PLAYER_CHOOSE_NEXT";
 
@@ -22,13 +21,6 @@ export const ready = (ready) => {
 export const rollDice = () => {
     return {
         type: PLAYER_ROLL_DICE
-    };
-};
-
-export const rolledDice = (data) => {
-    return {
-        type: ROLLED_DICE,
-        payload: data
     };
 };
 

@@ -63,14 +63,8 @@ const Game = () => {
     useEffect(() => {
         if (!diceRoll || animatingDice) return;
 
-        setAnimatingDice(true);
         animateDice(diceRoll.dice, diceRoll.total)
             .then(() => {
-                setAnimatingDice(false);
-                dispatch(animatedDice({
-                    dice: diceRoll.dice,
-                    total: diceRoll.total
-                }));
                 let msg;
                 if (diceRoll.total > 15) {
                     msg = {
@@ -146,7 +140,7 @@ const Game = () => {
 
     const handleRollDice = () => {
         const player = getPlayer();
-        if (player.isPlayersTurn) {
+        if (player.isPlayersTurn && !animatingDice) {
             if (!isRolling) {
                 setIsRolling(true);
                 setTimeout(() => {

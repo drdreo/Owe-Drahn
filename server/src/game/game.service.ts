@@ -1,6 +1,6 @@
 import {Injectable, Logger} from '@nestjs/common';
 import { Game } from './Game';
-import { Observable } from 'rxjs';
+import {Observable, Subject} from 'rxjs';
 import { Command } from './Command';
 import { DBService } from '../db/db.service';
 import { tap } from 'rxjs/operators';
@@ -19,6 +19,8 @@ export interface GamesOverview {
 export class GameService {
     private games = new Map<string, Game>();
     private logger = new Logger(GameService.name);
+
+    events$ = new Subject<{eventName: string, data?: unknown}>();
 
     constructor(private readonly dbService: DBService) {
         this.logger.log('constructed!');
@@ -109,7 +111,7 @@ export class GameService {
      * @param [uid] - The clients UID
      */
     async connect(room: string, playerId: string, uid?: string) {
-        this.logger.debug(`room[${room}][${playerId}] connect`);
+        this.logger.debug(`room[${room}]: [${playerId}] connect`);
 
         let stats = undefined;
         if (uid) {
@@ -119,7 +121,7 @@ export class GameService {
     }
 
     disconnect(room: string, playerId: string): void {
-        this.logger.debug(`room[${room}][${playerId}] disconnect`);
+        this.logger.debug(`room[${room}]: [${playerId}] disconnect`);
 
         const game = this.getGame(room);
         if (game) {
@@ -132,7 +134,7 @@ export class GameService {
     }
 
     leave(room: string, playerId: string): boolean {
-        this.logger.debug(`room[${room}][${playerId}] leaving`);
+        this.logger.debug(`room[${room}]: [${playerId}] leaving`);
 
         const game = this.getGame(room);
         if (game) {
@@ -141,6 +143,7 @@ export class GameService {
             if (!game.hasPlayers()) {
                 this.logger.debug(`Removing game[${room}]`);
                 this.games.delete(room);
+                this.events$.next({ eventName: 'gameRemoved', data: room });
             }
             return true;
         }
@@ -148,22 +151,22 @@ export class GameService {
     }
 
     ready(room: string, playerId: string, ready: boolean): void {
-        this.logger.debug(`room[${room}] ready up`);
+        this.logger.debug(`room[${room}]: player[${playerId}] ready up`);
         this.getGame(room).ready(playerId, ready);
     }
 
     rollDice(room: string, playerId: string) {
-        this.logger.debug(`room[${room}] rolling dice`);
+        this.logger.debug(`room[${room}]: player[${playerId}] rolling dice`);
         return this.getGame(room).rollDice(playerId);
     }
 
     loseLife(room: string, playerId: string) {
-        this.logger.debug(`room[${room}] losing life`);
+        this.logger.debug(`room[${room}]: player[${playerId}] losing life`);
         return this.getGame(room).loseLife(playerId);
     }
 
     chooseNextPlayer(room: string, playerId: string, nextPlayerId: string) {
-        this.logger.debug(`room[${room}]: choosing next player`);
+        this.logger.debug(`room[${room}]: player[${playerId}] choosing next player`);
         return this.getGame(room).chooseNextPlayer(playerId, nextPlayerId);
     }
 }

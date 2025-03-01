@@ -10,12 +10,13 @@ import {debounce} from "../utils/helpers";
 const API_URL = import.meta.env.VITE_API_URL;
 
 import "./Home.scss";
+import {gameOverview} from "./home.actions.js";
 
 const Home = () => {
     const [room, setRoom] = useState("");
     const [username, setUsername] = useState("");
     const [usernameSetFromDB, setUsernameSetFromDB] = useState(false);
-    const [overview, setOverview] = useState({rooms: [], totalPlayers: 0});
+    const overview = useSelector((state) => state.home.overview);
     const [formError, setFormError] = useState("");
 
     const navigate = useNavigate();
@@ -89,7 +90,7 @@ const Home = () => {
             .get(`${API_URL}/games/overview`, {withCredentials: true})
             .then((response) => {
                 if (response.data) {
-                    setOverview(response.data);
+                    dispatch(gameOverview(response.data));
                 }
             })
             .catch((error) => {

@@ -5,14 +5,11 @@ import { Command } from '../Command';
 import { GameUpdate } from '../Game';
 
 import { GameService } from '../game.service';
+import { SocketMessage } from './socket.gateway';
 
 @Injectable()
 export class SocketService implements OnModuleDestroy {
-    private _messages$ = new Subject<{
-        room: string;
-        eventName: string;
-        data: any;
-    }>();
+    private _messages$ = new Subject<SocketMessage>();
     messages$ = this._messages$.asObservable();
 
     private unsubscribe$ = new Subject<void>();
@@ -20,12 +17,24 @@ export class SocketService implements OnModuleDestroy {
 
     constructor(private readonly gameService: GameService) {
         this.logger.log('constructed!');
+
+        this.gameService.events$.subscribe(({ eventName }) => {
+            switch (eventName) {
+                case 'gameRemoved':
+                    this.sendGameOverview();
+                    break;
+            }
+        });
     }
 
     onModuleDestroy() {
         this.unsubscribe$.next();
         this.unsubscribe$.complete();
         this.logger.log('destroyed!');
+    }
+
+    broadcast(eventName: string, data?: unknown) {
+        this._messages$.next({ eventName, data });
     }
 
     emitToRoom(room: string, eventName: string, data?: unknown) {
@@ -41,6 +50,10 @@ export class SocketService implements OnModuleDestroy {
             .getGameCommand(room)
             .pipe(takeUntil(this.unsubscribe$))
             .subscribe((command: Command) => {
+                // when we remove the game, update the home overview of all clients
+                if (command.eventName === 'gameRemoved') {
+                    this.sendGameOverview();
+                }
                 this.emitToRoom(room, command.eventName, command.data);
             });
     }
@@ -103,5 +116,10 @@ export class SocketService implements OnModuleDestroy {
 
     chooseNextPlayer(room: string, playerId: string, nextPlayerId: string) {
         this.gameService.chooseNextPlayer(room, playerId, nextPlayerId);
+    }
+
+    sendGameOverview() {
+        const overview = this.gameService.getGamesOverview();
+        this.broadcast('gameOverview', overview);
     }
 }
