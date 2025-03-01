@@ -1,4 +1,6 @@
 import { Module } from '@nestjs/common';
+import { APP_FILTER } from '@nestjs/core';
+import { SentryGlobalFilter, SentryModule } from '@sentry/nestjs/setup';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ServeStaticModule } from '@nestjs/serve-static';
@@ -16,7 +18,8 @@ console.log(EnvironmentService.frontendPath);
     imports: [
         ServeStaticModule.forRoot({
             rootPath: EnvironmentService.frontendPath
-        })
+        }),
+        SentryModule.forRoot()
     ],
     controllers: [AppController, UserController, GameController],
     providers: [
@@ -25,7 +28,11 @@ console.log(EnvironmentService.frontendPath);
         DBService,
         SocketGateway,
         SocketService,
-        GameService
+        GameService,
+        {
+            provide: APP_FILTER,
+            useClass: SentryGlobalFilter
+        }
     ]
 })
 export class AppModule {}

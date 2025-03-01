@@ -1,3 +1,6 @@
+// IMPORTANT: Make sure to import `instrument.ts` at the top of your file.
+import "./instrument.ts";
+// --------------
 import { NestFactory } from '@nestjs/core';
 import * as session from 'express-session';
 import { allowlist } from "./allow-list";
