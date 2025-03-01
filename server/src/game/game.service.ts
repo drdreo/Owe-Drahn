@@ -113,7 +113,7 @@ export class GameService {
 
         let stats = undefined;
         if (uid) {
-            stats = await this.dbService.getPlayersStatistics(uid);
+            stats = await this.dbService.getPlayerStats(uid);
         }
         this.getGame(room).setStatsOnPlayer(playerId, uid, stats);
     }

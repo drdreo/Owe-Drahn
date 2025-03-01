@@ -10,7 +10,7 @@ export class UserController {
 
     @Get('/rank')
     async getPlayersRank(@Param('uid') uid: string) {
-        return await this.dbService.getPlayersStatistics(uid);
+        return await this.dbService.getPlayerStats(uid);
     }
 
     @Get()

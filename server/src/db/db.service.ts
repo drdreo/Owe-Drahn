@@ -1,3 +1,4 @@
+import { SentryTraced } from '@sentry/nestjs';
 import * as admin from 'firebase-admin';
 import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
 import { FormattedGame, Game } from '../game/Game';
@@ -46,6 +47,7 @@ export class DBService implements OnApplicationBootstrap {
         this.logger.log('firestore initialized');
     }
 
+    @SentryTraced('Store Game')
     storeGame(game: Game) {
         try {
             this.firestore.collection('games').add(game.format());
@@ -68,6 +70,19 @@ export class DBService implements OnApplicationBootstrap {
         }
     }
 
+    @SentryTraced('Get Player Statistics')
+    async getPlayerStats(uid: string): Promise<PlayerStats | undefined> {
+        const doc = await this.getUserSnapshot(uid);
+        if (!doc.exists) {
+            this.logger.error('No such user!');
+            return;
+        }
+
+        const user = doc.data();
+        return user.stats;
+    }
+
+    @SentryTraced('Update Player Statistics')
     updatePlayerStats(uid: string, game: FormattedGame) {
         const userRef = this.firestore.collection('users').doc(uid);
         // extract the stats before the transaction, because it can run multiple times
@@ -96,14 +111,4 @@ export class DBService implements OnApplicationBootstrap {
         return this.firestore.collection('users').doc(uid).get();
     }
 
-    async getPlayersStatistics(uid: string): Promise<PlayerStats | undefined> {
-        const doc = await this.getUserSnapshot(uid);
-        if (!doc.exists) {
-            this.logger.error('No such user!');
-            return;
-        }
-
-        const user = doc.data();
-        return user.stats;
-    }
 }
