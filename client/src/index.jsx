@@ -1,20 +1,25 @@
+import {applyMiddleware} from '@reduxjs/toolkit';
+import * as Sentry from "@sentry/react";
+import {createBrowserHistory} from "history";
 import {createRoot} from 'react-dom/client';
 import {Provider} from "react-redux";
-import {createBrowserHistory} from "history";
-import {applyMiddleware} from '@reduxjs/toolkit';
-import { legacy_createStore as createStore} from 'redux'
 import {BrowserRouter} from "react-router-dom";
+import {legacy_createStore as createStore} from 'redux'
 
+import App from "./App.jsx";
 import {FirebaseProvider} from './auth/Firebase';
+import {feedMiddleware} from "./game/Feed/feed.middleware";
+import {createRootReducer} from "./reducers";
+import * as serviceWorker from "./serviceWorker";
+import {settingsMiddleware} from "./settings/settings.middleware";
+import connectSocket from "./socket/socket";
 
 import "./index.css";
-import App from "./App.jsx";
 
-import * as serviceWorker from "./serviceWorker";
-import connectSocket from "./socket/socket";
-import {createRootReducer} from "./reducers";
-import {settingsMiddleware} from "./settings/settings.middleware";
-import {feedMiddleware} from "./game/Feed/feed.middleware";
+Sentry.init({
+    dsn: "https://7161d3e0e54e220191f43c781ff002a8@o528779.ingest.us.sentry.io/4508902126452736",
+    integrations: [],
+});
 
 export const history = createBrowserHistory();
 
