@@ -41,7 +41,7 @@
         "redux": "^5.0.1",
         "socket.io-client": "^4.8.1",
         "uifx": "^2.0.7",
-        "vite": "^6.1.0"
+        "vite": "^6.4.1"
     },
     "browserslist": {
         "production": [
